@@ -4,28 +4,28 @@ Planed features:
 
 ```console
 # Run Setup, in engine only
-cltue setup
+uct setup
 
 # Generate project files
-cltue project vscode
+uct project vscode
 
 # Build targets
-cltue build game editor client server
+uct build game editor client server
 
 # Build with configurations
-cltue build -c debug -p linux
+uct build -c debug -p linux
 
 # Clean
-cltue clean
+uct clean
 
 # Run program
-cltue run
+uct run
 
 # Pack
-clute pack
+uct pack
 
 # Create a new module
-cltue new module
+uct new module
 
 # Create a new C++ class
 # Create a ExamEventLoop.h in the Public directory and ExamEventLoop.cpp in the Private directory
