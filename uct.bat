@@ -14,18 +14,17 @@ if defined FOUND_FILE (
     call :FindFileBottomUp *.uproject
     if defined FOUND_FILE (
         set "PROJECT_FILE=!FOUND_FILE!"
-        echo Found unreal project "!PROJECT_FILE!"
+        ::echo Found unreal project "!PROJECT_FILE!"
         call :FindProjectEngineDir !PROJECT_FILE!
     )
 )
 
 if defined ENGINE_ROOT (
-    echo Find unreal engine "!ENGINE_ROOT!"
+    :: echo Find unreal engine "!ENGINE_ROOT!"
     set "PYTHON_EXE=!ENGINE_ROOT!\Engine\Binaries\ThirdParty\Python3\Win64\python.exe"
-    echo !PYTHON_EXE!
     if exist !PYTHON_EXE! (
         set PYTHONDONTWRITEBYTECODE=1
-        !PYTHON_EXE! %~dp0uct.py !ENGINE_ROOT! !PROJECT_FILE!
+        !PYTHON_EXE! %~dp0uct.py
     ) else (
         echo Can't find python !PYTHON_EXE! in your engine, maybe it is not setup. 1>&2
     )
