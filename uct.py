@@ -14,55 +14,71 @@ VERSION = '1.0'
 ENGINE_ROOT = ''
 PROJECT_FILE = None
 
-def parse_command_line():
+def build_arg_parser():
     parser = argparse.ArgumentParser(prog='UCT', description='Unreal command line tools')
     parser.add_argument('--version', action='version', version='%(prog)s ' + VERSION)
+
     subparsers = parser.add_subparsers(dest='command', help='Available subcommands')
     subparsers.required = True
+
     build = subparsers.add_parser('build', help='Build specified targets')
 
-    build.add_argument('integers', metavar='N', type=int, nargs='+',
-                        help='an integer for the accumulator')
-    build.add_argument('--sum', dest='accumulate', action='store_const',
-                        const=sum, default=max,
-                        help='sum the integers (default: find the max)')
+    build.add_argument('-p', '--platform', dest='platform', type=str,
+                        choices=['win', 'linux', 'mac'],
+                        help='target platform')
+    build.add_argument('-c', '--config', dest='config', type=str,
+                        choices=['debug', 'develop', 'ship'],
+                        help='build configuration')
+    build.add_argument('-t', '--targets', type=str, nargs='+',
+                        help='targets to build')
+    build.add_argument('-m', '--modules', type=str, nargs='+',
+                        help='modules to build')
+    build.add_argument('-f', '--files', type=str, nargs='+',
+                        help='source files to compile')
+    clean = subparsers.add_parser('clean', help='Clean specified targets', parents=[build], add_help=False)
 
-    clean = subparsers.add_parser('clean')
-    clean.add_argument('integers', metavar='N', type=int, nargs='+',
-                        help='an integer for the accumulator')
-    clean.add_argument('--sum', dest='accumulate', action='store_const',
-                        const=sum, default=max,
-                        help='sum the integers (default: find the max)')
+    run = subparsers.add_parser(
+        'run',
+        help='Build and run a single target',
+        epilog='Any arguments after the empty "--" will be passed to the program')
+
+    test = subparsers.add_parser(
+        'test',
+        help='Build and run tests',
+        epilog='Any arguments after the empty "--" will be passed to the program')
+
+
+    return parser
+
+
+def parse_command_line():
+    """Parse and validate commandparameters"""
+    parser = build_arg_parser()
 
     if argcomplete:
         argcomplete.autocomplete(parser)
 
-    options, others = parser.parse_known_args()
     # If '--' in arguments, use all other arguments after it as run
     # arguments
-    if '--' in others:
-        pos = others.index('--')
-        targets = others[:pos]
-        options.args = others[pos + 1:]
+    args = sys.argv[1:]
+    if '--' in args:
+        pos = args.index('--')
+        extra_args = args[pos + 1:]
+        args = args[:pos]
     else:
-        targets = others
-        options.args = []
+        extra_args = []
 
-    for t in targets:
-        if t.startswith('-'):
-            print('Unrecognized option %s, use uct [action] --help to get all the options' % t)
-
-    return options, targets
+    return parser.parse_args(args), extra_args
 
 
 def main():
     global ENGINE_ROOT, PROJECT_FILE
-    ENGINE_ROOT = os.environ['ENGINE_ROOT']
+    ENGINE_ROOT = os.environ.get('ENGINE_ROOT')
     PROJECT_FILE = os.environ.get('PROJECT_FILE')
 
     print('Welcome to UCT: the Unreal CommandLine Tools')
-    options, targets = parse_command_line()
-    print(options, targets)
+    options, extra_args = parse_command_line()
+    print(options, extra_args)
 
 if __name__ == '__main__':
     main()

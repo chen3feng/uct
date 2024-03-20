@@ -24,7 +24,7 @@ if defined ENGINE_ROOT (
     set "PYTHON_EXE=!ENGINE_ROOT!\Engine\Binaries\ThirdParty\Python3\Win64\python.exe"
     if exist !PYTHON_EXE! (
         set PYTHONDONTWRITEBYTECODE=1
-        !PYTHON_EXE! %~dp0uct.py
+        !PYTHON_EXE! %~dp0uct.py %*
     ) else (
         echo Can't find python !PYTHON_EXE! in your engine, maybe it is not setup. 1>&2
     )
