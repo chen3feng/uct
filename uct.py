@@ -11,9 +11,6 @@ except ImportError:
 
 VERSION = '1.0'
 
-ENGINE_ROOT = ''
-PROJECT_FILE = None
-
 def build_arg_parser():
     parser = argparse.ArgumentParser(prog='UCT', description='Unreal command line tools')
     parser.add_argument('--version', action='version', version='%(prog)s ' + VERSION)
@@ -71,14 +68,29 @@ def parse_command_line():
     return parser.parse_args(args), extra_args
 
 
-def main():
-    global ENGINE_ROOT, PROJECT_FILE
-    ENGINE_ROOT = os.environ.get('ENGINE_ROOT')
-    PROJECT_FILE = os.environ.get('PROJECT_FILE')
+class UnrealCommandTools:
+    def __init__(self, options, extra_args):
+        self.engine_dir, self.project_file = self._find_project()
+        self.options = options
+        self.extra_args = extra_args
 
+    def _find_project(self):
+        return os.environ.get('ENGINE_ROOT'), os.environ.get('PROJECT_FILE')
+
+    def execute(self):
+        command = self.options.command
+        assert command in dir(self), f'{command} method is not defined'
+        getattr(self, command)()
+
+    def build(self):
+        print('Build')
+
+def main():
     print('Welcome to UCT: the Unreal CommandLine Tools')
     options, extra_args = parse_command_line()
-    print(options, extra_args)
+    uct = UnrealCommandTools(options, extra_args)
+    uct.execute()
+
 
 if __name__ == '__main__':
     main()
