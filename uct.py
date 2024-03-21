@@ -2,7 +2,7 @@ import argparse
 import fnmatch
 import json
 import os
-import pprint
+import platform
 import subprocess
 import sys
 
@@ -99,26 +99,67 @@ def parse_command_line():
     return parser.parse_args(args), extra_args
 
 
+def find_file_bottom_up(pattern, from_dir=None) -> str:
+    """Find the specified file/dir from from_dir bottom up until found or failed.
+       Returns abspath if found, or empty if failed.
+    """
+    if from_dir is None:
+        from_dir = os.getcwd()
+    finding_dir = os.path.abspath(from_dir)
+    while True:
+        files = os.listdir(finding_dir)
+        for file in files:
+            if fnmatch.fnmatch(file, pattern):
+                return os.path.join(finding_dir, file)
+        parent_dir = os.path.dirname(finding_dir)
+        if parent_dir == finding_dir:
+            return ''
+        finding_dir = parent_dir
+    return ''
+
+
 class UnrealCommandTool:
     """Unreal Command Line Tool."""
     def __init__(self, options, extra_args):
         self.engine_root, self.project_file = self._find_project()
         self.engine_dir = os.path.join(self.engine_root, 'Engine')
         self.project_dir = os.path.dirname(self.project_file) if self.project_file else ''
+        self.host_platform = self._host_platform()
         self.ubt = self._find_ubt()
+        assert os.path.exists(self.ubt), self.ubt
         self._load_project_targets()
 
         self.options = options
         self.extra_args = extra_args
 
     def _find_project(self):
-        return os.environ.get('ENGINE_ROOT'), os.environ.get('PROJECT_FILE')
+        project_file = os.environ.get('PROJECT_FILE')
+        if not project_file:
+            project_file = find_file_bottom_up('*.uproject')
+        engine_root =  os.environ.get('ENGINE_ROOT')
+        if not engine_root:
+            key_file = find_file_bottom_up('GenerateProjectFiles.bat')
+            if key_file:
+                engine_root = os.path.dirname(key_file)
+        if not engine_root:
+            engine_root = '/Users/cf/Documents/Work/UnrealEngine'
+        return engine_root, project_file
 
     def _find_ubt(self):
-        return os.path.normpath(os.path.join(self.engine_dir, 'Build/BatchFiles/Build.bat'))
+        if self.host_platform == 'Win64':
+            return os.path.normpath(os.path.join(self.engine_dir, 'Build/BatchFiles/Build.bat'))
+        return os.path.normpath(os.path.join(self.engine_dir, f'Build/BatchFiles/{self.host_platform}/Build.sh'))
+
+    def _host_platform(self):
+        system = platform.system()
+        if system == 'Windows':
+            return 'Win64'
+        if system == 'Darwin':
+            return 'Mac'
+        return system
 
     def _parse_build_options(self, options):
-        self.platform = PLATFORM_MAP.get(options.platform, 'Win64')
+        self.platform = PLATFORM_MAP.get(options.platform, self.host_platform)
         self.config = CONFIG_MAP.get(options.config, 'Development')
         self.targets = self._expand_targets(options.targets)
 
@@ -135,9 +176,8 @@ class UnrealCommandTool:
                 expanded_targets += fnmatch.filter(all_target_names, target)
             else:
                 if target not in all_target_names:
-                    print(f"Target {target}' doesn't exist", file=sys.stderr)
-                else:
-                    expanded_targets.append(target)
+                    print(f"warning: target {target}' doesn't exist", file=sys.stderr)
+                expanded_targets.append(target)
         if has_wildcard:
             print(f'Targets: {" ".join(expanded_targets)}')
 
@@ -158,9 +198,12 @@ class UnrealCommandTool:
 
     def _load_target_info(self, dir):
         path = os.path.join(dir, 'Intermediate', 'TargetInfo.json')
-        with open(path, encoding='utf8') as f:
-            return json.load(f)['Targets']
-        return {}
+        try:
+            with open(path, encoding='utf8') as f:
+                return json.load(f)['Targets']
+        except FileNotFoundError:
+            pass
+        return []
 
     def execute(self) -> int:
         command = self.options.command.replace('-', '_')
@@ -233,14 +276,17 @@ class UnrealCommandTool:
             return 0
         # Example command line:
         # G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/MyGame.uproject -log -NoSplash -Unattended -ExecCmds="Automation RunTests System; Quit"
-        editor = os.path.join(self.engine_dir, 'Binaries', self.platform, 'UnrealEditor-Cmd.exe')
+        suffix = '.exe' if self.platform == 'Win64' else ''
+        editor = os.path.join(self.engine_dir, 'Binaries', self.platform, 'UnrealEditor-Cmd' + suffix)
         test_cmds = f'Automation {test_cmds}; Quit'
         print(f'Test command: {test_cmds}')
         cmd = [editor, self.project_file, '-log', '-NoSplash', '-Unattended', f'-ExecCmds="{test_cmds}"'] + \
                self.extra_args
-        # Neither pass list directly nor use subprocess.list2cmd works because tney convert
-        # -ExecCmds="Automation RunTests System.Core; Quit" to "-ExecCmds=\"Automation RunTests System.Core; Quit\""
-        cmd = ' '.join(cmd)
+        if self.host_platform == 'Win64':
+            # Neither pass the list directly nor use subprocess.list2cmd works because they convert
+            # -ExecCmds="Automation List; Quit" to "-ExecCmds=\"Automation List; Quit\"",
+            # But simplay join the list with spaces works.
+            cmd = ' '.join(cmd)
         print(f'Command line: {cmd}')
         return subprocess.call(cmd)
 
