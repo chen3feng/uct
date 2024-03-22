@@ -9,14 +9,14 @@
 
 ## 背景
 
-很多情况下，我更喜欢命令行工具，因为它们是快速且简单的自动化。 我经常在VS Code中为UE编写代码，
-所以我经常需要手动调用[UBT](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/UnrealBuildTool/)。
+很多情况下，我更喜欢命令行工具，因为它们是快速且简单的自动化。 我经常在 VS Code 中为 UE 编写代码，
+所以我经常需要手动调用 [UBT](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/UnrealBuildTool/)。
 但它的命令行界面非常冗长。
 
 例如，要构建一个程序：
 
 ```console
-G:\MyGame> G:\UnrealEngine-5.1\Engine\Build\BatchFiles\Build.bat 基准 Win64 开发 -Project="G:\MyGame\MyGame.uproject"
+G:\MyGame> G:\UnrealEngine-5.1\Engine\Build\BatchFiles\Build.bat Benchmark Win64 Development -Project="G:\MyGame\MyGame.uproject"
 ```
 
 要从命令行运行测试：
@@ -29,20 +29,20 @@ G:\MyGame>G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/My
 
 - 你必须在正确的引擎目录下使用UBT，这里是`G:\UnrealEngine-5.1\Engine\Build\BatchFiles\Build.bat`，但是我们经常有很多引擎。
 - `-Project` 参数的路径必须是绝对路径，这很无聊，我们可以使用 %CD% 来简化，但它仍然需要项目文件名。
-- “Development”等选项太长了。
+- `Development` 等选项太长了。
 
-因此，我开发了这个方便的工具，以简化我的生活，也许也能同样方便您的生活。
+因此，我开发了这个方便的工具，以方便我的生活，也许能同样方便您的生活。
 
 有了这个工具，您不需要：
 
-- 输入UBT的完整路径，如果当前目录在游戏工程或引擎目录下，uct会自动找到。
-- 传入-Project=YourGame.uproject，如果你当前目录在游戏项目下，uct会自动找到。
-- 输入“Win64”，假设目标平台也是主机平台。
-- 输入“Development”、“dev”就足够了。
+- 输入 UBT 的完整路径，如果当前目录在游戏工程或引擎目录下，UCT 会自动找到。
+- 传入 `-Project=/Full/Path/To/YourGame.uproject`，如果你当前目录在游戏项目下，UCT 会自动找到。
+- 输入 `Win64`，假设目标平台也是主机平台。
+- 输入 `Development`、`dev` 就足够了。
 
 ## 安装
 
-只需使用 git clone 代码，然后执行 `install.bat`：
+只需使用 `git clone` 下载代码，然后执行 `install.bat` 即可：
 
 ```console
 git clone https://github.com/chen3feng/uct
@@ -50,7 +50,7 @@ cd uct
 install.bat
 ```
 
-uct 的路径就会注册到您的 PATH 环境中，您可以从系统中的任何位置调用它。
+UCT 的路径就会注册到您的 PATH 环境中，您可以从系统中的任何位置调用它。
 
 ## 基本概念
 

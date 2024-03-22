@@ -34,9 +34,9 @@ So, I developed this handy tool, to simplify my life, and, maybe yours.
 
 With this tool, you needn't:
 
-- Type the the full path of UBT, uct can find it automatically if your current directory is under the game project or the engine directory.
-- Pass the -Project=YourGame.uproject, uct can find it automatically if your current directory is under the game project.
-- Type `Win64`, uct assume the target platform is also the host platform.
+- Type the the full path of UBT, UCT can find it automatically if your current directory is under the game project or the engine directory.
+- Pass the -Project=YourGame.uproject, UCT can find it automatically if your current directory is under the game project.
+- Type `Win64`, UCT assume the target platform is also the host platform.
 - Type `Development`, `dev` is enough.
 
 ## Install
@@ -49,7 +49,7 @@ cd uct
 install.bat
 ```
 
-The path of uct is registered into your `PATH` environment, you can call it from any where in you system.
+The path of UCT is registered into your `PATH` environment, you can call it from any where in you system.
 
 ## Basic Concepts
 
