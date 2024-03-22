@@ -2,6 +2,7 @@ import argparse
 import fnmatch
 import json
 import os
+import re
 import platform
 import subprocess
 import sys
@@ -43,6 +44,8 @@ def build_arg_parser():
     list_targets.add_argument('--project', action='store_true')
     list_targets.add_argument('--engine', action='store_true')
     list_targets.add_argument('--verbose', action='store_true')
+
+    generate_project_files = subparsers.add_parser('generate-project-files', help='Generate project files')
 
     build = subparsers.add_parser('build', help='Build specified targets')
 
@@ -118,6 +121,19 @@ def find_file_bottom_up(pattern, from_dir=None) -> str:
     return ''
 
 
+def find_files_under(dir, pattern, excluded_dirs=None, relpath=False) -> list[str]:
+    result = []
+    for root, dirs, files in os.walk(dir):
+        if excluded_dirs:
+            dirs[:] = [d for d in dirs if d not in excluded_dirs]
+        for file in files:
+            if fnmatch.fnmatch(file, pattern):
+                path = os.path.join(root, file)
+                if relpath:
+                    path = os.path.relpath(path, dir)
+                result.append(path)
+    return result
+
 class UnrealCommandTool:
     """Unreal Command Line Tool."""
     def __init__(self, options, extra_args):
@@ -168,7 +184,6 @@ class UnrealCommandTool:
             return []
         has_wildcard = False
         all_target_names = [t['Name'] for t in self.all_targets]
-        print(all_target_names)
         expanded_targets = []
         for target in targets:
             if self._is_wildcard(target):
@@ -191,10 +206,15 @@ class UnrealCommandTool:
 
     def _load_project_targets(self):
         self.engine_targets = self._load_target_info(self.engine_dir)
-        self.all_targets = self.engine_targets.copy()
+        if not self.engine_targets:
+            self.engine_targets = self._scan_targets(self.engine_dir)
+        assert self.engine_targets
+        self.project_targets = []
         if self.project_dir:
             self.project_targets = self._load_target_info(self.project_dir)
-            self.all_targets += self.project_targets
+            if not self.project_targets:
+                self.project_targets = self._scan_targets(self.project_dir)
+        self.all_targets = self.engine_targets + self.project_targets
 
     def _load_target_info(self, dir):
         path = os.path.join(dir, 'Intermediate', 'TargetInfo.json')
@@ -202,8 +222,38 @@ class UnrealCommandTool:
             with open(path, encoding='utf8') as f:
                 return json.load(f)['Targets']
         except FileNotFoundError:
+            # print(f"Can't open {path} for read")
             pass
         return []
+
+    def _scan_targets(self, dir) -> list[dict[str, str]]:
+        targets = []
+        pattern = '*.Target.cs'
+        excluded_dirs = ['Binaries', 'DerivedDataCache', 'Intermediate']
+        files = []
+        files += find_files_under(os.path.join(dir, 'Source'), pattern, excluded_dirs=excluded_dirs)
+        files += find_files_under(os.path.join(dir, 'Plugins'), pattern, excluded_dirs=excluded_dirs)
+        for file in files:
+            target = self._parse_target_cs(file)
+            if target:
+                targets.append(target)
+        return targets
+
+    def _parse_target_cs(self, file):
+        name = ''
+        with open(file, encoding='utf8') as f:
+            for line in f:
+                line = line.strip()
+                m = re.match(r'public\s+class\s+(\w+)Target\b', line)
+                if m:
+                    name = m.group(1)
+                    continue
+                if name:
+                    m = re.match(r'Type\s*=\s*TargetType.(\w+)\s*;', line)
+                    if m:
+                        target_type = m.group(1)
+                        return {'Name': name, 'Path': file, 'Type': target_type}
+        return None
 
     def execute(self) -> int:
         command = self.options.command.replace('-', '_')
@@ -215,10 +265,20 @@ class UnrealCommandTool:
         if self.options.engine:
             self.print_targets(self.engine_targets)
         if self.options.project:
+            if not self.project_file:
+                print('You are not under a game project directory', file=sys.stderr)
+                return 1
             self.print_targets(self.project_targets)
         if not self.options.engine and not self.options.project:
             self.print_targets(self.all_targets)
         return 0
+
+    def generate_project_files(self) -> int:
+        suffix = 'bat' if self.host_platform == 'Win64' else 'sh'
+        cmd = [os.path.join(self.engine_root, 'GenerateProjectFiles.' + suffix)]
+        if self.project_file:
+            cmd.append(self.project_file)
+        return subprocess.call(cmd)
 
     def print_targets(self, targets):
         if self.options.verbose:
@@ -240,11 +300,13 @@ class UnrealCommandTool:
         # print('Build')
         self._parse_build_options(self.options)
         returncode = 0
+        project = f'-Project={self.project_file}' if self.project_file else ''
         for target in self.targets:
             print(f'Build {target}')
-            cmd = [
-                self.ubt, f'-Project={self.project_file}', target, self.platform, self.config
-            ] + self.extra_args
+            cmd = [self.ubt, project, target, self.platform, self.config]
+            if self.options.files:
+                cmd += [f'--singlefile={f}' for f in self.options.files]
+            cmd += self.extra_args
             ret = subprocess.call(cmd)
             if ret != 0: # Use first failed exitcode
                 returncode = ret
@@ -252,7 +314,17 @@ class UnrealCommandTool:
 
     def clean(self) -> int:
         print('Clean')
-        return 0
+        self._parse_build_options(self.options)
+        returncode = 0
+        project = f'-Project={self.project_file}' if self.project_file else ''
+        for target in self.targets:
+            print(f'Clean {target}')
+            cmd = [self.ubt, project, target, self.platform, self.config, '-Clean']
+            cmd += self.extra_args
+            ret = subprocess.call(cmd)
+            if ret != 0: # Use first failed exitcode
+                returncode = ret
+        return returncode
 
     def run(self) -> int:
         self._parse_build_options(self.options)
@@ -309,7 +381,10 @@ def main():
     options, extra_args = parse_command_line()
     # print(options)
     uct = UnrealCommandTool(options, extra_args)
-    sys.exit(uct.execute())
+    ret = uct.execute()
+    if ret != 0:
+        print(f'{options.command} failed with exit code {ret}.', file=sys.stderr)
+        sys.exit(ret)
 
 
 if __name__ == '__main__':

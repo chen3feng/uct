@@ -16,6 +16,9 @@ if defined FOUND_FILE (
         set "PROJECT_FILE=!FOUND_FILE!"
         ::echo Found unreal project "!PROJECT_FILE!"
         call :FindProjectEngineDir !PROJECT_FILE!
+		if not defined ENGINE_ROOT (
+		    echo Can't find associated unreal engine, check the "EngineAssociation" field in !PROJECT_FILE!. 1>&2
+		)
     )
 )
 
