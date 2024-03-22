@@ -38,6 +38,8 @@ CONFIG_MAP = {
     'test': 'Test',
 }
 
+# https://www.gnu.org/software/bash/manual/html_node/Exit-Status.html
+EXIT_COMMAND_NOT_FOUND = 127
 
 def build_arg_parser():
     parser = argparse.ArgumentParser(prog='UCT', description='Unreal command line tool')
@@ -359,10 +361,14 @@ class UnrealCommandTool:
         returncode = 0
         for target in self.targets:
             executable = self._full_path_of_target(target)
+            if not os.path.exists(executable):
+                print(f"{executable} doesn't exist, please build it first.", file=sys.stderr)
+                returncode = EXIT_COMMAND_NOT_FOUND
+                continue
             cmd = [executable] + self.extra_args
             print(f'Run {" ".join(cmd)}')
             ret = subprocess.call(cmd)
-            if ret != 0: # Use first failed exitcode
+            if ret != 0 and returncode == 0: # Use first failed exitcode
                 returncode = ret
         return returncode
 
@@ -383,9 +389,12 @@ class UnrealCommandTool:
             print('No test command to execute')
             return 0
         # Example command line:
-        # G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/MyGame.uproject -log -NoSplash -Unattended -ExecCmds="Automation RunTests System; Quit"
-        suffix = '.exe' if self.platform == 'Win64' else ''
-        editor = os.path.join(self.engine_dir, 'Binaries', self.platform, 'UnrealEditor-Cmd' + suffix)
+        # G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/MyGame.uproject \
+        #   -log -NoSplash -Unattended -ExecCmds="Automation RunTests System; Quit"
+        editor = self._full_path_of_editor()
+        if not os.path.exists(editor):
+            print(f"{editor} doesn't exist, build it first")
+            return EXIT_COMMAND_NOT_FOUND
         test_cmds = f'Automation {test_cmds}; Quit'
         print(f'Test command: {test_cmds}')
         cmd = [editor, self.project_file, '-log', '-NoSplash', '-Unattended', f'-ExecCmds="{test_cmds}"'] + \
@@ -411,6 +420,14 @@ class UnrealCommandTool:
             cmds += self.options.test_cmds
         return '; '.join(cmds)
 
+    def _full_path_of_editor(self):
+        suffix = ''
+        if self.config != 'Development':
+            suffix = f'-{self.platform}-{self.config}'
+        suffix += '-Cmd'
+        if self.platform == 'Win64':
+            suffix += '.exe'
+        return os.path.join(self.engine_dir, 'Binaries', self.platform, 'UnrealEditor' + suffix)
 
 def main():
     # print('Welcome to UCT: the Unreal CommandLine Tool')
