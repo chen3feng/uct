@@ -124,6 +124,17 @@ Program   BenchmarkTool                   G:\UnrealEngine-5.1\Engine\Source\Prog
 Program   BlankProgram                    G:\UnrealEngine-5.1\Engine\Source\Programs\BlankProgram\BlankProgram.Target.cs
 ```
 
+### Generate Project Files
+
+Generate project files for the engine or game project.
+
+```console
+$ uct generate-project-files
+...
+```
+
+Generate project files for the project or engine according to the current directory.
+
 ### Build
 
 Build one target
@@ -167,6 +178,17 @@ To pass [extra arguments](https://ikrima.dev/ue4guide/build-guide/utilities/devo
 ```console
 uct build -t MyGame -- -StaticAnalyzer=VisualCpp
 ```
+
+### Clean
+
+Clean one or more targets, example:
+
+```console
+$ uct clean -t Benchmark UnrealEditor
+...
+```
+
+See the above `build` command for reference.
 
 ### Run
 
@@ -241,12 +263,6 @@ Automation Quit
 ```console
 # Run Setup, in engine only
 uct setup
-
-# Generate project files
-uct project vscode
-
-# Clean
-uct clean
 
 # Pack
 uct pack
