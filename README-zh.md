@@ -28,7 +28,7 @@ G:\MyGame>G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/My
 它的用户界面有很多问题：
 
 - 你必须在正确的引擎目录下使用UBT，这里是`G:\UnrealEngine-5.1\Engine\Build\BatchFiles\Build.bat`，但是我们经常有很多引擎。
-- `-Project` 参数的路径必须是绝对路径，这很无聊，我们可以使用 %CD% 来简化，但它仍然需要项目文件名。
+- `-Project` 参数的路径必须是绝对路径，这很无聊，我们可以使用 `%CD%` 来简化，但它仍然需要项目文件名。
 - 有些选项比如 `Development` 等太长了。
 - 编辑器的文件名对不同的配置有不同的后缀，例如 `UnrealEditor-Win64-Debug.exe`。
 

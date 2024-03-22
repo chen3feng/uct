@@ -26,8 +26,10 @@ G:\MyGame>G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/My
 
 Its user interface has so many problems:
 
-- You must use UBT under the correct engine directory, here is `G:\UnrealEngine-5.1\Engine\Build\BatchFiles\Build.bat`, but we often have many engines.
-- The path of the `-Project` argument must be a absolute path, it's boring, we can use %CD% to simplify but it still need the project file name.
+- You must use UBT under the correct engine directory, here is `G:\UnrealEngine-5.1\Engine\Build\BatchFiles\Build.bat`,
+  but we often have many engines.
+- The path of the `-Project` argument must be a absolute path, it's boring, we can use `%CD%` to simplify it
+  but it still need the project file name.
 - Some options such as `Development` are so long.
 - The file name of the editor have different suffix for different configurations, for example `UnrealEditor-Win64-Debug.exe`.
 
