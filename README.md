@@ -1,4 +1,6 @@
-# [WIP] Command Line Tool for Unreal Engine
+# Command Line Tool for Unreal Engine
+
+English | [简体中文](README-zh.md)
 
 ## What is it?
 
@@ -58,9 +60,7 @@ See UE documents for the following concepts:
 - [Configuration](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/DevelopmentSetup/BuildConfigurations/), Such as `Debug`, `Development`, `Shipping` and `Test`.
 - [Module](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/UnrealBuildTool/ModuleFiles/) Each `.Build.cs` describes a module.
 
-## Basic Usage
-
-### Command Line Interface
+## Command Line Interface
 
 The basic interface is:
 
@@ -113,7 +113,7 @@ MyGameServer
 MyGameBenchmark
 ```
 
-Verbose output:
+Make verbose output with the `--verbose` option:
 
 ```console
 $ uct list-targets --verbose
@@ -137,10 +137,10 @@ Generate project files for the project or engine according to the current direct
 
 ### Build
 
-Build one target
+Build one target:
 
 ```console
-$ uct build -t Benchmark UnrealEditor
+$ uct build -t UnrealEditor
 ...
 ```
 
@@ -151,7 +151,7 @@ $ uct build -t Benchmark UnrealEditor
 ...
 ```
 
-It supports wildcard:
+It also supports wildcard:
 
 ```console
 uct build -t MyProject*
@@ -166,12 +166,20 @@ and [target platform](https://unrealcommunity.wiki/6100e8109c9d1a89e0c31618):
 uct build -c debug -p linux
 ```
 
-To simplify typing, in UCT, all configuration name are lowercase.
-Valid configurations:
+Option values for target platforms:
 
-- win, win64: Win64
-- linux: Linux
-- mac: Mac
+- Win64: win or win64
+- Linux: linux
+- Mac: mac
+
+Option values for build configurations:
+
+- `Development`: `dev` or `develop`
+- `Debug`: `dbg` or `debug`
+- `Test`: `test`
+- `Shipping`: `ship`
+
+To simplify typing, in UCT, all these values are lowercase.
 
 To pass [extra arguments](https://ikrima.dev/ue4guide/build-guide/utilities/devops-build-automation/) to UBT, put them after a standalone `--`:
 
@@ -192,7 +200,7 @@ See the above `build` command for reference.
 
 ### Run
 
-Run a program:
+Run one or more programs:
 
 ```console
 $ uct run -t Benchmark
@@ -212,7 +220,7 @@ uct run -t Benchmark -- --help --help
 
 The program got `--help -- --help` aruguments.
 
-## Test
+### Test
 
 UCT use [`-ExecCmds Automation ...`](https://forums.unrealengine.com/t/run-automated-testing-from-command-line/294995)
 to execute automation tests.
@@ -245,7 +253,7 @@ Example:
 uct test --cmds List RunAll "RunTests System" Quit
 ```
 
-The -ExecCmd command is `Automation List; RunAll; "RunTests System"; Quit`
+The -ExecCmd command is `Automation List; RunAll; "RunTests System"; Quit`.
 
 According to the source code of UE, you can use the following test commands:
 
@@ -256,6 +264,18 @@ Automation RunAll
 Automation RunFilter <filter name>
 Automation SetFilter <filter name>
 Automation Quit
+```
+
+### help
+
+To view help, use the `--help` parameter. To view help for a command, add `--test` after the command.
+
+```console
+# View help
+uct --help
+
+# View help for the build command
+uct build --help
 ```
 
 ## Planned Features
