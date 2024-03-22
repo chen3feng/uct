@@ -1,4 +1,6 @@
-# [WIP] Command Line Tool for Unreal Engine
+# Command Line Tool for Unreal Engine
+
+English | [简体中文](README-zh.md)
 
 ## What is it?
 
@@ -7,10 +9,10 @@ This is a powerful command line tool to run unreal build and editor commands muc
 ## Background
 
 Many cases, I prefer command line tools because they are fast and easy automation. I often write code for UE in VS Code,
-so I often need to call [UBT](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/UnrealBuildTool/) manually.
-But the its command line interface are very verbose.
+so I often need to call [UBT](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/UnrealBuildTool/) and editor manually.
+But the their command line interface are very verbose.
 
-For example, to build a Program:
+For example, to build a program:
 
 ```console
 G:\MyGame> G:\UnrealEngine-5.1\Engine\Build\BatchFiles\Build.bat Benchmark Win64 Development -Project="G:\MyGame\MyGame.uproject"
@@ -19,22 +21,25 @@ G:\MyGame> G:\UnrealEngine-5.1\Engine\Build\BatchFiles\Build.bat Benchmark Win64
 To run a test from command line:
 
 ```console
-G:\Pb4ueRpc>G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/Pb4ueTest.uproject -ExecCmds="Automation RunAll"
+G:\MyGame>G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/MyGame.uproject -ExecCmds="Automation RunAll"
 ```
 
 Its user interface has so many problems:
 
-- You must use UBT under the correct engine directory, here is `G:\UnrealEngine-5.1\Engine\Build\BatchFiles\Build.bat`, but we often have many engines.
-- The path of the `-Project` argument must be a absolute path, it's boring, we can use %CD% to simplify but it still need the project file name.
-- The options such as `Development` are so long.
+- You must use UBT under the correct engine directory, here is `G:\UnrealEngine-5.1\Engine\Build\BatchFiles\Build.bat`,
+  but we often have many engines.
+- The path of the `-Project` argument must be a absolute path, it's boring, we can use `%CD%` to simplify it
+  but it still need the project file name.
+- Some options such as `Development` are so long.
+- The file name of the editor have different suffix for different configurations, for example `UnrealEditor-Win64-Debug.exe`.
 
 So, I developed this handy tool, to simplify my life, and, maybe yours.
 
 With this tool, you needn't:
 
-- Type the the full path of UBT, uct can find it automatically if your current directory is under the game project or the engine directory.
-- Pass the -Project=YourGame.uproject, uct can find it automatically if your current directory is under the game project.
-- Type `Win64`, uct assume the target platform is also the host platform.
+- Type the the full path of UBT, UCT can find it automatically if your current directory is under the game project or the engine directory.
+- Pass the -Project=YourGame.uproject, UCT can find it automatically if your current directory is under the game project.
+- Type `Win64`, UCT assume the target platform is also the host platform.
 - Type `Development`, `dev` is enough.
 
 ## Install
@@ -47,7 +52,7 @@ cd uct
 install.bat
 ```
 
-The path of uct is registered into your `PATH` environment, you can call it from any where in you system.
+The path of UCT is registered into your `PATH` environment, you can call it from any where in you system.
 
 ## Basic Concepts
 
@@ -58,9 +63,7 @@ See UE documents for the following concepts:
 - [Configuration](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/DevelopmentSetup/BuildConfigurations/), Such as `Debug`, `Development`, `Shipping` and `Test`.
 - [Module](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/UnrealBuildTool/ModuleFiles/) Each `.Build.cs` describes a module.
 
-## Basic Usage
-
-### Command Line Interface
+## Command Line Interface
 
 The basic interface is:
 
@@ -113,7 +116,7 @@ MyGameServer
 MyGameBenchmark
 ```
 
-Verbose output:
+Make verbose output with the `--verbose` option:
 
 ```console
 $ uct list-targets --verbose
@@ -137,10 +140,10 @@ Generate project files for the project or engine according to the current direct
 
 ### Build
 
-Build one target
+Build one target:
 
 ```console
-$ uct build -t Benchmark UnrealEditor
+$ uct build -t UnrealEditor
 ...
 ```
 
@@ -151,7 +154,7 @@ $ uct build -t Benchmark UnrealEditor
 ...
 ```
 
-It supports wildcard:
+It also supports wildcard:
 
 ```console
 uct build -t MyProject*
@@ -166,12 +169,20 @@ and [target platform](https://unrealcommunity.wiki/6100e8109c9d1a89e0c31618):
 uct build -c debug -p linux
 ```
 
-To simplify typing, in UCT, all configuration name are lowercase.
-Valid configurations:
+Option values for target platforms:
 
-- win, win64: Win64
-- linux: Linux
-- mac: Mac
+- Win64: win or win64
+- Linux: linux
+- Mac: mac
+
+Option values for build configurations:
+
+- `Development`: `dev` or `develop`
+- `Debug`: `dbg` or `debug`
+- `Test`: `test`
+- `Shipping`: `ship`
+
+To simplify typing, in UCT, all these values are lowercase.
 
 To pass [extra arguments](https://ikrima.dev/ue4guide/build-guide/utilities/devops-build-automation/) to UBT, put them after a standalone `--`:
 
@@ -192,7 +203,7 @@ See the above `build` command for reference.
 
 ### Run
 
-Run a program:
+Run one or more programs:
 
 ```console
 $ uct run -t Benchmark
@@ -212,7 +223,7 @@ uct run -t Benchmark -- --help --help
 
 The program got `--help -- --help` aruguments.
 
-## Test
+### Test
 
 UCT use [`-ExecCmds Automation ...`](https://forums.unrealengine.com/t/run-automated-testing-from-command-line/294995)
 to execute automation tests.
@@ -245,7 +256,7 @@ Example:
 uct test --cmds List RunAll "RunTests System" Quit
 ```
 
-The -ExecCmd command is `Automation List; RunAll; "RunTests System"; Quit`
+The -ExecCmd command is `Automation List; RunAll; "RunTests System"; Quit`.
 
 According to the source code of UE, you can use the following test commands:
 
@@ -256,6 +267,18 @@ Automation RunAll
 Automation RunFilter <filter name>
 Automation SetFilter <filter name>
 Automation Quit
+```
+
+### help
+
+To view help, use the `--help` parameter. To view help for a command, add `--test` after the command.
+
+```console
+# View help
+uct --help
+
+# View help for the build command
+uct build --help
 ```
 
 ## Planned Features
