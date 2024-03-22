@@ -9,10 +9,10 @@ This is a powerful command line tool to run unreal build and editor commands muc
 ## Background
 
 Many cases, I prefer command line tools because they are fast and easy automation. I often write code for UE in VS Code,
-so I often need to call [UBT](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/UnrealBuildTool/) manually.
-But the its command line interface are very verbose.
+so I often need to call [UBT](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/UnrealBuildTool/) and editor manually.
+But the their command line interface are very verbose.
 
-For example, to build a Program:
+For example, to build a program:
 
 ```console
 G:\MyGame> G:\UnrealEngine-5.1\Engine\Build\BatchFiles\Build.bat Benchmark Win64 Development -Project="G:\MyGame\MyGame.uproject"
@@ -28,7 +28,8 @@ Its user interface has so many problems:
 
 - You must use UBT under the correct engine directory, here is `G:\UnrealEngine-5.1\Engine\Build\BatchFiles\Build.bat`, but we often have many engines.
 - The path of the `-Project` argument must be a absolute path, it's boring, we can use %CD% to simplify but it still need the project file name.
-- The options such as `Development` are so long.
+- Some options such as `Development` are so long.
+- The file name of the editor have different suffix for different configurations, for example `UnrealEditor-Win64-Debug.exe`.
 
 So, I developed this handy tool, to simplify my life, and, maybe yours.
 
