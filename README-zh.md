@@ -22,7 +22,7 @@ G:\MyGame> G:\UnrealEngine-5.1\Engine\Build\BatchFiles\Build.bat 基准 Win64 �
 要从命令行运行测试：
 
 ```console
-G:\Pb4ueRpc>G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/Pb4ueTest.uproject -ExecCmds="Automation RunAll"
+G:\Pb4ueRpc>G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/MyTestGame.uproject -ExecCmds="Automation RunAll"
 ```
 
 它的用户界面有很多问题：
