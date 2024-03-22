@@ -21,7 +21,7 @@ G:\MyGame> G:\UnrealEngine-5.1\Engine\Build\BatchFiles\Build.bat Benchmark Win64
 To run a test from command line:
 
 ```console
-G:\Pb4ueRpc>G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/MyTestGame.uproject -ExecCmds="Automation RunAll"
+G:\MyTestGame>G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/MyTestGame.uproject -ExecCmds="Automation RunAll"
 ```
 
 Its user interface has so many problems:
