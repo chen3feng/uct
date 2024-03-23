@@ -75,10 +75,10 @@ The basic interface is:
 For example:
 
 ```console
-uct build -t Benchmark
+uct build -c dbg -p linux Benchmark
 ```
 
-`build` is the command, `-t Benchmark` is an option.
+`build` is the command, `-c dbg` and `-p linux` are options, `Benchmark` is a target.
 
 Just like the git command. easy?
 
@@ -146,23 +146,23 @@ Generate project files for the project or engine according to the current direct
 Build one target:
 
 ```console
-$ uct build -t UnrealEditor
+$ uct build UnrealEditor
 ...
 ```
 
 Build multiple targets:
 
 ```console
-$ uct build -t Benchmark UnrealEditor
+$ uct build Benchmark UnrealEditor
 ...
 ```
 
 It supports wildcard target names:
 
 ```console
-uct build -t MyProject*
-uct build -t *Editor
-uct build -t MyProject* *Editor
+uct build MyProject*
+uct build *Editor
+uct build MyProject* *Editor
 ```
 
 It supports specifying [build configuration](https://dev.epicgames.com/documentation/en-us/unreal-engine/build-configurations-reference-for-unreal-engine?application_version=5.3)
@@ -192,7 +192,7 @@ UCT will generate appropriate UBT commands based on the command line parameters 
 To pass extra [arguments](https://ikrima.dev/ue4guide/build-guide/utilities/devops-build-automation/) to UBT, put them after a standalone `--` like this:
 
 ```console
-uct build -t MyGame -- -StaticAnalyzer=VisualCpp
+uct build MyGame -- -StaticAnalyzer=VisualCpp
 ```
 
 ### Clean
@@ -200,7 +200,7 @@ uct build -t MyGame -- -StaticAnalyzer=VisualCpp
 Clean one or more targets, example:
 
 ```console
-$ uct clean -t Benchmark UnrealEditor
+$ uct clean Benchmark UnrealEditor
 ...
 ```
 
@@ -211,7 +211,7 @@ See the above `build` command for reference.
 Run one or more programs:
 
 ```console
-$ uct run -t Benchmark
+$ uct run Benchmark
 Run G:\MyGame\Binaries\Win64\Benchmark.exe
 LogBenchmark: Display: Running 'BM_Serialize<FFieldTest>'...
 LogBenchmark: Display: Running 'BM_Serialize<FBenchmarkTest>'...
@@ -223,7 +223,7 @@ LogBenchmark: Display: Serialized size=109
 All arguments after the first `--` is passed to the program:
 
 ```console
-uct run -t Benchmark -- --help --help
+uct run Benchmark -- --help --help
 ```
 
 The program got `--help -- --help` aruguments.
