@@ -58,11 +58,7 @@ def build_arg_parser():
                         choices=CONFIG_MAP.keys(),
                         help='build configuration')
 
-    targets = argparse.ArgumentParser(add_help=False)
-    targets.add_argument('-t', '--targets', type=str, nargs='+',
-                         help='targets to build/run/clean')
-
-    build_parents = [config, targets]
+    build_parents = [config]
 
     subparsers.add_parser('generate-project-files', help='Generate project files')
 
@@ -116,7 +112,8 @@ def parse_command_line():
     else:
         extra_args = []
 
-    return parser.parse_args(args), extra_args
+    options, targets = parser.parse_known_args(args)
+    return options, targets, extra_args
 
 
 def find_file_bottom_up(pattern, from_dir=None) -> str:
@@ -154,7 +151,7 @@ def find_files_under(dir, pattern, excluded_dirs=None, relpath=False) -> list[st
 
 class UnrealCommandTool:
     """Unreal Command Line Tool."""
-    def __init__(self, options, extra_args):
+    def __init__(self, options, targets, extra_args):
         self.engine_root, self.project_file = self._find_project()
         self.engine_dir = os.path.join(self.engine_root, 'Engine')
         self.project_dir = os.path.dirname(self.project_file) if self.project_file else ''
@@ -168,7 +165,7 @@ class UnrealCommandTool:
         assert os.path.exists(self.ubt), self.ubt
 
         self._load_project_targets()
-        self._expand_targets()
+        self._expand_targets(targets)
 
     def _find_project(self):
         """Find the project file and engine root."""
@@ -206,10 +203,9 @@ class UnrealCommandTool:
         if hasattr(options, 'config'):
             self.config = CONFIG_MAP.get(options.config, 'Development')
 
-    def _expand_targets(self) -> list[str]:
+    def _expand_targets(self, targets):
         """Expand targets (maybe wildcard) from the command line to full list."""
-        targets = getattr(self.options, 'targets', None)
-        if targets is None:
+        if not targets:
             self.targets = []
             return
         has_wildcard = False
@@ -455,10 +451,22 @@ class UnrealCommandTool:
         return '; '.join(cmds)
 
 
+def check_targets(targets):
+    """Check the correctness of targets."""
+    ok = True
+    for target in targets:
+        if target.startswith('-'):
+            print(f"Unknown option '{target}'.", file=sys.stderr)
+            ok = False
+    if not ok:
+        sys.exit(1)
+
+
 def main():
     # print('Welcome to UCT: the Unreal CommandLine Tool')
-    options, extra_args = parse_command_line()
-    uct = UnrealCommandTool(options, extra_args)
+    options, targets, extra_args = parse_command_line()
+    check_targets(targets)
+    uct = UnrealCommandTool(options, targets, extra_args)
     ret = uct.execute()
     if ret != 0:
         print(f'{options.command} failed with exit code {ret}.', file=sys.stderr)

@@ -72,10 +72,10 @@ UCT 的路径就会注册到您的 PATH 环境中，您可以从系统中的任�
 例如：
 
 ```console
-uct build -t Benchmark
+uct build -c dbg -p linux Benchmark
 ```
 
-`build` 是命令，`-t Benchmark` 是一个选项。
+`build` 是命令，`-c dbg` 和 `-p linux` 是选项，`Benchmark` 是构建目标。
 
 就像 `git` 命令一样。 很简单吧？
 
@@ -143,23 +143,23 @@ $ uct generate-project-files
 构建一个目标：
 
 ```console
-$ uct build -t UnrealEditor
+$ uct build UnrealEditor
 ...
 ```
 
 构建多个目标：
 
 ```console
-$ uct build -t Benchmark UnrealEditor
+$ uct build Benchmark UnrealEditor
 ...
 ```
 
 它还支持通配符目标名：
 
 ```console
-uct build -t MyProject*
-uct build -t *Editor
-uct build -t MyProject* *Editor
+uct build MyProject*
+uct build *Editor
+uct build MyProject* *Editor
 ```
 
 它支持指定[构建配置](https://dev.epicgames.com/documentation/en-us/unreal-engine/build-configurations-reference-for-unreal-engine?application_version=5.3)
@@ -189,7 +189,7 @@ UCT 会根据命令行参数生成合适的 UBT 命令进行实际的构建。
 要将额外的[构建参数](https://ikrima.dev/ue4guide/build-guide/utilities/devops-build-automation/)传递给 UBT，请这样将它们放在单独的 `--` 后面：
 
 ```console
-uct build -t MyGame -- -StaticAnalyzer=VisualCpp
+uct build MyGame -- -StaticAnalyzer=VisualCpp
 ```
 
 ### clean
@@ -197,7 +197,7 @@ uct build -t MyGame -- -StaticAnalyzer=VisualCpp
 清理一个或多个目标，例如：
 
 ```console
-$ uct clean -t Benchmark UnrealEditor
+$ uct clean Benchmark UnrealEditor
 ...
 ```
 
@@ -208,7 +208,7 @@ $ uct clean -t Benchmark UnrealEditor
 运行一个或者多个程序：
 
 ```console
-$ uct run -t Benchmark
+$ uct run Benchmark
 Run G:\MyGame\Binaries\Win64\Benchmark.exe
 LogBenchmark: Display: Running 'BM_Serialize<FFieldTest>'...
 LogBenchmark: Display: Running 'BM_Serialize<FBenchmarkTest>'...
@@ -219,7 +219,7 @@ LogBenchmark: Display: Serialized size=109
 第一个 `--` 之后的所有参数都会被传递给程序：
 
 ```console
-uct run -t Benchmark -- --help --help
+uct run Benchmark -- --help --help
 ```
 
 该程序就会收到 `--help ---help` 参数。
