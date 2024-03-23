@@ -44,6 +44,12 @@ CONFIG_MAP = {
 EXIT_COMMAND_NOT_FOUND = 127
 
 def build_arg_parser():
+    """
+    Build the argument parser.
+
+    This command parser support multiple subcommands. Each subcommand has its own
+    set of arguments.
+    """
     parser = argparse.ArgumentParser(prog='UCT', description='Unreal command line tool')
     parser.add_argument('--version', action='version', version='%(prog)s ' + VERSION)
 
@@ -164,8 +170,12 @@ class UnrealCommandTool:
         self.ubt = self._find_ubt()
         assert os.path.exists(self.ubt), self.ubt
 
-        self._load_project_targets()
-        self._expand_targets(targets)
+        self.__engine_targets = None
+        self.__project_targets = None
+        self.__all_targets = None
+
+        self.command_targets = targets
+        self.__targets = None
 
     def _find_project(self):
         """Find the project file and engine root."""
@@ -185,7 +195,8 @@ class UnrealCommandTool:
         """Find full path of UBT based on host platform."""
         if self.host_platform == 'Win64':
             return os.path.normpath(os.path.join(self.engine_dir, 'Build/BatchFiles/Build.bat'))
-        return os.path.normpath(os.path.join(self.engine_dir, f'Build/BatchFiles/{self.host_platform}/Build.sh'))
+        return os.path.normpath(
+            os.path.join(self.engine_dir, f'Build/BatchFiles/{self.host_platform}/Build.sh'))
 
     def _host_platform(self):
         """Get host platform name as UE form."""
@@ -203,10 +214,18 @@ class UnrealCommandTool:
         if hasattr(options, 'config'):
             self.config = CONFIG_MAP.get(options.config, 'Development')
 
+    @property
+    def targets(self):
+        """All expanded targets from command line."""
+        self._expand_targets(self.command_targets)
+        return self.__targets
+
     def _expand_targets(self, targets):
         """Expand targets (maybe wildcard) from the command line to full list."""
+        if self.__targets is not None:
+            return
         if not targets:
-            self.targets = []
+            self.__targets = []
             return
         has_wildcard = False
         all_target_names = [t['Name'] for t in self.all_targets]
@@ -218,11 +237,13 @@ class UnrealCommandTool:
             else:
                 if target not in all_target_names:
                     print(f"warning: target {target}' doesn't exist", file=sys.stderr)
+                    continue
                 expanded_targets.append(target)
+
         if has_wildcard:
             print(f'Targets: {" ".join(expanded_targets)}')
 
-        self.targets = expanded_targets
+        self.__targets = expanded_targets
 
     def _is_wildcard(self, text):
         """Check whether a string is a wildcard."""
@@ -231,18 +252,38 @@ class UnrealCommandTool:
                 return True
         return False
 
-    def _load_project_targets(self):
+    @property
+    def all_targets(self):
+        """All target info in the engine and the game project."""
+        self._collect_all_targets()
+        return self.__all_targets
+
+    @property
+    def engine_targets(self):
+        """Target info in the engine."""
+        self._collect_all_targets()
+        return self.__engine_targets
+
+    @property
+    def project_targets(self):
+        """Target info in the game project."""
+        self._collect_all_targets()
+        return self.__project_targets
+
+    def _collect_all_targets(self):
         """Load target info from the the engine and game project."""
-        self.engine_targets = self._load_target_info(self.engine_dir)
-        if not self.engine_targets:
-            self.engine_targets = self._scan_targets(self.engine_dir)
-        assert self.engine_targets
-        self.project_targets = []
+        if self.__all_targets is not None:
+            return
+        self.__engine_targets = self._load_target_info(self.engine_dir)
+        if not self.__engine_targets:
+            self.__engine_targets = self._scan_targets(self.engine_dir)
+        assert self.__engine_targets
+        self.__project_targets = []
         if self.project_dir:
-            self.project_targets = self._load_target_info(self.project_dir)
-            if not self.project_targets:
-                self.project_targets = self._scan_targets(self.project_dir)
-        self.all_targets = self.engine_targets + self.project_targets
+            self.__project_targets = self._load_target_info(self.project_dir)
+            if not self.__project_targets:
+                self.__project_targets = self._scan_targets(self.project_dir)
+        self.__all_targets = self.__engine_targets + self.__project_targets
 
     def _load_target_info(self, dir):
         """Try load target info from TargetInfo.json under the dir."""
@@ -315,6 +356,7 @@ class UnrealCommandTool:
         cmd = [os.path.join(self.engine_root, 'GenerateProjectFiles.' + suffix)]
         if self.project_file:
             cmd.append(self.project_file)
+        cmd += self.extra_args
         return subprocess.call(cmd)
 
     def _print_targets(self, targets):
@@ -396,7 +438,7 @@ class UnrealCommandTool:
         executable = executable.replace('$(ProjectDir)', self.project_dir)
         return executable
 
-    def _get_target_info(self, target) -> dict:
+    def _get_target_info(self, target) -> Optional[dict]:
         """Find and parse the target info from the target file."""
         root = self.project_dir if self.project_file else self.engine_dir
         suffix = ''
@@ -409,7 +451,7 @@ class UnrealCommandTool:
                 return info
         except FileNotFoundError:
             print(f"target file {target_file} doesn't exist")
-            pass
+
         return None
 
     def test(self) -> int:
