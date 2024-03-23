@@ -281,6 +281,11 @@ uct --help
 uct build --help
 ```
 
+### Command Line Completion
+
+UCT support command auto completion in bash and zsh by using the `argcomplete` library,
+see its [document](https://pypi.org/project/argcomplete/) to enable it.
+
 ## Planned Features
 
 ```console

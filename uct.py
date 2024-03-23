@@ -15,6 +15,7 @@ import sys
 from typing import Optional
 
 # https://pypi.org/project/argcomplete/
+# PYTHON_ARGCOMPLETE_OK
 try:
     # pyright: reportMissingImports=false
     import argcomplete
@@ -48,40 +49,47 @@ def build_arg_parser():
     subparsers = parser.add_subparsers(dest='command', help='Available subcommands')
     subparsers.required = True
 
+    config = argparse.ArgumentParser(add_help=False)
+    config.add_argument('-p', '--platform', dest='platform', type=str,
+                        choices=PLATFORM_MAP.keys(),
+                        help='target platform')
+    config.add_argument('-c', '--config', dest='config', type=str,
+                        choices=CONFIG_MAP.keys(),
+                        help='build configuration')
+
+    targets = argparse.ArgumentParser(add_help=False)
+    targets.add_argument('-t', '--targets', type=str, nargs='+',
+                         help='targets to build/run/clean')
+
+    build_parents = [config, targets]
+
+    subparsers.add_parser('generate-project-files', help='Generate project files')
+
     list_targets = subparsers.add_parser('list-targets', help='List targets')
     list_targets.add_argument('--project', action='store_true')
     list_targets.add_argument('--engine', action='store_true')
     list_targets.add_argument('--verbose', action='store_true')
 
-    subparsers.add_parser('generate-project-files', help='Generate project files')
+    build = subparsers.add_parser('build', help='Build specified targets', parents=build_parents)
 
-    build = subparsers.add_parser('build', help='Build specified targets')
-
-    build.add_argument('-p', '--platform', dest='platform', type=str,
-                        choices=PLATFORM_MAP.keys(),
-                        help='target platform')
-    build.add_argument('-c', '--config', dest='config', type=str,
-                        choices=CONFIG_MAP.keys(),
-                        help='build configuration')
-    build.add_argument('-t', '--targets', type=str, nargs='+',
-                        help='targets to build')
     build.add_argument('-m', '--modules', type=str, nargs='+',
                         help='modules to build')
     build.add_argument('-f', '--files', type=str, nargs='+',
                         help='source files to compile')
-    subparsers.add_parser('clean', help='Clean specified targets', parents=[build], add_help=False)
+
+    subparsers.add_parser('clean', help='Clean specified targets', parents=build_parents)
 
     subparsers.add_parser(
         'run',
         help='Build and run a single target',
         epilog='Any arguments after the empty "--" will be passed to the program',
-        parents=[build], add_help=False)
+        parents=build_parents)
 
     test = subparsers.add_parser(
         'test',
         help='Build and run tests',
         epilog='Any arguments after the empty "--" will be passed to the program',
-        parents=[build], add_help=False)
+        parents=[config])
     test.add_argument('--list', dest='list', action='store_true', help='list all tests')
     test.add_argument('--run-all', dest='run_all', action='store_true', help='Run all test')
     test.add_argument('--run', dest='tests', type=str,  nargs='+', help='Run tests')
@@ -150,16 +158,16 @@ class UnrealCommandTool:
         self.engine_dir = os.path.join(self.engine_root, 'Engine')
         self.project_dir = os.path.dirname(self.project_file) if self.project_file else ''
         self.host_platform = self._host_platform()
-        self.ubt = self._find_ubt()
-        assert os.path.exists(self.ubt), self.ubt
-        self._load_project_targets()
 
         self.options = options
         self.extra_args = extra_args
+        self._expand_options(options)
 
-        self.platform = ''
-        self.config = ''
-        self.targets = []
+        self.ubt = self._find_ubt()
+        assert os.path.exists(self.ubt), self.ubt
+
+        self._load_project_targets()
+        self._expand_targets()
 
     def _find_project(self):
         """Find the project file and engine root."""
@@ -190,16 +198,19 @@ class UnrealCommandTool:
             return 'Mac'
         return system
 
-    def _expand_build_options(self, options):
-        """Expand build option values."""
-        self.platform = PLATFORM_MAP.get(options.platform, self.host_platform)
-        self.config = CONFIG_MAP.get(options.config, 'Development')
-        self.targets = self._expand_targets(options.targets)
+    def _expand_options(self, options):
+        """Expand option values."""
+        if hasattr(options, 'platform'):
+            self.platform = PLATFORM_MAP.get(options.platform, self.host_platform)
+        if hasattr(options, 'config'):
+            self.config = CONFIG_MAP.get(options.config, 'Development')
 
-    def _expand_targets(self, targets : Optional[list[str]]) -> list[str]:
+    def _expand_targets(self) -> list[str]:
         """Expand targets (maybe wildcard) from the command line to full list."""
+        targets = getattr(self.options, 'targets', None)
         if targets is None:
-            return []
+            self.targets = []
+            return
         has_wildcard = False
         all_target_names = [t['Name'] for t in self.all_targets]
         expanded_targets = []
@@ -214,7 +225,7 @@ class UnrealCommandTool:
         if has_wildcard:
             print(f'Targets: {" ".join(expanded_targets)}')
 
-        return expanded_targets
+        self.targets = expanded_targets
 
     def _is_wildcard(self, text):
         """Check whether a string is a wildcard."""
@@ -327,7 +338,9 @@ class UnrealCommandTool:
 
     def build(self) -> int:
         """Build the specified targets."""
-        self._expand_build_options(self.options)
+        if not self.targets:
+            print('Missing targets, nothing to build')
+            return 0
         returncode = 0
         project = f'-Project={self.project_file}' if self.project_file else ''
         for target in self.targets:
@@ -343,7 +356,9 @@ class UnrealCommandTool:
 
     def clean(self) -> int:
         """Clean the specified targets."""
-        self._expand_build_options(self.options)
+        if not self.targets:
+            print('Missing targets, nothing to clean.')
+            return 0
         returncode = 0
         project = f'-Project={self.project_file}' if self.project_file else ''
         for target in self.targets:
@@ -357,7 +372,9 @@ class UnrealCommandTool:
 
     def run(self) -> int:
         """Run the specified targets."""
-        self._expand_build_options(self.options)
+        if not self.targets:
+            print('Missing targets, nothing to run.')
+            return 0
         returncode = 0
         for target in self.targets:
             executable = self._full_path_of_target(target)
@@ -383,7 +400,6 @@ class UnrealCommandTool:
 
     def test(self) -> int:
         """Run the automation tests."""
-        self._expand_build_options(self.options)
         test_cmds = self._make_test_cmds()
         if not test_cmds:
             print('No test command to execute')
