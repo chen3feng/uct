@@ -2,9 +2,9 @@
 
 English | [简体中文](README-zh.md)
 
-## What is it?
+## What is UCT?
 
-This is a powerful command line tool to run unreal build and editor commands much easier.
+UCT (Unreal Commandline Tool) is a powerful command line tool to buid, test and run unreal engine based project easier.
 
 ## Background
 
@@ -37,7 +37,7 @@ Its user interface has so many problems:
 
 So, I developed this handy tool, to simplify my life, and, maybe yours.
 
-With this tool, you needn't:
+With this tool, you need n't:
 
 - Type the the full path of UBT. UCT can find it automatically if your current directory is under the game project or the engine directory.
 - Pass the `-Project=/Full/Path/To/YourGame.uproject`. UCT can find it automatically if your current directory is under the game project.
@@ -110,7 +110,7 @@ BuildPatchTool
 List all project targets:
 
 ```console
-uct list-targets --project
+$ uct list-targets --project
 MyGameTest
 MyGameClient
 MyGameEditor
@@ -156,7 +156,7 @@ $ uct build -t Benchmark UnrealEditor
 ...
 ```
 
-It also supports wildcard:
+It supports wildcard target names:
 
 ```console
 uct build -t MyProject*
@@ -164,7 +164,7 @@ uct build -t *Editor
 uct build -t MyProject* *Editor
 ```
 
-It supports specifing [build configuration](https://dev.epicgames.com/documentation/en-us/unreal-engine/build-configurations-reference-for-unreal-engine?application_version=5.3)
+It supports specifying [build configuration](https://dev.epicgames.com/documentation/en-us/unreal-engine/build-configurations-reference-for-unreal-engine?application_version=5.3)
 and [target platform](https://unrealcommunity.wiki/6100e8109c9d1a89e0c31618):
 
 ```console
@@ -173,9 +173,9 @@ uct build -c debug -p linux
 
 Option values for target platforms:
 
-- Win64: win or win64
-- Linux: linux
-- Mac: mac
+- `Win64`: `win64`
+- `Linux`: `linux`
+- `Mac`: `mac`
 
 Option values for build configurations:
 
@@ -186,7 +186,8 @@ Option values for build configurations:
 
 To simplify typing, in UCT, all these values are lowercase.
 
-To pass [extra arguments](https://ikrima.dev/ue4guide/build-guide/utilities/devops-build-automation/) to UBT, put them after a standalone `--`:
+UCT will generate appropriate UBT commands based on the command line parameters for the actual build.
+To pass extra [arguments](https://ikrima.dev/ue4guide/build-guide/utilities/devops-build-automation/) to UBT, put them after a standalone `--` like this:
 
 ```console
 uct build -t MyGame -- -StaticAnalyzer=VisualCpp

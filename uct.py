@@ -25,7 +25,6 @@ except ImportError:
 VERSION = '0.1'
 
 PLATFORM_MAP = {
-    'win': 'Win64',
     'win64': 'Win64',
     'linux': 'Linux',
     'mac': 'Mac'

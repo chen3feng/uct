@@ -1,11 +1,11 @@
-# 虚幻引擎命令行工具
+# UCT：虚幻引擎命令行工具
 
 [English](README.md) | 简体中文
 
 
-## 它是什么？
+## UCT 是什么？
 
-这是一个强大的命令行工具，可以更轻松地运行虚幻构建和编辑器命令。
+UCT 是 Unreal Commandline Tool 的缩写，它是一个强大的命令行工具，可以让你更轻松地进行虚幻引擎下的构建、测试、运行等日常开发工作。
 
 ## 背景
 
@@ -108,7 +108,7 @@ BuildPatchTool
 列出所有项目目标：
 
 ```console
-uct list-targets --project
+$ uct list-targets --project
 MyGameTest
 MyGameClient
 MyGameEditor
@@ -154,7 +154,7 @@ $ uct build -t Benchmark UnrealEditor
 ...
 ```
 
-它还支持通配符：
+它还支持通配符目标名：
 
 ```console
 uct build -t MyProject*
@@ -171,7 +171,7 @@ uct build -c debug -p linux
 
 不同目标平台所用的选项值：
 
-- `Win64`：`win` 或者 `win64`
+- `Win64`：`win64`
 - `Linux`：`linux`
 - `Mac`：`mac`
 
@@ -184,7 +184,8 @@ uct build -c debug -p linux
 
 为了简化输入，在 UCT 中，这些名称均为小写。
 
-要将[额外参数](https://ikrima.dev/ue4guide/build-guide/utilities/devops-build-automation/)传递给UBT，请将它们放在单独的 `--` 后面：
+UCT 会根据命令行参数生成合适的 UBT 命令进行实际的构建。
+要将额外的[构建参数](https://ikrima.dev/ue4guide/build-guide/utilities/devops-build-automation/)传递给 UBT，请这样将它们放在单独的 `--` 后面：
 
 ```console
 uct build -t MyGame -- -StaticAnalyzer=VisualCpp
