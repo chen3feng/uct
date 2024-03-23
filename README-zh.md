@@ -35,12 +35,12 @@ G:\MyGame>G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/My
 
 因此，我开发了这个方便的工具，以方便我的生活，也许能同样方便您的生活。
 
-有了这个工具，您不需要：
+有了这个工具，您不再需要：
 
-- 输入 UBT 的完整路径，如果当前目录在游戏工程或引擎目录下，UCT 会自动找到。
-- 传入 `-Project=/Full/Path/To/YourGame.uproject`，如果你当前目录在游戏项目下，UCT 会自动找到。
-- 输入 `Win64`，假设目标平台也是主机平台。
-- 输入 `Development`、`dev` 就足够了。
+- 输入 UBT 的完整路径。如果当前目录在游戏工程或引擎目录下，UCT 会自动找到。
+- 传入 `-Project=/Full/Path/To/YourGame.uproject`。如果你的当前目录在游戏项目下，UCT 会自动找到。
+- 输入 `Win64`。UCT 假设目标平台也是主机平台（当然也可以通过参数指定）。
+- 输入 `Development`。UCT 默认 Development 构建，即使要指定，用 `-c dev` 也更简单。
 
 ## 安装
 

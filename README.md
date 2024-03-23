@@ -39,10 +39,10 @@ So, I developed this handy tool, to simplify my life, and, maybe yours.
 
 With this tool, you needn't:
 
-- Type the the full path of UBT, UCT can find it automatically if your current directory is under the game project or the engine directory.
-- Pass the -Project=YourGame.uproject, UCT can find it automatically if your current directory is under the game project.
-- Type `Win64`, UCT assume the target platform is also the host platform.
-- Type `Development`, `dev` is enough.
+- Type the the full path of UBT. UCT can find it automatically if your current directory is under the game project or the engine directory.
+- Pass the `-Project=/Full/Path/To/YourGame.uproject`. UCT can find it automatically if your current directory is under the game project.
+- Type `Win64`. UCT assume the target platform is also the host platform, of cause you can change it.
+- Type `Development`. UCT use `Development` by default. Even if you want to specify it, using `-c dev` is also easier.
 
 ## Install
 
