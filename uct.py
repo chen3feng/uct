@@ -379,8 +379,9 @@ class UnrealCommandTool:
         returncode = 0
         for target in self.targets:
             executable = self._full_path_of_target(target)
-            if not os.path.exists(executable):
-                print(f"{executable} doesn't exist, please build it first.", file=sys.stderr)
+            if not executable or not os.path.exists(executable):
+                if executable:
+                    print(f"{executable} doesn't exist, please build it first.", file=sys.stderr)
                 returncode = EXIT_COMMAND_NOT_FOUND
                 continue
             cmd = [executable] + self.extra_args
@@ -390,14 +391,30 @@ class UnrealCommandTool:
                 returncode = ret
         return returncode
 
-    def _full_path_of_target(self, target):
-        root = self.project_dir if self._is_project_target(target) else self.engine_dir
+    def _full_path_of_target(self, target, key='Launch'):
+        info = self._get_target_info(target)
+        if not info:
+            return ''
+        executable = info[key]
+        executable = executable.replace('$(EngineDir)', self.engine_dir)
+        executable = executable.replace('$(ProjectDir)', self.project_dir)
+        return executable
+
+    def _get_target_info(self, target) -> dict:
+        """Find and parse the target info from the target file."""
+        root = self.project_dir if self.project_file else self.engine_dir
         suffix = ''
         if self.config != 'Development':
             suffix = f'-{self.platform}-{self.config}'
-        if self.platform == 'Win64':
-            suffix += '.exe'
-        return os.path.join(root, 'Binaries', self.platform, target + suffix)
+        target_file = os.path.join(root, 'Binaries', self.platform, target + suffix + '.target')
+        try:
+            with open(target_file, encoding='utf8') as f:
+                info = json.load(f)
+                return info
+        except FileNotFoundError:
+            print(f"target file {target_file} doesn't exist")
+            pass
+        return None
 
     def test(self) -> int:
         """Run the automation tests."""
@@ -408,7 +425,7 @@ class UnrealCommandTool:
         # Example command line:
         # G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/MyGame.uproject \
         #   -log -NoSplash -Unattended -ExecCmds="Automation RunTests System; Quit"
-        editor = self._full_path_of_editor()
+        editor = self._full_path_of_target('UnrealEditor', 'LaunchCmd')
         if not os.path.exists(editor):
             print(f"{editor} doesn't exist, build it first")
             return EXIT_COMMAND_NOT_FOUND
@@ -437,14 +454,6 @@ class UnrealCommandTool:
             cmds += self.options.test_cmds
         return '; '.join(cmds)
 
-    def _full_path_of_editor(self):
-        suffix = ''
-        if self.config != 'Development':
-            suffix = f'-{self.platform}-{self.config}'
-        suffix += '-Cmd'
-        if self.platform == 'Win64':
-            suffix += '.exe'
-        return os.path.join(self.engine_dir, 'Binaries', self.platform, 'UnrealEditor' + suffix)
 
 def main():
     # print('Welcome to UCT: the Unreal CommandLine Tool')
