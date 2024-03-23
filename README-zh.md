@@ -279,6 +279,11 @@ uct --help
 uct build --help
 ```
 
+### 命令行补全
+
+UCT 通过使用 `argcomplete` 库来支持 bash 和 zsh 中的命令自动补全，
+请参阅其[文档](https://pypi.org/project/argcomplete/) 来启用它。
+
 ## 计划的功能
 
 ```console
