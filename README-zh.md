@@ -177,10 +177,11 @@ uct build -c debug -p linux
 
 不同构建配置的选项值：
 
-- `Development`： `dev` 或 `develop`
 - `Debug`： `dbg` 或 `debug`
-- `Test`: `test`
+- `DebugGame`： `dbgm` 或 `debuggame`
+- `Development`： `dev` 或 `develop`
 - `Shipping`: `ship`
+- `Test`: `test`
 
 为了简化输入，在 UCT 中，这些名称均为小写。
 
