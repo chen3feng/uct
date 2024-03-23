@@ -27,7 +27,7 @@ G:\MyGame>G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/My
 
 它的用户界面有很多问题：
 
-- 你必须在正确的引擎目录下使用 UBT，这里是`G:\UnrealEngine-5.1\Engine\Build\BatchFiles\Build.bat`，但是我们经常有很多引擎。
+- 你必须使用正确的引擎目录下的 UBT 来构建游戏工程。在我的开发机上有好几个版本的引擎，而且都在使用，所以无法把 UBT 的路径加入 PATH 环境变量，只能使用全路径。
 - UBT 和其他脚本的路径和后缀在 Windows 和 Mac/Linux 上都不一样。
 - `-Project` 参数的路径必须是绝对路径，这很无聊，我们可以使用 `%CD%` 来简化，但它仍然需要项目文件名。
 - 有些选项比如 `Development` 等太长了。
@@ -37,9 +37,9 @@ G:\MyGame>G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/My
 
 有了这个工具，您不再需要：
 
-- 输入 UBT 的完整路径。如果当前目录在游戏工程或引擎目录下，UCT 会自动找到。
-- 传入 `-Project=/Full/Path/To/YourGame.uproject`。如果你的当前目录在游戏项目下，UCT 会自动找到。
-- 输入 `Win64`。UCT 假设目标平台也是主机平台（当然也可以通过参数指定）。
+- 输入 UBT 的完整路径。如果当前目录在游戏工程或引擎目录下，UCT 就会自动找到它。
+- 传入 `-Project=/Full/Path/To/YourGame.uproject`。如果你的当前目录在游戏项目下，UCT 也会自动找到它。
+- 输入 `Win64`。UCT 默认目标平台就是主机平台（当然也可以通过参数指定）。
 - 输入 `Development`。UCT 默认 Development 构建，即使要指定，用 `-c dev` 也更简单。
 
 ## 安装

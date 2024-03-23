@@ -27,8 +27,9 @@ G:\MyGame>G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/My
 
 Its user interface has so many problems:
 
-- You must use UBT under the correct engine directory, here is `G:\UnrealEngine-5.1\Engine\Build\BatchFiles\Build.bat`,
-  but we often have many engines.
+- You must use the UBT in the correct engine directory to build the game project.
+  There are several versions of the engine on my workstation, and they are all in use,
+  so I can not add the UBT path to the PATH environment variable. I have to use the full path.
 - The path and suffix of UBT and other scripts are different between Windows and Mac/Linux.
 - The path of the `-Project` argument must be a absolute path, it's boring, we can use `%CD%` to simplify it
   but it still need the project file name.
@@ -41,7 +42,7 @@ With this tool, you need n't:
 
 - Type the the full path of UBT. UCT can find it automatically if your current directory is under the game project or the engine directory.
 - Pass the `-Project=/Full/Path/To/YourGame.uproject`. UCT can find it automatically if your current directory is under the game project.
-- Type `Win64`. UCT assume the target platform is also the host platform, of cause you can change it.
+- Type `Win64`. UCT assume the target platform is also the host platform by default, of cause you can also change it.
 - Type `Development`. UCT use `Development` by default. Even if you want to specify it, using `-c dev` is also easier.
 
 ## Install
