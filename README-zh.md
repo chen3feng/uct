@@ -58,10 +58,10 @@ UCT 的路径就会注册到您的 PATH 环境中，您可以从系统中的任�
 
 请参阅 UE 文档了解以下概念：
 
-- [Target](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/UnrealBuildTool/TargetFiles/) 每个 `.Target.cs` 描述一个目标。
-- [目标平台](https://unrealcommunity.wiki/6100e8109c9d1a89e0c31618) UE 支持 `Win64`、`Linux`、`Mac` 和其他一些，例如 `Hololens`。
-- [配置](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/DevelopmentSetup/BuildConfigurations/)，例如“调试”、“开发”、“运输”和“测试”。
-- [模块](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/UnrealBuildTool/ModuleFiles/) 每个 `.Build.cs` 描述一个模块。
+- [Target](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/UnrealBuildTool/TargetFiles/) 每个 `.Target.cs` 文件描述一个目标。
+- [目标平台](https://unrealcommunity.wiki/6100e8109c9d1a89e0c31618) UE 支持 `Win64`、`Linux`、`Mac` 和一些其他平台，例如 `Hololens`。
+- [配置](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/DevelopmentSetup/BuildConfigurations/)，例如 `Debug`、`Development`、`Shipping` 和 `Test`。
+- [模块](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/UnrealBuildTool/ModuleFiles/) 每个 `.Build.cs` 文件描述一个模块。
 
 ## 命令行界面
 

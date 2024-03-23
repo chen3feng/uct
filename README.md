@@ -61,10 +61,10 @@ The path of UCT is registered into your `PATH` environment, you can call it from
 
 See UE documents for the following concepts:
 
-- [Target](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/UnrealBuildTool/TargetFiles/) Each `.Target.cs` describes a target.
+- [Target](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/UnrealBuildTool/TargetFiles/) Each `.Target.cs` file describes a target.
 - [Target Platform](https://unrealcommunity.wiki/6100e8109c9d1a89e0c31618) UE Support `Win64`, `Linux`, `Mac` and some other such as `Hololens`.
 - [Configuration](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/DevelopmentSetup/BuildConfigurations/), Such as `Debug`, `Development`, `Shipping` and `Test`.
-- [Module](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/UnrealBuildTool/ModuleFiles/) Each `.Build.cs` describes a module.
+- [Module](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/UnrealBuildTool/ModuleFiles/) Each `.Build.cs` file describes a module.
 
 ## Command Line Interface
 
