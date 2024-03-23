@@ -180,10 +180,11 @@ Option values for target platforms:
 
 Option values for build configurations:
 
-- `Development`: `dev` or `develop`
 - `Debug`: `dbg` or `debug`
-- `Test`: `test`
+- `DebugGame`： `dbgm` or `debuggame`
+- `Development`: `dev` or `develop`
 - `Shipping`: `ship`
+- `Test`: `test`
 
 To simplify typing, in UCT, all these values are lowercase.
 
