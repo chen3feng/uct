@@ -9,8 +9,8 @@
 
 ## 背景
 
-很多情况下，我更喜欢命令行工具，因为它们是快速且容易自动化。 我经常在 VS Code 中为 UE 编写代码，
-所以我经常需要手动调用 [UBT](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/UnrealBuildTool/) 和 Editor。
+很多情况下，我更喜欢命令行工具，因为它们是快速且容易自动化。 我经常在 VS Code 中为 UE 编写代码，因为它比 Visual Studio 更快更轻量，git 集成更好。
+所以我经常需要手动调用 [UBT](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/UnrealBuildTool/) 和 Editor，
 但它们的命令行界面非常冗长。
 
 例如，要构建一个程序：
@@ -27,7 +27,8 @@ G:\MyGame>G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/My
 
 它的用户界面有很多问题：
 
-- 你必须在正确的引擎目录下使用UBT，这里是`G:\UnrealEngine-5.1\Engine\Build\BatchFiles\Build.bat`，但是我们经常有很多引擎。
+- 你必须在正确的引擎目录下使用 UBT，这里是`G:\UnrealEngine-5.1\Engine\Build\BatchFiles\Build.bat`，但是我们经常有很多引擎。
+- UBT 和其他脚本的路径和后缀在 Windows 和 Mac/Linux 上都不一样。
 - `-Project` 参数的路径必须是绝对路径，这很无聊，我们可以使用 `%CD%` 来简化，但它仍然需要项目文件名。
 - 有些选项比如 `Development` 等太长了。
 - 编辑器的文件名对不同的配置有不同的后缀，例如 `UnrealEditor-Win64-Debug.exe`。

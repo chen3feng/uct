@@ -8,9 +8,10 @@ This is a powerful command line tool to run unreal build and editor commands muc
 
 ## Background
 
-Many cases, I prefer command line tools because they are fast and easy automation. I often write code for UE in VS Code,
-so I often need to call [UBT](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/UnrealBuildTool/) and editor manually.
-But the their command line interface are very verbose.
+In many cases, I prefer command line tools because they are fast and easy automation. I often write code for UE in VS Code,
+because it is much fast and lightweight than Visual Studio, has better git integration.
+so I often need to call [UBT](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/UnrealBuildTool/) and editor manually,
+but the their command line interface are very verbose.
 
 For example, to build a program:
 
@@ -18,7 +19,7 @@ For example, to build a program:
 G:\MyGame> G:\UnrealEngine-5.1\Engine\Build\BatchFiles\Build.bat Benchmark Win64 Development -Project="G:\MyGame\MyGame.uproject"
 ```
 
-To run a test from command line:
+To run tests from command line:
 
 ```console
 G:\MyGame>G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/MyGame.uproject -ExecCmds="Automation RunAll"
@@ -28,6 +29,7 @@ Its user interface has so many problems:
 
 - You must use UBT under the correct engine directory, here is `G:\UnrealEngine-5.1\Engine\Build\BatchFiles\Build.bat`,
   but we often have many engines.
+- The path and suffix of UBT and other scripts are different between Windows and Mac/Linux.
 - The path of the `-Project` argument must be a absolute path, it's boring, we can use `%CD%` to simplify it
   but it still need the project file name.
 - Some options such as `Development` are so long.
