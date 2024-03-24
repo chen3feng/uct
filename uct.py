@@ -12,6 +12,8 @@ import platform
 import subprocess
 import sys
 
+import console
+
 from typing import Optional
 
 # https://pypi.org/project/argcomplete/
@@ -42,6 +44,7 @@ CONFIG_MAP = {
 
 # https://www.gnu.org/software/bash/manual/html_node/Exit-Status.html
 EXIT_COMMAND_NOT_FOUND = 127
+
 
 def build_arg_parser():
     """
@@ -236,7 +239,7 @@ class UnrealCommandTool:
                 expanded_targets += fnmatch.filter(all_target_names, target)
             else:
                 if target not in all_target_names:
-                    print(f"warning: target {target}' doesn't exist", file=sys.stderr)
+                    console.warn(f"target '{target}' doesn't exist")
                     continue
                 expanded_targets.append(target)
 
@@ -274,18 +277,32 @@ class UnrealCommandTool:
         """Load target info from the the engine and game project."""
         if self.__all_targets is not None:
             return
-        self.__engine_targets = self._load_target_info(self.engine_dir)
-        if not self.__engine_targets:
-            self.__engine_targets = self._scan_targets(self.engine_dir)
+        self.__engine_targets = self._collect_targets(self.engine_dir)
         assert self.__engine_targets
         self.__project_targets = []
         if self.project_dir:
-            self.__project_targets = self._load_target_info(self.project_dir)
-            if not self.__project_targets:
-                self.__project_targets = self._scan_targets(self.project_dir)
+            self.__project_targets = self._collect_targets(self.project_dir)
         self.__all_targets = self.__engine_targets + self.__project_targets
 
-    def _load_target_info(self, dir):
+    def _collect_targets(self, dir) -> list[str]:
+        # Try 2 ways to collect target info.
+        targets = self._query_targets(dir)
+        if not targets:
+            targets = self._scan_targets(dir)
+        return targets
+
+    def _query_targets(self, dir) -> list[str]:
+        """Use UBT to query build targets."""
+        cmd = [self.ubt, '-Mode=QueryTargets']
+        if dir == self.project_dir:
+            cmd.append(f'-Project={self.project_file}')
+        p = subprocess.run(cmd, text=True, capture_output=True, check=False)
+        if p.returncode != 0:
+            console.warn(f'QueryTargets failed: {" ".join(cmd)}\n{p.stdout}')
+            return []
+        return self._load_target_info(dir)
+
+    def _load_target_info(self, dir) -> list[str]:
         """Try load target info from TargetInfo.json under the dir."""
         path = os.path.join(dir, 'Intermediate', 'TargetInfo.json')
         try:
@@ -297,7 +314,10 @@ class UnrealCommandTool:
         return []
 
     def _scan_targets(self, dir) -> list[dict[str, str]]:
-        """Scan and load all .Target.cs files under the dir."""
+        """
+        Scan and load all .Target.cs files under the dir.
+        This is slower than _query_targets but can be a failover.
+        """
         targets = []
         pattern = '*.Target.cs'
         excluded_dirs = ['Binaries', 'DerivedDataCache', 'Intermediate']
@@ -343,7 +363,7 @@ class UnrealCommandTool:
             self._print_targets(self.engine_targets)
         if self.options.project:
             if not self.project_file:
-                print('You are not under a game project directory', file=sys.stderr)
+                console.error('You are not under a game project directory')
                 return 1
             self._print_targets(self.project_targets)
         if not self.options.engine and not self.options.project:
@@ -378,8 +398,8 @@ class UnrealCommandTool:
     def build(self) -> int:
         """Build the specified targets."""
         if not self.targets:
-            print('Missing targets, nothing to build')
-            return 0
+            console.error('Missing targets, nothing to build')
+            return 1
         returncode = 0
         project = f'-Project={self.project_file}' if self.project_file else ''
         for target in self.targets:
@@ -396,8 +416,8 @@ class UnrealCommandTool:
     def clean(self) -> int:
         """Clean the specified targets."""
         if not self.targets:
-            print('Missing targets, nothing to clean.')
-            return 0
+            console.error('Missing targets, nothing to clean.')
+            return 1
         returncode = 0
         project = f'-Project={self.project_file}' if self.project_file else ''
         for target in self.targets:
@@ -412,14 +432,14 @@ class UnrealCommandTool:
     def run(self) -> int:
         """Run the specified targets."""
         if not self.targets:
-            print('Missing targets, nothing to run.')
-            return 0
+            console.error('Missing targets, nothing to run.')
+            return 1
         returncode = 0
         for target in self.targets:
             executable = self._full_path_of_target(target)
             if not executable or not os.path.exists(executable):
                 if executable:
-                    print(f"{executable} doesn't exist, please build it first.", file=sys.stderr)
+                    console.error(f"{executable} doesn't exist, please build it first.")
                 returncode = EXIT_COMMAND_NOT_FOUND
                 continue
             cmd = [executable] + self.extra_args
@@ -450,7 +470,7 @@ class UnrealCommandTool:
                 info = json.load(f)
                 return info
         except FileNotFoundError:
-            print(f"target file {target_file} doesn't exist")
+            console.warn(f"target file {target_file} doesn't exist")
 
         return None
 
@@ -458,14 +478,14 @@ class UnrealCommandTool:
         """Run the automation tests."""
         test_cmds = self._make_test_cmds()
         if not test_cmds:
-            print('No test command to execute')
+            console.error('No test command to execute')
             return 0
         # Example command line:
         # G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/MyGame.uproject \
         #   -log -NoSplash -Unattended -ExecCmds="Automation RunTests System; Quit"
         editor = self._full_path_of_target('UnrealEditor', 'LaunchCmd')
         if not os.path.exists(editor):
-            print(f"{editor} doesn't exist, build it first")
+            console.error(f"{editor} doesn't exist, build it first")
             return EXIT_COMMAND_NOT_FOUND
         test_cmds = f'Automation {test_cmds}; Quit'
         print(f'Test command: {test_cmds}')
@@ -498,7 +518,7 @@ def check_targets(targets):
     ok = True
     for target in targets:
         if target.startswith('-'):
-            print(f"Unknown option '{target}'.", file=sys.stderr)
+            console.error(f"Unknown option '{target}'.")
             ok = False
     if not ok:
         sys.exit(1)
@@ -511,7 +531,7 @@ def main():
     uct = UnrealCommandTool(options, targets, extra_args)
     ret = uct.execute()
     if ret != 0:
-        print(f'{options.command} failed with exit code {ret}.', file=sys.stderr)
+        console.error(f'{options.command} failed with exit code {ret}.')
         sys.exit(ret)
 
 

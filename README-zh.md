@@ -225,7 +225,7 @@ uct run Benchmark -- --help --help
 
 ### test
 
-UCT 使用 [`-ExecCmds Automation ...`](https://forums.unrealengine.com/t/run-automated-testing-from-command-line/294995)
+UCT 使用 [`-ExecCmds Automation ...`](https://docs.unrealengine.com/4.27/en-US/TestingAndOptimization/Automation/TechnicalGuide/)
 执行自动化测试。
 
 选项：
@@ -248,7 +248,7 @@ uct test --run-all
 uct test --run System.Core
 ```
 
-`--cmds` 选项可用于向系统传递更多测试命令。
+`--cmds` 选项可用于向系统传递更多[测试命令](https://forums.unrealengine.com/t/run-automated-testing-from-command-line/294995)。
 
 例子：
 
