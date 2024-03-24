@@ -230,7 +230,7 @@ The program got `--help -- --help` aruguments.
 
 ### Test
 
-UCT use [`-ExecCmds Automation ...`](https://forums.unrealengine.com/t/run-automated-testing-from-command-line/294995)
+UCT use [`-ExecCmds Automation ...`](https://docs.unrealengine.com/4.27/en-US/TestingAndOptimization/Automation/TechnicalGuide/)
 to execute automation tests.
 
 Options:
@@ -253,7 +253,7 @@ uct test --run-all
 uct test --run System.Core
 ```
 
-The `--cmds` option can be used to pass more test commands to the system.
+The `--cmds` option can be used to pass more [test commands](https://forums.unrealengine.com/t/run-automated-testing-from-command-line/294995) to the system.
 
 Example:
 
