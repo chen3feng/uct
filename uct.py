@@ -4,6 +4,7 @@ A powerful command line tool for unreal engine.
 """
 
 import argparse
+import configparser
 import fnmatch
 import json
 import os
@@ -191,8 +192,49 @@ class UnrealCommandTool:
             if key_file:
                 engine_root = os.path.dirname(key_file)
         if not engine_root:
-            engine_root = '/Users/cf/Documents/Work/UnrealEngine'
+            engine_root = self._find_engine_by_project(project_file)
+        if not engine_root:
+            console.error("Can't find engine root")
+            sys.exit(1)
         return engine_root, project_file
+
+    def _find_engine_by_project(self, project_file) -> str:
+        if os.name == 'posix':
+            return self._find_engine_root_posix(project_file)
+        # On windows, this program is always call from the uct.bat,
+        # finding engine by project was done there, we needn't query registry here.
+        return ''
+
+    def _find_engine_root_posix(self, project_file) -> str:
+        engine_id = self._find_engine_association(project_file)
+        if not engine_id:
+            return ''
+        config_file = os.path.expanduser('~/.config/Epic/UnrealEngine/Install.ini')
+        config = configparser.ConfigParser()
+        config.read(config_file)
+        if 'Installations' not in config:
+            console.error("Invalid config file '{config_file}'.")
+            return ''
+        installations = config['Installations']
+        if engine_id not in installations:
+            console.error(f"Engine '{engine_id}' is not registered in '{config_file}'.")
+            return ''
+
+        return config['Installations'][engine_id]
+
+    def _find_engine_association(self, project_file) -> str:
+        project = self._parse_project_file(project_file)
+        if project:
+            return project['EngineAssociation']
+        return ''
+
+    def _parse_project_file(self, project_file) -> Optional[dict[str, any]]:
+        try:
+            with open(project_file, encoding='utf8') as f:
+                return json.load(f)
+        except Exception as e:
+            console.error(f"Error parsing '{project_file}': {e}")
+            return None
 
     def _find_ubt(self):
         """Find full path of UBT based on host platform."""
