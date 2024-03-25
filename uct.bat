@@ -32,7 +32,12 @@ if defined ENGINE_ROOT (
         echo Can't find python !PYTHON_EXE! in your engine, maybe it is not setup. 1>&2
     )
 ) else (
-    echo Can't find unreal engine, you must under the directory of an engine or a game project. 1>&2
+    if "%1" == "/?" (
+        echo UCT: Unreal command line tool. 1>&2
+        echo You should run this command under the directory of an engine or a game project. 1>&2
+    ) else (
+        echo Can't find unreal engine, you must under the directory of an engine or a game project. 1>&2
+    )
     exit /b 1
 )
 

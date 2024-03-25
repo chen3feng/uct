@@ -25,7 +25,7 @@ To run tests from command line:
 G:\MyGame>G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/MyGame.uproject -ExecCmds="Automation RunAll"
 ```
 
-Its user interface has so many problems:
+These user interface has the following problems:
 
 - You must use the UBT in the correct engine directory to build the game project.
   There are several versions of the engine on my workstation, and they are all in use,
@@ -38,12 +38,20 @@ Its user interface has so many problems:
 
 So, I developed this handy tool, to simplify my life, and, maybe yours.
 
-With this tool, you need n't:
+With this tool, you needn't:
 
-- Type the the full path of UBT. UCT can find it automatically if your current directory is under the game project or the engine directory.
-- Pass the `-Project=/Full/Path/To/YourGame.uproject`. UCT can find it automatically if your current directory is under the game project.
-- Type `Win64`. UCT assume the target platform is also the host platform by default, of cause you can also change it.
-- Type `Development`. UCT use `Development` by default. Even if you want to specify it, using `-c dev` is also easier.
+- Type the the full path of UBT.
+  UCT can find it automatically if your current directory is under the game project or the engine directory.
+- Pass the `-Project=/Full/Path/To/YourGame.uproject`.
+  UCT can find it automatically if your current directory is under the game project.
+- Type `Win64`.
+  UCT assume the target platform is also the host platform by default, of cause you can also change it.
+- Type `Development`.
+  UCT use `Development` by default. Even if you want to specify it, using `-c dev` is also easier.
+
+## Supported Host Platforms
+
+UCT support working on Win64, Linux and Mac.
 
 ## Install
 

@@ -24,7 +24,7 @@ G:\MyGame> G:\UnrealEngine-5.1\Engine\Build\BatchFiles\Build.bat Benchmark Win64
 G:\MyGame>G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/MyGame.uproject -ExecCmds="Automation RunAll"
 ```
 
-它的用户界面有很多问题：
+这些命令行界面主要有如下问题：
 
 - 你必须使用正确的引擎目录下的 UBT 来构建游戏工程。在我的开发机上有好几个版本的引擎，而且都在使用，所以无法把 UBT 的路径加入 PATH 环境变量，只能使用全路径。
 - UBT 和其他脚本的路径和后缀在 Windows 和 Mac/Linux 上都不一样。
@@ -32,14 +32,22 @@ G:\MyGame>G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/My
 - 有些选项比如 `Development` 等太长了。
 - 编辑器的文件名对不同的配置有不同的后缀，例如 `UnrealEditor-Win64-Debug.exe`。
 
-因此，我开发了这个方便的工具，以方便我的生活，也许能同样方便您的生活。
+因此，我开发了这个便利的工具，以方便我的生活，也许能同样方便您的生活。
 
 有了这个工具，您不再需要：
 
-- 输入 UBT 的完整路径。如果当前目录在游戏工程或引擎目录下，UCT 就会自动找到它。
-- 传入 `-Project=/Full/Path/To/YourGame.uproject`。如果你的当前目录在游戏项目下，UCT 也会自动找到它。
-- 输入 `Win64`。UCT 默认目标平台就是主机平台（当然也可以通过参数指定）。
-- 输入 `Development`。UCT 默认 Development 构建，即使要指定，用 `-c dev` 也更简单。
+- 输入 UBT 的完整路径。
+  如果当前目录在游戏工程或引擎目录下，UCT 就会自动找到它。
+- 传入 `-Project=/Full/Path/To/YourGame.uproject`。
+  如果你的当前目录在游戏项目下，UCT 也会自动找到它。
+- 输入 `Win64`。
+  UCT 默认目标平台就是主机平台（当然也可以通过参数指定）。
+- 输入 `Development`。
+  UCT 默认 Development 构建，即使要指定，用 `-c dev` 也更简单。
+
+## 支持的系统
+
+UCT 支持在 Win64、Linux 和 Mac 中运行.
 
 ## 安装
 
