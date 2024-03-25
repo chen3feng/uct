@@ -1,0 +1,20 @@
+#!/bin/bash
+
+UCT_DIR=$(cd $(dirname $0) && pwd)
+TARGET_DIRS=(~/.local/bin ~/bin)
+
+for dir in ${TARGET_DIRS[@]}; do
+    if [[ -d "$dir" ]]; then
+        if ln -sf $UCT_DIR/uct $dir/uct; then
+            echo "UCT is install to '$dir'."
+            exit 0
+        fi
+    fi
+done
+
+echo "Can't find any one of directories:" 2>&1
+for dir in ${TARGET_DIRS[@]}; do
+    echo "- $dir" 2>&1
+done
+echo "Please add UCT directory '$UCT_DIR' to your 'PATH' manually." 2>&1
+exit 1

@@ -55,15 +55,17 @@ UCT support working on Win64, Linux and Mac.
 
 ## Install
 
-Just use git to clone the code, and execute the `install.bat`:
+Just use git to clone the code, and execute the `install` command:
 
 ```console
 git clone https://github.com/chen3feng/uct
 cd uct
-install.bat
+install
 ```
 
 The path of UCT is registered into your `PATH` environment, you can call it from any where in you system.
+
+On Linux or Mac, the install command is `./install`.
 
 ## Basic Concepts
 

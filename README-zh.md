@@ -51,7 +51,7 @@ UCT 支持在 Win64、Linux 和 Mac 中运行.
 
 ## 安装
 
-只需使用 `git clone` 下载代码，然后执行 `install.bat` 即可：
+只需使用 `git clone` 下载代码，然后执行 `install` 命令 即可：
 
 ```console
 git clone https://github.com/chen3feng/uct
@@ -60,6 +60,8 @@ install.bat
 ```
 
 UCT 的路径就会注册到您的 PATH 环境中，您可以从系统中的任何位置调用它。
+
+在 Linux 或者 Mac 下，安装命令是 `./install`。
 
 ## 基本概念
 
