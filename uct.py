@@ -213,7 +213,7 @@ class UnrealCommandTool:
         config = configparser.ConfigParser()
         config.read(config_file)
         if 'Installations' not in config:
-            console.error("Invalid config file '{config_file}'.")
+            console.error(f"Invalid config file '{config_file}'.")
             return ''
         installations = config['Installations']
         if engine_id not in installations:
