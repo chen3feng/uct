@@ -6,6 +6,10 @@ English | [简体中文](README-zh.md)
 
 UCT (Unreal Commandline Tool) is a powerful command line tool to buid, test and run unreal engine based project easier.
 
+Let's see a demo.
+
+[![asciicast](https://asciinema.org/a/6KbwPkTAF2iqzYuzbYuYvqb6O.svg)](https://asciinema.org/a/6KbwPkTAF2iqzYuzbYuYvqb6O)
+
 ## Background
 
 In many cases, I prefer command line tools because they are fast and easy automation. I often write code for UE in VS Code,
