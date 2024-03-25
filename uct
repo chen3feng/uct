@@ -5,4 +5,4 @@ if [[ -L $0 ]]; then
     THIS_PATH=$(readlink $0)
 fi
 
-python3 $(dirname $THIS_PATH)/uct.py $@
+python3 $(dirname $THIS_PATH)/uct.py "$@"

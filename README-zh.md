@@ -171,6 +171,14 @@ uct build *Editor
 uct build MyProject* *Editor
 ```
 
+在 Linux 和 Mac 上，由于通配符是由 shell 展开的，必要时要加上引号以避免展开为匹配的工程文件名：
+
+```console
+uct build 'MyProject*'
+uct build *Editor
+uct build 'MyProject*' *Editor
+```
+
 它支持指定[构建配置](https://dev.epicgames.com/documentation/en-us/unreal-engine/build-configurations-reference-for-unreal-engine?application_version=5.3)
 和[目标平台](https://unrealcommunity.wiki/6100e8109c9d1a89e0c31618)：
 

@@ -175,6 +175,14 @@ uct build *Editor
 uct build MyProject* *Editor
 ```
 
+On Linux and Mac, since wildcards are expanded by the shell, add quotes if necessary to avoid expansion into matching project file names:
+
+```console
+uct build 'MyProject*'
+uct build *Editor
+uct build 'MyProject*' *Editor
+```
+
 It supports specifying [build configuration](https://dev.epicgames.com/documentation/en-us/unreal-engine/build-configurations-reference-for-unreal-engine?application_version=5.3)
 and [target platform](https://unrealcommunity.wiki/6100e8109c9d1a89e0c31618):
 
