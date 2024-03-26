@@ -15,7 +15,7 @@ import sys
 
 import console
 
-from typing import Optional
+from typing import Optional, Tuple
 
 # https://pypi.org/project/argcomplete/
 # PYTHON_ARGCOMPLETE_OK
@@ -163,24 +163,26 @@ def find_files_under(dir, pattern, excluded_dirs=None, relpath=False) -> list:
 class UnrealCommandTool:
     """Unreal Command Line Tool."""
     def __init__(self, options, targets, extra_args):
-        self.engine_root, self.project_file = self._find_project()
-        self.engine_dir = os.path.join(self.engine_root, 'Engine')
-        self.project_dir = os.path.dirname(self.project_file) if self.project_file else ''
-        self.host_platform = self._host_platform()
-
-        self.options = options
-        self.extra_args = extra_args
-        self._expand_options(options)
-
-        self.ubt = self._find_ubt()
-        assert os.path.exists(self.ubt), self.ubt
-
         self.__engine_targets = None
         self.__project_targets = None
         self.__all_targets = None
-
-        self.command_targets = targets
         self.__targets = None
+        self.host_platform = self._host_platform()
+
+        self.options = options
+        self.raw_targets = targets
+        self.extra_args = extra_args
+        self._expand_options(options)
+
+
+        self.engine_root, self.project_file = self._find_project()
+        self.engine_dir = os.path.join(self.engine_root, 'Engine')
+        self.engine_version, self.engine_major_version = self._parse_engine_version()
+        self.ubt = self._find_ubt()
+        assert os.path.exists(self.ubt), self.ubt
+
+        self.project_dir = os.path.dirname(self.project_file)
+
 
     def _find_project(self):
         """Find the project file and engine root."""
@@ -237,6 +239,11 @@ class UnrealCommandTool:
             console.error(f"Error parsing '{project_file}': {e}")
             return None
 
+    def _parse_engine_version(self) -> Tuple[dict, str]:
+        with open(os.path.join(self.engine_dir, 'Build/Build.version')) as f:
+            version = json.load(f)
+            return version, int(version['MajorVersion'])
+
     def _find_ubt(self):
         """Find full path of UBT based on host platform."""
         if self.host_platform == 'Win64':
@@ -263,7 +270,7 @@ class UnrealCommandTool:
     @property
     def targets(self):
         """All expanded targets from command line."""
-        self._expand_targets(self.command_targets)
+        self._expand_targets(self.raw_targets)
         return self.__targets
 
     def _expand_targets(self, targets):
@@ -557,16 +564,36 @@ class UnrealCommandTool:
         # Example command line:
         # G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/MyGame.uproject \
         #   -log -NoSplash -Unattended -ExecCmds="Automation RunTests System; Quit"
-        editor = self._full_path_of_target('UnrealEditor', 'LaunchCmd')
+        editor = self._full_path_of_editor(is_cmd=True)
         if not os.path.exists(editor):
             console.error(f"{editor} doesn't exist, build it first")
             return EXIT_COMMAND_NOT_FOUND
         test_cmds = f'Automation {test_cmds}; Quit'
         print(f'Test command: {test_cmds}')
-        cmd = [editor, self.project_file, '-log', '-NoSplash', '-Unattended', f'-ExecCmds="{test_cmds}"'] + \
-               self.extra_args
+        cmd = [editor, self.project_file, '-log', '-NoSplash', '-Unattended', f'-ExecCmds="{test_cmds}"']
+        if self._is_list_test_only():
+            cmd += ['-LogCmds="global Error, LogAutomationCommandLine Display"', '-NullRHI']
+        cmd += self.extra_args
         print(f'Command line: {cmd}')
         return self._run_command(cmd)
+
+    def _full_path_of_editor(self, is_cmd=False):
+        if self.engine_major_version >= 5:
+            return self._full_path_of_target('UnrealEditor', 'LaunchCmd' if is_cmd else 'Launch')
+        # There is no LaunchCmd field in UE4's target file.
+        editor = self._full_path_of_target('UE4Editor', 'Launch')
+        if is_cmd:
+            if editor.endswith('.exe'):
+                return editor.replace('.exe', '-Cmd.exe')
+            return editor + '-Cmd'
+        return editor
+
+    def _is_list_test_only(self):
+        if not self.options.list:
+            return False
+        if  self.options.run_all or self.options.tests or self.options.test_cmds:
+            return False
+        return True
 
     def _make_test_cmds(self) -> str:
         cmds = []
