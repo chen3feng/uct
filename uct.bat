@@ -28,6 +28,9 @@ if defined ENGINE_ROOT (
     if exist !PYTHON_EXE! (
         set PYTHONDONTWRITEBYTECODE=1
         !PYTHON_EXE! %~dp0uct.py %*
+    ) else if "%1" == "setup" (
+        :: The python in UE is downloaded in setup.
+        call %ENGINE_ROOT%\Setup.bat
     ) else (
         echo Can't find python !PYTHON_EXE! in your engine, maybe it is not setup. 1>&2
     )
@@ -36,7 +39,7 @@ if defined ENGINE_ROOT (
         echo UCT: Unreal command line tool. 1>&2
         echo You should run this command under the directory of an engine or a game project. 1>&2
     ) else (
-        echo Can't find unreal engine, you must under the directory of an engine or a game project. 1>&2
+        echo Can't find the engine, you must under the directory of an engine or a game project. 1>&2
     )
     exit /b 1
 )
@@ -47,9 +50,9 @@ goto :EOF
 :: Functions
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+:: function FindFileBottomUp(pattern: wildcard)
 :: Find file bottom up
-:: Args:
-::  file pattern: wildcard
+:: return: set the FOUND_FILE variable
 :FindFileBottomUp
 set FOUND_FILE=
 set "currentDir=%CD%"
@@ -61,6 +64,7 @@ for %%I in ("%currentDir%") do set "parentDir=%%~dpI"
 if not defined parentDir exit /b
 :: Remove trailing backslashes
 if "%parentDir:~-1%"=="\" set "parentDir=%parentDir:~0,-1%"
+
 
 :: Return if parentDir is the drive name
 :: The spaces before "|" are also echoed, such as echo A | findstr... will echo "A "
@@ -74,10 +78,9 @@ if not "%parentDir%" == "%currentDir%" (
 )
 exit /b
 
+
+:: function FindFileInDir(pattern: wildcard, target_directory: directory)
 :: Find file in dir
-:: Args:
-::  file pattern: wildcard
-::  target directory
 :FindFileInDir
 for %%F in ("%2\%1") do (
     set "FOUND_FILE=%%F"
@@ -86,6 +89,8 @@ for %%F in ("%2\%1") do (
 exit /b
 
 
+:: function FindProjectEngineDir()
+:: return: set the ENGINE_ROOT variable.
 :FindProjectEngineDir
 
 set "key=HKEY_CURRENT_USER\Software\Epic Games\Unreal Engine\Builds"
