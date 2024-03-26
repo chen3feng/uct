@@ -53,9 +53,9 @@ With this tool, you needn't:
 - Type `Development`.
   UCT use `Development` by default. Even if you want to specify it, using `-c dev` is also easier.
 
-## Supported Host Platforms
+## Supported Systems
 
-UCT support working on Win64, Linux and Mac.
+UCT supports running in Win64, Linux and Mac, and tested on UE 5.1, 5.2, 5.3 and 4.27.
 
 ## Install
 

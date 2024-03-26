@@ -51,7 +51,7 @@ G:\MyGame>G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/My
 
 ## 支持的系统
 
-UCT 支持在 Win64、Linux 和 Mac 中运行.
+UCT 支持在 Win64、Linux 和 Mac 中运行，在 UE 5.1、5.2、5.3 和 4.27 上测试通过。
 
 ## 安装
 
