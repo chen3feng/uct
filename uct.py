@@ -419,8 +419,17 @@ class UnrealCommandTool:
 
     def setup(self) -> int:
         """Run the Setup script in the engine."""
-        setup = 'Setup.' + 'bat' if self.host_platform == 'Win64' else 'sh'
+        setup = 'Setup.' + ('bat' if self.host_platform == 'Win64' else 'sh')
         return subprocess.call(os.path.join(self.engine_root, setup))
+
+    def generate_project_files(self) -> int:
+        """Run the GenerateProjectFiles.bat or sh."""
+        suffix = 'bat' if self.host_platform == 'Win64' else 'sh'
+        cmd = [os.path.join(self.engine_root, 'GenerateProjectFiles.' + suffix)]
+        if self.project_file:
+            cmd.append(self.project_file)
+        cmd += self.extra_args
+        return self._run_command(cmd)
 
     def list_targets(self) -> int:
         """Print out available build targets."""
@@ -435,15 +444,6 @@ class UnrealCommandTool:
         if not self.options.engine and not self.options.project:
             self._print_targets(self.all_targets)
         return 0
-
-    def generate_project_files(self) -> int:
-        """Run the GenerateProjectFiles.bat or sh."""
-        suffix = 'bat' if self.host_platform == 'Win64' else 'sh'
-        cmd = [os.path.join(self.engine_root, 'GenerateProjectFiles.' + suffix)]
-        if self.project_file:
-            cmd.append(self.project_file)
-        cmd += self.extra_args
-        return self._run_command(cmd)
 
     def _print_targets(self, targets):
         if self.options.verbose:
