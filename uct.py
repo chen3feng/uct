@@ -13,15 +13,14 @@ import platform
 import subprocess
 import sys
 
-import console
-
 from typing import Optional, Tuple
+
+import console
 
 # https://pypi.org/project/argcomplete/
 # PYTHON_ARGCOMPLETE_OK
 try:
-    # pyright: reportMissingImports=false
-    import argcomplete
+    import argcomplete # type: ignore[import-not-found]
 except ImportError:
     argcomplete = None
 
@@ -101,7 +100,7 @@ def build_arg_parser():
     test.add_argument('--list', dest='list', action='store_true', help='list all tests')
     test.add_argument('--run-all', dest='run_all', action='store_true', help='Run all test')
     test.add_argument('--run', dest='tests', type=str,  nargs='+', help='Run tests')
-    test.add_argument('--cmds', dest='test_cmds', type=str, nargs='+', help='Any extra test commands')
+    test.add_argument('--cmds', dest='test_cmds', type=str, nargs='+', help='Extra test commands')
 
     return parser
 
@@ -239,8 +238,8 @@ class UnrealCommandTool:
             console.error(f"Error parsing '{project_file}': {e}")
             return None
 
-    def _parse_engine_version(self) -> Tuple[dict, str]:
-        with open(os.path.join(self.engine_dir, 'Build/Build.version')) as f:
+    def _parse_engine_version(self) -> Tuple[dict, int]:
+        with open(os.path.join(self.engine_dir, 'Build/Build.version'), encoding='utf8') as f:
             version = json.load(f)
             return version, int(version['MajorVersion'])
 
@@ -372,8 +371,8 @@ class UnrealCommandTool:
         pattern = '*.Target.cs'
         excluded_dirs = ['Binaries', 'DerivedDataCache', 'Intermediate']
         files = []
-        files += find_files_under(os.path.join(dir, 'Source'), pattern, excluded_dirs=excluded_dirs)
-        files += find_files_under(os.path.join(dir, 'Plugins'), pattern, excluded_dirs=excluded_dirs)
+        files += find_files_under(os.path.join(dir, 'Source'), pattern, excluded_dirs)
+        files += find_files_under(os.path.join(dir, 'Plugins'), pattern, excluded_dirs)
         for file in files:
             target = self._parse_target_cs(file)
             if target:
@@ -527,7 +526,7 @@ class UnrealCommandTool:
                 returncode = returncode or ret
                 failed_targets.append(target)
         if failed_targets:
-            console.error(f'Failed to clean {" ".join(failed_targets)}.')
+            console.error(f'Failed to run {" ".join(failed_targets)}.')
         return returncode
 
     def _full_path_of_target(self, target, key='Launch'):
@@ -621,7 +620,7 @@ def check_targets(targets):
 
 
 def main():
-    # print('Welcome to UCT: the Unreal CommandLine Tool')
+    """Welcome to UCT: the Unreal CommandLine Tool."""
     options, targets, extra_args = parse_command_line()
     check_targets(targets)
     uct = UnrealCommandTool(options, targets, extra_args)
