@@ -308,11 +308,50 @@ uct build --help
 UCT 通过使用 `argcomplete` 库来支持 bash 和 zsh 中的命令自动补全，
 请参阅其[文档](https://pypi.org/project/argcomplete/) 来启用它。
 
+## 工作原理
+
+了解 UCT 的工作原理对使用有帮助，也欢迎贡献代码。
+
+### 启动
+
+UCT 必须在项目或者引擎的目录下运行。当 UCT 被调用时，它会先从当前目录往上搜索 `uproject` 文件，如果找到就认为是在项目目录中，
+解析项目文件得到项目关联的引擎 ID，根据系统不同，用不同的方式得到引擎所在的目录。
+
+- 在 Windows 上，读取注册表 `HKEY_CURRENT_USER\Software\Epic Games\Unreal Engine\Builds`
+- 在 Mac 和 Linux 上，读取配置文件 `~/.config/Epic/UnrealEngine/Install.ini`。
+
+如果找不到项目文件，就用类似的方式找 UE 引擎的特征文件（GenerateProjectFiles.bat），得到引擎的根目录。
+
+在 Linux 和 Mac 下，上述查找过程是在 python 中进行的的。
+
+在 Windows 上，上述查找过程是用批处理，然后通过环境变量的传给 UE 内置的 python 解释器（`Engine\Binaries\ThirdParty\Python3\Win64\python.exe`）。这是因为 Windows 系统缺乏统一的 Python 安装，而引擎中已经内置了 Python 解释器。
+
+找到了项目和引擎的目录，UBT 路径等就不在话下了。
+
+### `list-targets`
+
+用 `-Mode=QueryTargets` 参数调用 UBT，生成 `Intermediate/TargetInfo.json` 文件，解析即可得到结果。
+
+### `build` 和 `clean`
+
+调用 UBT 的 `Build` 和 `Clean` 功能。
+
+### `run`
+
+UBT 会为每个目标生成一个 JSON 格式的 \<目标名\>`.target` 文件，解析其 `Launch` 字段即可得到的到可执行文件的路径。
+
+### `test`
+
+目前仅支持在编辑器中的 `Automation` 测试，工作原理为找到引擎命令版的可执行文件（`UnrealEditor-Cmd`），生成测试命令传给它执行。
+
 ## 计划的功能
 
 ```console
 # Run Setup, in engine only
 uct setup
+
+# Run explicit test
+uct test MyGameTest
 
 # Pack
 uct pack
@@ -322,5 +361,6 @@ uct new module
 
 # Create a new C++ class
 # Create a ExamEventLoop.h in the Public directory and ExamEventLoop.cpp in the Private directory
-cltue new class --public FExamEventLoop
+uct new class --public FExamEventLoop
+
 ```

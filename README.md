@@ -313,11 +313,50 @@ uct build --help
 UCT support command auto completion in bash and zsh by using the `argcomplete` library,
 see its [document](https://pypi.org/project/argcomplete/) to enable it.
 
+## How it works
+
+Understanding how UCT works is helpful, and code contributions are welcome.
+
+### Startup
+
+UCT must be run under the project or engine directory. When UCT is called, it will first search for the `.uproject` file from the current directory upwards. If it is found, it is considered to be in the project directory.
+Parse the uproject file to get the engine ID associated with the project. Depending on the system, use different methods to get the directory where the engine is located.
+
+- On Windows, read the registry key `HKEY_CURRENT_USER\Software\Epic Games\Unreal Engine\Builds`
+- On Mac and Linux, read configuration files `~/.config/Epic/UnrealEngine/Install.ini`.
+
+If the project file cannot be found, use a similar method to find the feature file of the UE engine (GenerateProjectFiles.bat) and obtain the root directory of the engine.
+
+Under Linux and Mac, the above lookup process is performed in python.
+
+On Windows, the above search process is batch processed, and then passed to UE's built-in python interpreter (`Engine\Binaries\ThirdParty\Python3\Win64\python.exe`) through environment variables. This is because Windows systems lack a unified Python installation, and the Python interpreter is already built into the engine.
+
+Once the project and engine directories were found, Other paths such as UBT, are no longer a problem.
+
+### `list-targets`
+
+Use the `-Mode=QueryTargets` parameter to call UBT to generate the `Intermediate/TargetInfo.json` file, and parse it to get the result.
+
+### `build` and `clean`
+
+Use UBT's `Build` and `Clean` functionality.
+
+### `run`
+
+UBT will generate a \<target name\>`.target` file in JSON format for each target, and parse its `Launch` field to get the path to the executable file.
+
+### `test`
+
+Currently only `Automation` testing in the editor is supported. The working principle is to find the executable file of the engine command version (`UnrealEditor-Cmd`), generate test commands and pass them to it for execution.
+
 ## Planned Features
 
 ```console
 # Run Setup, in engine only
 uct setup
+
+# Run explicit test
+uct test MyGameTest
 
 # Pack
 uct pack
