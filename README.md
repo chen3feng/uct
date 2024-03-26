@@ -356,9 +356,6 @@ Currently only `Automation` testing in the editor is supported. The working prin
 ## Planned Features
 
 ```console
-# Run Setup, in engine only
-uct setup
-
 # Run explicit test
 uct test MyGameTest
 

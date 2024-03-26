@@ -351,9 +351,6 @@ UBT 会为每个目标生成一个 JSON 格式的 \<目标名\>`.target` 文件�
 ## 计划的功能
 
 ```console
-# Run Setup, in engine only
-uct setup
-
 # Run explicit test
 uct test MyGameTest
 
