@@ -70,6 +70,7 @@ def build_arg_parser():
 
     build_parents = [config]
 
+    subparsers.add_parser('setup', help='Setup the engine')
     subparsers.add_parser('generate-project-files', help='Generate project files')
 
     list_targets = subparsers.add_parser('list-targets', help='List targets')
@@ -145,7 +146,7 @@ def find_file_bottom_up(pattern, from_dir=None) -> str:
     return ''
 
 
-def find_files_under(dir, pattern, excluded_dirs=None, relpath=False) -> list[str]:
+def find_files_under(dir, pattern, excluded_dirs=None, relpath=False) -> list:
     """Find files under dir matching pattern."""
     result = []
     for root, dirs, files in os.walk(dir):
@@ -228,7 +229,7 @@ class UnrealCommandTool:
             return project['EngineAssociation']
         return ''
 
-    def _parse_project_file(self, project_file) -> Optional[dict[str, any]]:
+    def _parse_project_file(self, project_file) -> Optional[dict]:
         try:
             with open(project_file, encoding='utf8') as f:
                 return json.load(f)
@@ -326,14 +327,14 @@ class UnrealCommandTool:
             self.__project_targets = self._collect_targets(self.project_dir)
         self.__all_targets = self.__engine_targets + self.__project_targets
 
-    def _collect_targets(self, dir) -> list[str]:
+    def _collect_targets(self, dir) -> list:
         # Try 2 ways to collect target info.
         targets = self._query_targets(dir)
         if not targets:
             targets = self._scan_targets(dir)
         return targets
 
-    def _query_targets(self, dir) -> list[str]:
+    def _query_targets(self, dir) -> list:
         """Use UBT to query build targets."""
         cmd = [self.ubt, '-Mode=QueryTargets']
         if dir == self.project_dir:
@@ -344,7 +345,7 @@ class UnrealCommandTool:
             return []
         return self._load_target_info(dir)
 
-    def _load_target_info(self, dir) -> list[str]:
+    def _load_target_info(self, dir) -> list:
         """Try load target info from TargetInfo.json under the dir."""
         path = os.path.join(dir, 'Intermediate', 'TargetInfo.json')
         try:
@@ -355,7 +356,7 @@ class UnrealCommandTool:
             pass
         return []
 
-    def _scan_targets(self, dir) -> list[dict[str, str]]:
+    def _scan_targets(self, dir) -> list:
         """
         Scan and load all .Target.cs files under the dir.
         This is slower than _query_targets but can be a failover.
@@ -398,6 +399,22 @@ class UnrealCommandTool:
         assert command in dir(self), f'{command} method is not defined'
         return getattr(self, command)()
 
+    def _run_command(self, cmd, *args, **kwargs):
+        """Run an external command."""
+        if self.host_platform == 'Win64':
+            # Windows can't handle command arguments correctly.
+            # For example, in the handling of test command,
+            # neither pass the list directly nor use subprocess.list2cmd works because they convert
+            # -ExecCmds="Automation List; Quit" to "-ExecCmds=\"Automation List; Quit\"",
+            # But simplay join the list with spaces works.
+            return subprocess.call(' '.join(cmd), *args, **kwargs)
+        return subprocess.call(cmd, *args, **kwargs)
+
+    def setup(self) -> int:
+        """Run the Setup script in the engine."""
+        setup = 'Setup.' + 'bat' if self.host_platform == 'Win64' else 'sh'
+        return subprocess.call(os.path.join(self.engine_root, setup))
+
     def list_targets(self) -> int:
         """Print out available build targets."""
         # print('List targets')
@@ -419,7 +436,7 @@ class UnrealCommandTool:
         if self.project_file:
             cmd.append(self.project_file)
         cmd += self.extra_args
-        return subprocess.call(cmd)
+        return self._run_command(cmd)
 
     def _print_targets(self, targets):
         if self.options.verbose:
@@ -444,15 +461,20 @@ class UnrealCommandTool:
             return 1
         returncode = 0
         project = f'-Project={self.project_file}' if self.project_file else ''
+        failed_targets = []
         for target in self.targets:
             print(f'Build {target}')
             cmd = [self.ubt, project, target, self.platform, self.config]
             if self.options.files:
                 cmd += [f'--singlefile={f}' for f in self.options.files]
             cmd += self.extra_args
-            ret = subprocess.call(cmd)
-            if ret != 0: # Use first failed exitcode
-                returncode = ret
+            ret = self._run_command(cmd)
+            if ret != 0:
+                # Use first failed exitcode
+                returncode = returncode or ret
+                failed_targets.append(target)
+        if failed_targets:
+            console.error(f'Failed to build {" ".join(failed_targets)}.')
         return returncode
 
     def clean(self) -> int:
@@ -462,13 +484,18 @@ class UnrealCommandTool:
             return 1
         returncode = 0
         project = f'-Project={self.project_file}' if self.project_file else ''
+        failed_targets = []
         for target in self.targets:
             print(f'Clean {target}')
             cmd = [self.ubt, project, target, self.platform, self.config, '-Clean']
             cmd += self.extra_args
-            ret = subprocess.call(cmd)
-            if ret != 0: # Use first failed exitcode
-                returncode = ret
+            ret = self._run_command(cmd)
+            if ret != 0:
+                # Use first failed exitcode
+                returncode = returncode or ret
+                failed_targets.append(target)
+        if failed_targets:
+            console.error(f'Failed to clean {" ".join(failed_targets)}.')
         return returncode
 
     def run(self) -> int:
@@ -477,6 +504,7 @@ class UnrealCommandTool:
             console.error('Missing targets, nothing to run.')
             return 1
         returncode = 0
+        failed_targets = []
         for target in self.targets:
             executable = self._full_path_of_target(target)
             if not executable or not os.path.exists(executable):
@@ -486,9 +514,13 @@ class UnrealCommandTool:
                 continue
             cmd = [executable] + self.extra_args
             print(f'Run {" ".join(cmd)}')
-            ret = subprocess.call(cmd)
-            if ret != 0 and returncode == 0: # Use first failed exitcode
-                returncode = ret
+            ret = self._run_command(cmd)
+            if ret != 0:
+                # Use first failed exitcode
+                returncode = returncode or ret
+                failed_targets.append(target)
+        if failed_targets:
+            console.error(f'Failed to clean {" ".join(failed_targets)}.')
         return returncode
 
     def _full_path_of_target(self, target, key='Launch'):
@@ -533,13 +565,8 @@ class UnrealCommandTool:
         print(f'Test command: {test_cmds}')
         cmd = [editor, self.project_file, '-log', '-NoSplash', '-Unattended', f'-ExecCmds="{test_cmds}"'] + \
                self.extra_args
-        if self.host_platform == 'Win64':
-            # Neither pass the list directly nor use subprocess.list2cmd works because they convert
-            # -ExecCmds="Automation List; Quit" to "-ExecCmds=\"Automation List; Quit\"",
-            # But simplay join the list with spaces works.
-            cmd = ' '.join(cmd)
         print(f'Command line: {cmd}')
-        return subprocess.call(cmd)
+        return self._run_command(cmd)
 
     def _make_test_cmds(self) -> str:
         cmds = []
