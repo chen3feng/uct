@@ -10,6 +10,10 @@ UCT 是 Unreal Commandline Tool 的缩写，它是一个强大的命令行工具
 
 [![asciicast](https://asciinema.org/a/6KbwPkTAF2iqzYuzbYuYvqb6O.svg)](https://asciinema.org/a/6KbwPkTAF2iqzYuzbYuYvqb6O)
 
+在 Windows 和 UE 4.27 上:
+
+[![asciicast](https://asciinema.org/a/nDX0Gdw5KFvDckNGp7HA12PGJ.svg)](https://asciinema.org/a/nDX0Gdw5KFvDckNGp7HA12PGJ)
+
 ## 背景
 
 很多情况下，我更喜欢命令行工具，因为它们是快速且容易自动化。 我经常在 VS Code 中为 UE 编写代码，因为它比 Visual Studio 更快更轻量，git 集成更好。

@@ -10,6 +10,10 @@ Let's see a demo.
 
 [![asciicast](https://asciinema.org/a/6KbwPkTAF2iqzYuzbYuYvqb6O.svg)](https://asciinema.org/a/6KbwPkTAF2iqzYuzbYuYvqb6O)
 
+Used in windows and UE 4.27:
+
+[![asciicast](https://asciinema.org/a/nDX0Gdw5KFvDckNGp7HA12PGJ.svg)](https://asciinema.org/a/nDX0Gdw5KFvDckNGp7HA12PGJ)
+
 ## Background
 
 In many cases, I prefer command line tools because they are fast and easy automation. I often write code for UE in VS Code,
