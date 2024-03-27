@@ -540,19 +540,41 @@ class UnrealCommandTool:
 
     def _get_target_info(self, target) -> Optional[dict]:
         """Find and parse the target info from the target file."""
-        root = self.project_dir if self.project_file else self.engine_dir
-        suffix = ''
-        if self.config != 'Development':
-            suffix = f'-{self.platform}-{self.config}'
-        target_file = os.path.join(root, 'Binaries', self.platform, target + suffix + '.target')
+        target_file = self._get_target_file(target)
+        if not target_file:
+            return None
+
         try:
             with open(target_file, encoding='utf8') as f:
                 info = json.load(f)
                 return info
         except FileNotFoundError:
-            console.warn(f"target file {target_file} doesn't exist")
+            console.warn(f'Error parsing {target_file}')
 
         return None
+
+    def _get_target_file(self, target) -> str:
+        """Get path of the {TargetName}.target file."""
+
+        suffix = f'-{self.platform}-{self.config}' if self.config != 'Development' else ''
+
+        # When a engine target is built with the -Project option, its target file is generated in the project directory.
+        if self.project_dir:
+            target_file = os.path.join(self.project_dir, 'Binaries', self.platform, target + suffix + '.target')
+            if os.path.exists(target_file):
+                return target_file
+
+        # Also find it in the engine directory if it is an engine target.
+        if self._is_engine_target(target):
+            target_file = os.path.join(self.engine_dir, 'Binaries', self.platform, target + suffix + '.target')
+            if os.path.exists(target_file):
+                return target_file
+
+        console.error(f"Can't find {target_file}, please build it first.")
+        return ''
+
+    def _is_engine_target(self, target):
+        return any(t['Name'] == target for t in self.engine_targets)
 
     def test(self) -> int:
         """Run the automation tests."""
