@@ -344,7 +344,9 @@ class UnrealCommandTool:
         """Use UBT to query build targets."""
         cmd = [self.ubt, '-Mode=QueryTargets']
         if dir == self.project_dir:
-            cmd.append(f'-Project={self.project_file}')
+            cmd.append(f'-Project="{self.project_file}"')
+            if os.name == 'nt':
+                cmd = ' '.join(cmd)
         p = subprocess.run(cmd, text=True, capture_output=True, check=False)
         if p.returncode != 0:
             console.warn(f'QueryTargets failed: {" ".join(cmd)}\n{p.stdout}')
@@ -466,7 +468,7 @@ class UnrealCommandTool:
             console.error('Missing targets, nothing to build')
             return 1
         returncode = 0
-        project = f'-Project={self.project_file}' if self.project_file else ''
+        project = f'-Project="{self.project_file}"' if self.project_file else ''
         failed_targets = []
         for target in self.targets:
             print(f'Build {target}')
@@ -489,7 +491,7 @@ class UnrealCommandTool:
             console.error('Missing targets, nothing to clean.')
             return 1
         returncode = 0
-        project = f'-Project={self.project_file}' if self.project_file else ''
+        project = f'-Project="{self.project_file}"' if self.project_file else ''
         failed_targets = []
         for target in self.targets:
             print(f'Clean {target}')
