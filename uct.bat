@@ -58,9 +58,9 @@ goto :EOF
     set found_file=
     set "currentDir=%CD%"
 
-:FindUpper
+:FindFileBottomUp_upper
     call :FindFileInDir %1 %currentDir% found_file
-    if defined found_file exit /b
+    if defined found_file goto :FindFileBottomUp_exit
     set parentDir=
     for %%I in ("%currentDir%") do set "parentDir=%%~dpI"
     if not defined parentDir exit /b
@@ -75,8 +75,10 @@ goto :EOF
 
     if not "%parentDir%" == "%currentDir%" (
         set "currentDir=!parentDir!"
-        goto :FindUpper
+        goto :FindFileBottomUp_upper
     )
+
+:FindFileBottomUp_exit
     endlocal & set "%2=%found_file%"
 exit /b
 
@@ -100,11 +102,11 @@ exit /b
         for /f "tokens=2 delims={}" %%b in ("%%a") do (
             :: Read the registry value
             for /f "tokens=3*" %%c in ('reg query "%key%" /v "{%%b}" 2^>nul ^| findstr /C:"REG_SZ"') do (
-                set "engine_root=%%c"
+                set "found_engine_root=%%c"
                 :: Replace forward slashes with backslashes
-                set "engine_root=!engine_root:/=\!"
+                set "found_engine_root=!found_engine_root:/=\!"
             )
         )
     )
-    endlocal & set %1=%engine_root%
+    endlocal & set "%2=%found_engine_root%"
 exit /b
