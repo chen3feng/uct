@@ -98,6 +98,7 @@ exit /b
     setlocal EnableDelayedExpansion
     :: Iterate over each line in the file
     for /f "tokens=*" %%a in ('type "%~1" ^| findstr /C:"EngineAssociation"') do (
+        :: Using double quote in delims by escape, see https://ss64.com/nt/for_f.html
         for /f tokens^=3^ delims^=^" %%b in ("%%a") do (
             call :FindBuiltEngine %%b found_engine_root
             if defined found_engine_root goto :FindEngineByProject_exit
