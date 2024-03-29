@@ -102,6 +102,24 @@ Just like the git command. easy?
 
 UCT support the following commands:
 
+### Setup
+
+Execute the `Setup.bat` or `Setup.sh` in the engine root directory.
+
+```console
+$ uct setup
+...
+```
+
+### Generate Project Files
+
+Generate project files for the engine or game project.
+
+```console
+$ uct generate-project
+...
+```
+
 ### List targets
 
 List all targets:
@@ -147,17 +165,6 @@ Program   BaseTextureBuildWorker          G:\UnrealEngine-5.1\Engine\Source\Prog
 Program   BenchmarkTool                   G:\UnrealEngine-5.1\Engine\Source\Programs\BenchmarkTool\BenchmarkTool.Target.cs
 Program   BlankProgram                    G:\UnrealEngine-5.1\Engine\Source\Programs\BlankProgram\BlankProgram.Target.cs
 ```
-
-### Generate Project Files
-
-Generate project files for the engine or game project.
-
-```console
-$ uct generate-project-files
-...
-```
-
-Generate project files for the project or engine according to the current directory.
 
 ### Build
 

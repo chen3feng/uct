@@ -98,6 +98,24 @@ uct build -c dbg -p linux Benchmark
 
 UCT 支持以下命令：
 
+### setup
+
+执行引擎根目录下的 `Setup.bat` 或者 `Setup.sh` 命令.
+
+```console
+$ uct setup
+...
+```
+
+### generate-project
+
+根据当前目录的是项目还是引擎来生成相应的项目文件。
+
+```console
+$ uct generate-project
+...
+```
+
 ### list-targets
 
 列出所有目标：
@@ -143,17 +161,6 @@ Program   BaseTextureBuildWorker          G:\UnrealEngine-5.1\Engine\Source\Prog
 Program   BenchmarkTool                   G:\UnrealEngine-5.1\Engine\Source\Programs\BenchmarkTool\BenchmarkTool.Target.cs
 Program   BlankProgram                    G:\UnrealEngine-5.1\Engine\Source\Programs\BlankProgram\BlankProgram.Target.cs
 ```
-
-### generate-project-files
-
-为引擎或游戏项目生成项目文件。
-
-```console
-$ uct generate-project-files
-...
-```
-
-根据当前目录生成项目或引擎的项目文件。
 
 ### build
 

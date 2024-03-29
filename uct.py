@@ -70,7 +70,7 @@ def build_arg_parser():
     build_parents = [config]
 
     subparsers.add_parser('setup', help='Setup the engine')
-    subparsers.add_parser('generate-project-files', help='Generate project files')
+    subparsers.add_parser('generate-project', help='Generate project files')
 
     list_targets = subparsers.add_parser('list-targets', help='List targets')
     list_targets.add_argument('--project', action='store_true')
@@ -450,7 +450,7 @@ class UnrealCommandTool:
         setup = 'Setup.' + ('bat' if self.host_platform == 'Win64' else 'sh')
         return subprocess.call(os.path.join(self.engine_root, setup))
 
-    def generate_project_files(self) -> int:
+    def generate_project(self) -> int:
         """Run the GenerateProjectFiles.bat or sh."""
         suffix = 'bat' if self.host_platform == 'Win64' else 'sh'
         cmd = [os.path.join(self.engine_root, 'GenerateProjectFiles.' + suffix)]
