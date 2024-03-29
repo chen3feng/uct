@@ -87,11 +87,13 @@ def build_arg_parser():
 
     subparsers.add_parser('clean', help='Clean specified targets', parents=build_parents)
 
-    subparsers.add_parser(
+    run = subparsers.add_parser(
         'run',
         help='Build and run a single target',
         epilog='Any arguments after the empty "--" will be passed to the program',
         parents=build_parents)
+    run.add_argument('--dry-run', action='store_true',
+                     help="Don't actually run any commands; just print them.")
 
     test = subparsers.add_parser(
         'test',
@@ -197,7 +199,7 @@ class UnrealCommandTool:
         if not engine_root:
             engine_root = self._find_engine_by_project(project_file)
         if not engine_root:
-            console.error("Can't find engine root")
+            console.error("Can't find engine root.")
             sys.exit(1)
         return engine_root, project_file
 
@@ -218,7 +220,7 @@ class UnrealCommandTool:
             for install in json.load(f)['InstallationList']:
                 if install['AppName'] == 'UE_' + engine_id:
                     return install['InstallLocation']
-        console.error(f'UE{engine_id} is not installed in your system')
+        console.error(f'UE{engine_id} is not installed in your system.')
         return ''
 
     def _find_engine_association(self, project_file) -> str:
@@ -321,7 +323,7 @@ class UnrealCommandTool:
                 expanded_targets += fnmatch.filter(all_target_names, target)
             else:
                 if target not in all_target_names:
-                    console.warn(f"target '{target}' doesn't exist")
+                    console.warn(f"target '{target}' doesn't exist.")
                     continue
                 expanded_targets.append(target)
 
@@ -483,7 +485,7 @@ class UnrealCommandTool:
             self._print_targets(self.engine_targets)
         if self.options.project:
             if not self.project_file:
-                console.error('You are not under a game project directory')
+                console.error('You are not under a game project directory.')
                 return 1
             self._print_targets(self.project_targets)
         if not self.options.engine and not self.options.project:
@@ -509,7 +511,7 @@ class UnrealCommandTool:
     def build(self) -> int:
         """Build the specified targets."""
         if not self.targets:
-            console.error('Missing targets, nothing to build')
+            console.error('Missing targets, nothing to build.')
             return 1
         returncode = 0
         cmd_base = [self.ubt, self.platform, self.config]
@@ -570,6 +572,8 @@ class UnrealCommandTool:
                 continue
             cmd = [executable] + self.extra_args
             print(f'Run {" ".join(cmd)}')
+            if self.options.dry_run:
+                continue
             ret = self._run_command(cmd)
             if ret != 0:
                 # Use first failed exitcode
@@ -599,7 +603,7 @@ class UnrealCommandTool:
                 info = json.load(f)
                 return info
         except FileNotFoundError:
-            console.warn(f'Error parsing {target_file}')
+            console.warn(f'Error parsing {target_file}.')
 
         return None
 
@@ -630,14 +634,14 @@ class UnrealCommandTool:
         """Run the automation tests."""
         test_cmds = self._make_test_cmds()
         if not test_cmds:
-            console.error('No test command to execute')
+            console.error('No test command to execute.')
             return 0
         # Example command line:
         # G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/MyGame.uproject \
         #   -log -NoSplash -Unattended -ExecCmds="Automation RunTests System; Quit"
         editor = self._full_path_of_editor(is_cmd=True)
         if not os.path.exists(editor):
-            console.error(f"{editor} doesn't exist, build it first")
+            console.error(f"{editor} doesn't exist, build it first.")
             return EXIT_COMMAND_NOT_FOUND
         test_cmds = f'Automation {test_cmds}; Quit'
         print(f'Test command: {test_cmds}')
