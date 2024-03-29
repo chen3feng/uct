@@ -201,28 +201,24 @@ class UnrealCommandTool:
         return engine_root, project_file
 
     def _find_engine_by_project(self, project_file) -> str:
-        if os.name == 'posix':
-            return self._find_engine_root_posix(project_file)
-        # On windows, this program is always call from the uct.bat,
-        # finding engine by project was done there, we needn't query registry here.
-        return ''
-
-    def _find_engine_root_posix(self, project_file) -> str:
         engine_id = self._find_engine_association(project_file)
         if not engine_id:
             return ''
-        config_file = os.path.expanduser('~/.config/Epic/UnrealEngine/Install.ini')
-        config = configparser.ConfigParser()
-        config.read(config_file)
-        if 'Installations' not in config:
-            console.error(f"Invalid config file '{config_file}'.")
-            return ''
-        installations = config['Installations']
-        if engine_id not in installations:
-            console.error(f"Engine '{engine_id}' is not registered in '{config_file}'.")
-            return ''
+        if engine_id.startswith('{'): # Id of a built engine is a UUID encloded in '{}'.
+            return self._find_built_engine(engine_id)
+        return self._find_installed_engine(engine_id)
 
-        return config['Installations'][engine_id]
+    def _find_installed_engine(self, engine_id) -> str:
+        if os.name == 'nt':
+            path = os.path.expandvars(r'%ProgramData%\Epic\UnrealEngineLauncher\LauncherInstalled.dat')
+        else:
+            path = os.path.expanduser('~/Library/Application Support/Epic/UnrealEngineLauncher/LauncherInstalled.dat')
+        with open(path, encoding='utf8') as f:
+            for install in json.load(f)['InstallationList']:
+                if install['AppName'] == 'UE_' + engine_id:
+                    return install['InstallLocation']
+        console.error(f'UE{engine_id} is not installed in your system')
+        return ''
 
     def _find_engine_association(self, project_file) -> str:
         project = self._parse_project_file(project_file)
@@ -237,6 +233,37 @@ class UnrealCommandTool:
         except Exception as e:
             console.error(f"Error parsing '{project_file}': {e}")
             return None
+
+    def _find_built_engine(self, engine_id: str) -> str:
+        if os.name == 'posix':
+            return self._find_built_engine_posix(engine_id)
+        elif os.name == 'nt':
+            return self._find_built_engine_windows(engine_id)
+        return ''
+
+    def _find_built_engine_posix(self, engine_id) -> str:
+        config_file = '~/.config/Epic/UnrealEngine/Install.ini'
+        if self.host_platform == 'Mac':
+            config_file = '~/Library/Application Support/Epic/UnrealEngine/Install.ini'
+        config_file = os.path.expanduser(config_file)
+        config = configparser.ConfigParser()
+        config.read(config_file)
+        if 'Installations' not in config:
+            console.error(f"Invalid config file '{config_file}'.")
+            return ''
+        installations = config['Installations']
+        if engine_id in installations:
+            return config['Installations'][engine_id]
+        engine_id = engine_id.strip('{}') # UE5 format
+        if engine_id in installations:
+            return config['Installations'][engine_id]
+        console.error(f"Engine '{engine_id}' is not registered in '{config_file}'.")
+        return ''
+
+    def _find_built_engine_windows(self, engine_id):
+        # On windows, this program is always called from the uct.bat,
+        # finding engine by project was done there, we needn't query registry here.
+        return ''
 
     def _parse_engine_version(self) -> Tuple[dict, int]:
         with open(os.path.join(self.engine_dir, 'Build/Build.version'), encoding='utf8') as f:
