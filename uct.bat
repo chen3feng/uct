@@ -15,7 +15,7 @@ if defined ENGINE_ROOT_KEY_FILE (
     call :FindFileBottomUp *.uproject PROJECT_FILE
     if defined PROJECT_FILE (
         ::echo Found unreal project "!PROJECT_FILE!"
-        call :FindEngineByProject !PROJECT_FILE! ENGINE_ROOT
+        call :FindEngineByProject "!PROJECT_FILE!" ENGINE_ROOT
 		if not defined ENGINE_ROOT (
 		    echo Can't find associated unreal engine, check the "EngineAssociation" field in !PROJECT_FILE!. 1>&2
 		)
@@ -59,7 +59,7 @@ goto :EOF
     set "currentDir=%CD%"
 
 :FindFileBottomUp_upper
-    call :FindFileInDir %1 %currentDir% found_file
+    call :FindFileInDir %1 "%currentDir%" found_file
     if defined found_file goto :FindFileBottomUp_exit
     set parentDir=
     for %%I in ("%currentDir%") do set "parentDir=%%~dpI"
@@ -86,7 +86,7 @@ exit /b
 :: function FindFileInDir(pattern: wildcard, target_directory: directory, &found_file: varname)
 :: Find file in dir
 :FindFileInDir
-    for %%F in ("%2\%1") do (
+    for %%F in ("%~2\%1") do (
         set "%3=%%F"
         exit /b
     )
@@ -96,17 +96,47 @@ exit /b
 :: function FindEngineByProject(project_file: path, &engine_root: varname)
 :FindEngineByProject
     setlocal EnableDelayedExpansion
-    set "key=HKEY_CURRENT_USER\Software\Epic Games\Unreal Engine\Builds"
     :: Iterate over each line in the file
-    for /f "tokens=*" %%a in ('type "%1" ^| findstr /C:"EngineAssociation"') do (
-        for /f "tokens=2 delims={}" %%b in ("%%a") do (
-            :: Read the registry value
-            for /f "tokens=3*" %%c in ('reg query "%key%" /v "{%%b}" 2^>nul ^| findstr /C:"REG_SZ"') do (
-                set "found_engine_root=%%c"
-                :: Replace forward slashes with backslashes
-                set "found_engine_root=!found_engine_root:/=\!"
+    for /f "tokens=*" %%a in ('type "%~1" ^| findstr /C:"EngineAssociation"') do (
+        :: Using double quote in delims by escape, see https://ss64.com/nt/for_f.html
+        for /f tokens^=3^ delims^=^" %%b in ("%%a") do (
+            call :FindBuiltEngine %%b found_engine_root
+            if defined found_engine_root goto :FindEngineByProject_exit
+            call :FindInstalledEngine  %%b found_engine_root
+        )
+    )
+:FindEngineByProject_exit
+    endlocal & set "%2=%found_engine_root%"
+exit /b
+
+
+:: function FindBuiltEngine(engine_id, &path path)
+:FindBuiltEngine
+    setlocal
+    set "key=HKEY_CURRENT_USER\Software\Epic Games\Unreal Engine\Builds"
+    for /f "tokens=3*" %%a in ('reg query "%key%" /v "%1" 2^>nul ^| findstr /C:"REG_SZ"') do (
+        set "found_engine_root=%%a"
+        :: Replace forward slashes with backslashes
+        set "found_engine_root=!found_engine_root:/=\!"
+    )
+    endlocal & set "%2=%found_engine_root%"
+exit /b
+
+
+:: function FindInstalledEngine(engine_id, &path path)
+:FindInstalledEngine
+    setlocal
+    set "config_file=%ProgramData%\Epic\UnrealEngineLauncher\LauncherInstalled.dat"
+    for /f "tokens=*" %%a in ('type "%config_file%"') do (
+        for /f tokens^=1^,3^ delims^=^" %%b in ("%%a") do (
+            if "%%b" == "InstallLocation" (
+                set InstallLocation=%%c
+            ) else if "%%b" == "ArtifactId" (
+                if "%%c" == "UE_%1" goto :FindInstalledEngine_found
             )
         )
     )
-    endlocal & set "%2=%found_engine_root%"
+    set InstallLocation=
+:FindInstalledEngine_found
+    endlocal & set %~2=%InstallLocation:\\=\%
 exit /b
