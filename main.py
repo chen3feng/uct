@@ -105,6 +105,13 @@ def build_arg_parser():
     test.add_argument('--run', dest='tests', type=str,  nargs='+', help='Run tests')
     test.add_argument('--cmds', dest='test_cmds', type=str, nargs='+', help='Extra test commands')
 
+    pack = subparsers.add_parser(
+        'pack',
+        help='Pack target',
+        epilog='Any arguments after the empty "--" will be passed to UAT',
+        parents=[config])
+    pack.add_argument('--output', dest='output', type=str, help='directory to archive the builds to')
+
     return parser
 
 
@@ -277,12 +284,13 @@ class UnrealCommandTool:
         """Find full path of UBT based on host platform."""
         return self._find_build_script('Build')
 
-    def _find_build_script(self, name):
+    def _find_build_script(self, name, platform=None):
         """Find the full path of script under the Engine/Build/BatchFiles."""
         suffix = '.bat' if self.host_platform == 'Win64' else '.sh'
-        platform = self.host_platform
-        if platform == 'Win64':
-            platform = ''
+        if platform is None:
+            platform = self.host_platform
+            if platform == 'Win64':
+                platform = ''
         return os.path.join(self.engine_dir, 'Build', 'BatchFiles', platform, name + suffix)
 
     def _host_platform(self):
@@ -379,7 +387,7 @@ class UnrealCommandTool:
         """Use UBT to query build targets."""
         cmd = [self.ubt, '-Mode=QueryTargets']
         if dir == self.project_dir:
-            cmd.append(self._project_argument())
+            cmd.append(self._escape_argument('-Project', self.project_file))
             if os.name == 'nt':
                 cmd = ' '.join(cmd)
         p = subprocess.run(cmd, text=True, capture_output=True, check=False)
@@ -399,14 +407,14 @@ class UnrealCommandTool:
             pass
         return []
 
-    def _project_argument(self):
+    def _escape_argument(self, name, value):
         """Return -Project=/Full/Path/To/NameOf.uproject."""
         assert self.project_file
         if os.name == 'nt':
             # On windows, double quote is necessary if path contains space.
-            return f'-Project="{self.project_file}"'
+            return f'{name}="{value}"'
         # On Linux and Mac, add double quote may cause runtime error.
-        return f'-Project={self.project_file}'
+        return f'{name}={value}'
 
     def _scan_targets(self, dir) -> list:
         """
@@ -516,7 +524,7 @@ class UnrealCommandTool:
         returncode = 0
         cmd_base = [self.ubt, self.platform, self.config]
         if self.project_file:
-            cmd_base.append(self._project_argument())
+            cmd_base.append(self._escape_argument('-Project', self.project_file))
         failed_targets = []
         for target in self.targets:
             print(f'Build {target}')
@@ -541,7 +549,7 @@ class UnrealCommandTool:
         returncode = 0
         cmd_base = [self.ubt, self.platform, self.config]
         if self.project_file:
-            cmd_base.append(self._project_argument())
+            cmd_base.append(self._escape_argument('-Project', self.project_file))
         failed_targets = []
         for target in self.targets:
             print(f'Clean {target}')
@@ -682,6 +690,33 @@ class UnrealCommandTool:
         if self.options.test_cmds:
             cmds += self.options.test_cmds
         return '; '.join(cmds)
+
+    def pack(self) -> int:
+        """Pack targets"""
+        if not self.project_file:
+            console.error('not in project directory')
+            return 0
+        uat = self._find_build_script('RunUAT', platform='')
+        editor = self._full_path_of_editor(is_cmd=True)
+        output = self.options.output
+        output = os.path.abspath(output)
+        for target in self.targets:
+            cmd = [
+                uat, self._escape_argument('-ScriptsForProject', self.project_file),
+                'Turnkey', '-command=VerifySdk', f'-target={target}', f'-platform={self.platform}',
+                '-UpdateIfNeeded', self._escape_argument('-Project', self.project_file),
+                'BuildCookRun', '-nop4', '-utf8output', '-nocompile', '-nocompileeditor', '-nocompileuat',
+                '-skipbuildeditor', '-cook', self._escape_argument('-Project', self.project_file),
+                '-stage', '-archive', '-package', '-build', '-pak', '-iostore', '-compressed', '-prereqs',
+                f'-target={target}', self._escape_argument('-unrealexe', editor),
+                f'-clientconfig={self.config}', f'-serverconfig={self.config}',
+                self._escape_argument('-archivedirectory', output)
+            ]
+            print(f'Pack {' '.join(cmd)}')
+            ret = self._run_command(cmd)
+            if ret != 0:
+                return ret
+        return 0
 
 
 def check_targets(targets):
