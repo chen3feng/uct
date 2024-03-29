@@ -591,8 +591,8 @@ class UnrealCommandTool:
             console.error(f'Failed to run {" ".join(failed_targets)}.')
         return returncode
 
-    def _full_path_of_target(self, target, key='Launch'):
-        info = self._get_target_info(target)
+    def _full_path_of_target(self, target, key='Launch', config=None):
+        info = self._get_target_info(target, config)
         if not info:
             return ''
         executable = info[key]
@@ -600,9 +600,9 @@ class UnrealCommandTool:
         executable = executable.replace('$(ProjectDir)', self.project_dir)
         return executable
 
-    def _get_target_info(self, target) -> Optional[dict]:
+    def _get_target_info(self, target, config=None) -> Optional[dict]:
         """Find and parse the target info from the target file."""
-        target_file = self._get_target_file(target)
+        target_file = self._get_target_file(target, config)
         if not target_file:
             return None
 
@@ -615,10 +615,10 @@ class UnrealCommandTool:
 
         return None
 
-    def _get_target_file(self, target) -> str:
+    def _get_target_file(self, target, config=None) -> str:
         """Get path of the {TargetName}.target file."""
-
-        suffix = f'-{self.platform}-{self.config}' if self.config != 'Development' else ''
+        config = config or self.config
+        suffix = f'-{self.platform}-{config}' if config != 'Development' else ''
 
         # When a engine target is built with the -Project option, its target file is generated in the project directory.
         if self.project_dir:
@@ -661,10 +661,12 @@ class UnrealCommandTool:
         return self._run_command(cmd)
 
     def _full_path_of_editor(self, is_cmd=False):
+        # UnrealEditor does not support the Shipping configuration
+        config = 'Development' if self.config == 'Shipping' else self.config
         if self.engine_major_version >= 5:
-            return self._full_path_of_target('UnrealEditor', 'LaunchCmd' if is_cmd else 'Launch')
+            return self._full_path_of_target('UnrealEditor', 'LaunchCmd' if is_cmd else 'Launch', config)
         # There is no LaunchCmd field in UE4's target file.
-        editor = self._full_path_of_target('UE4Editor', 'Launch')
+        editor = self._full_path_of_target('UE4Editor', 'Launch', config)
         if is_cmd:
             if editor.endswith('.exe'):
                 return editor.replace('.exe', '-Cmd.exe')
@@ -698,9 +700,13 @@ class UnrealCommandTool:
             return 0
         uat = self._find_build_script('RunUAT', platform='')
         editor = self._full_path_of_editor(is_cmd=True)
+        if not editor or not os.path.exists(editor):
+            console.error(f'Missing editor, Needs to be built first.')
+            return 1
         output = self.options.output
         output = os.path.abspath(output)
         for target in self.targets:
+            print(f'Pack {target}')
             cmd = [
                 uat, self._escape_argument('-ScriptsForProject', self.project_file),
                 'Turnkey', '-command=VerifySdk', f'-target={target}', f'-platform={self.platform}',
@@ -712,7 +718,7 @@ class UnrealCommandTool:
                 f'-clientconfig={self.config}', f'-serverconfig={self.config}',
                 self._escape_argument('-archivedirectory', output)
             ]
-            print(f'Pack {' '.join(cmd)}')
+            print(f'Run {' '.join(cmd)}')
             ret = self._run_command(cmd)
             if ret != 0:
                 return ret

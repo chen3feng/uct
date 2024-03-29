@@ -304,6 +304,27 @@ Automation SetFilter <filter name>
 Automation Quit
 ```
 
+### pack
+
+将目标打包到指定的输出目录。
+
+参数：
+
+- `--output` 打包结果的输出目录。
+
+示例：
+
+```console
+$ uct pack --config=ship --output=pack_dir MyGame
+...
+Archive command time: 1.13 s
+********** ARCHIVE COMMAND COMPLETED **********
+BuildCookRun time: 58.27 s
+BUILD SUCCESSFUL
+AutomationTool executed for 0h 0m 59s
+AutomationTool exiting with ExitCode=0 (Success)
+```
+
 ### 帮助
 
 要查看帮助，使用 `--help` 参数，要查看命令的帮助，在命令后加 `--test`。
