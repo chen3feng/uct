@@ -116,12 +116,14 @@ $ uct generate-project
 ...
 ```
 
-### list-targets
+### list
+
+#### list targets
 
 列出所有目标：
 
 ```console
-$ uct list-targets
+$ uct list targets
 BaseTextureBuildWorker
 BenchmarkTool
 BlankProgram
@@ -132,7 +134,7 @@ BuildPatchTool
 列出所有引擎目标：
 
 ```console
-$ uct list-targets --engine
+$ uct list targets --engine
 BaseTextureBuildWorker
 BenchmarkTool
 BlankProgram
@@ -143,7 +145,7 @@ BuildPatchTool
 列出所有项目目标：
 
 ```console
-$ uct list-targets --project
+$ uct list targets --project
 MyGameTest
 MyGameClient
 MyGameEditor
@@ -154,7 +156,7 @@ MyGameBenchmark
 用 `--verbose` 选项输出详情：
 
 ```console
-$ uct list-targets --verbose
+$ uct list targets --verbose
 Type      Name                            Path
 ------------------------------------------------------------------------------------------------------------------------
 Program   BaseTextureBuildWorker          G:\UnrealEngine-5.1\Engine\Source\Programs\BaseTextureBuildWorker\BaseTextureBuildWorker.Target.cs

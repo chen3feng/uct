@@ -120,12 +120,14 @@ $ uct generate-project
 ...
 ```
 
-### List targets
+### List
+
+#### list targets
 
 List all targets:
 
 ```console
-$ uct list-targets
+$ uct list targets
 BaseTextureBuildWorker
 BenchmarkTool
 BlankProgram
@@ -136,7 +138,7 @@ BuildPatchTool
 List all engine targets:
 
 ```console
-$ uct list-targets --engine
+$ uct list targets --engine
 BaseTextureBuildWorker
 BenchmarkTool
 BlankProgram
@@ -147,7 +149,7 @@ BuildPatchTool
 List all project targets:
 
 ```console
-$ uct list-targets --project
+$ uct list targets --project
 MyGameTest
 MyGameClient
 MyGameEditor
@@ -158,7 +160,7 @@ MyGameBenchmark
 Make verbose output with the `--verbose` option:
 
 ```console
-$ uct list-targets --verbose
+$ uct list targets --verbose
 Type      Name                            Path
 ------------------------------------------------------------------------------------------------------------------------
 Program   BaseTextureBuildWorker          G:\UnrealEngine-5.1\Engine\Source\Programs\BaseTextureBuildWorker\BaseTextureBuildWorker.Target.cs
