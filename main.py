@@ -56,8 +56,7 @@ def build_arg_parser():
     parser = argparse.ArgumentParser(prog='UCT', description='Unreal command line tool')
     parser.add_argument('--version', action='version', version='%(prog)s ' + VERSION)
 
-    subparsers = parser.add_subparsers(dest='command', help='Available subcommands')
-    subparsers.required = True
+    subparsers = parser.add_subparsers(dest='command', help='Available commands', required=True)
 
     config = argparse.ArgumentParser(add_help=False)
     config.add_argument('-p', '--platform', dest='platform', type=str,
@@ -72,10 +71,12 @@ def build_arg_parser():
     subparsers.add_parser('setup', help='Setup the engine')
     subparsers.add_parser('generate-project', help='Generate project files')
 
-    list_targets = subparsers.add_parser('list-targets', help='List targets')
-    list_targets.add_argument('--project', action='store_true')
-    list_targets.add_argument('--engine', action='store_true')
-    list_targets.add_argument('--verbose', action='store_true')
+    list_parsers = subparsers.add_parser('list', help='List objects in the project').add_subparsers(
+        dest='subcommand', help='Available subcommands', required=True)
+    targets = list_parsers.add_parser('targets', help='list build targets')
+    targets.add_argument('--project', action='store_true', help='in project scope')
+    targets.add_argument('--engine', action='store_true', help='in engine scope')
+    targets.add_argument('--verbose', action='store_true', help='show detailed information')
 
     build = subparsers.add_parser('build', help='Build specified targets', parents=build_parents)
 
@@ -444,7 +445,10 @@ class UnrealCommandTool:
         Execute the command from command line.
         Return 0 if success
         """
-        command = self.options.command.replace('-', '_')
+        command = self.options.command
+        if hasattr(self.options, 'subcommand'):
+            command += '_' + self.options.subcommand
+        command = command.replace('-', '_')
         assert command in dir(self), f'{command} method is not defined'
         return getattr(self, command)()
 
