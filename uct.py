@@ -272,10 +272,15 @@ class UnrealCommandTool:
 
     def _find_ubt(self):
         """Find full path of UBT based on host platform."""
-        if self.host_platform == 'Win64':
-            return os.path.normpath(os.path.join(self.engine_dir, 'Build/BatchFiles/Build.bat'))
-        return os.path.normpath(
-            os.path.join(self.engine_dir, f'Build/BatchFiles/{self.host_platform}/Build.sh'))
+        return self._find_build_script('Build')
+
+    def _find_build_script(self, name):
+        """Find the full path of script under the Engine/Build/BatchFiles."""
+        suffix = '.bat' if self.host_platform == 'Win64' else '.sh'
+        platform = self.host_platform
+        if platform == 'Win64':
+            platform = ''
+        return os.path.join(self.engine_dir, 'Build', 'BatchFiles', platform, name + suffix)
 
     def _host_platform(self):
         """Get host platform name as UE form."""
@@ -371,7 +376,7 @@ class UnrealCommandTool:
         """Use UBT to query build targets."""
         cmd = [self.ubt, '-Mode=QueryTargets']
         if dir == self.project_dir:
-            cmd.append(f'-Project="{self.project_file}"')
+            cmd.append(self._project_argument())
             if os.name == 'nt':
                 cmd = ' '.join(cmd)
         p = subprocess.run(cmd, text=True, capture_output=True, check=False)
@@ -390,6 +395,15 @@ class UnrealCommandTool:
             # print(f"Can't open {path} for read")
             pass
         return []
+
+    def _project_argument(self):
+        """Return -Project=/Full/Path/To/NameOf.uproject."""
+        assert self.project_file
+        if os.name == 'nt':
+            # On windows, double quote is necessary if path contains space.
+            return f'-Project="{self.project_file}"'
+        # On Linux and Mac, add double quote may cause runtime error.
+        return f'-Project={self.project_file}'
 
     def _scan_targets(self, dir) -> list:
         """
@@ -452,8 +466,7 @@ class UnrealCommandTool:
 
     def generate_project(self) -> int:
         """Run the GenerateProjectFiles.bat or sh."""
-        suffix = 'bat' if self.host_platform == 'Win64' else 'sh'
-        cmd = [os.path.join(self.engine_root, 'GenerateProjectFiles.' + suffix)]
+        cmd = [self._find_build_script('GenerateProjectFiles')]
         if self.project_file:
             cmd.append(self.project_file)
         cmd += self.extra_args
@@ -495,11 +508,13 @@ class UnrealCommandTool:
             console.error('Missing targets, nothing to build')
             return 1
         returncode = 0
-        project = f'-Project="{self.project_file}"' if self.project_file else ''
+        cmd_base = [self.ubt, self.platform, self.config]
+        if self.project_file:
+            cmd_base.append(self._project_argument())
         failed_targets = []
         for target in self.targets:
             print(f'Build {target}')
-            cmd = [self.ubt, project, target, self.platform, self.config]
+            cmd = cmd_base + [target]
             if self.options.files:
                 cmd += [f'--singlefile={f}' for f in self.options.files]
             cmd += self.extra_args
@@ -518,11 +533,13 @@ class UnrealCommandTool:
             console.error('Missing targets, nothing to clean.')
             return 1
         returncode = 0
-        project = f'-Project="{self.project_file}"' if self.project_file else ''
+        cmd_base = [self.ubt, self.platform, self.config]
+        if self.project_file:
+            cmd_base.append(self._project_argument())
         failed_targets = []
         for target in self.targets:
             print(f'Clean {target}')
-            cmd = [self.ubt, project, target, self.platform, self.config, '-Clean']
+            cmd = cmd_base + ['-Clean', target]
             cmd += self.extra_args
             ret = self._run_command(cmd)
             if ret != 0:
