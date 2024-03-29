@@ -27,7 +27,7 @@ if defined ENGINE_ROOT (
     set "PYTHON_EXE=!ENGINE_ROOT!\Engine\Binaries\ThirdParty\Python3\Win64\python.exe"
     if exist !PYTHON_EXE! (
         set PYTHONDONTWRITEBYTECODE=1
-        !PYTHON_EXE! %~dp0uct.py %*
+        !PYTHON_EXE! %~dp0main.py %*
     ) else if "%1" == "setup" (
         :: The python in UE is downloaded in setup.
         call %ENGINE_ROOT%\Setup.bat
