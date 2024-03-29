@@ -105,6 +105,14 @@ def build_arg_parser():
     test.add_argument('--run', dest='tests', type=str,  nargs='+', help='Run tests')
     test.add_argument('--cmds', dest='test_cmds', type=str, nargs='+', help='Extra test commands')
 
+    pack = subparsers.add_parser(
+        'pack',
+        help='Pack target',
+        epilog='Any arguments after the empty "--" will be passed to UAT',
+        parents=[config])
+    pack.add_argument('-o', '--output', dest='output', type=str, required=True,
+                      help='directory to archive the builds to')
+
     return parser
 
 
@@ -277,12 +285,13 @@ class UnrealCommandTool:
         """Find full path of UBT based on host platform."""
         return self._find_build_script('Build')
 
-    def _find_build_script(self, name):
+    def _find_build_script(self, name, platform=None):
         """Find the full path of script under the Engine/Build/BatchFiles."""
         suffix = '.bat' if self.host_platform == 'Win64' else '.sh'
-        platform = self.host_platform
-        if platform == 'Win64':
-            platform = ''
+        if platform is None:
+            platform = self.host_platform
+            if platform == 'Win64':
+                platform = ''
         return os.path.join(self.engine_dir, 'Build', 'BatchFiles', platform, name + suffix)
 
     def _host_platform(self):
@@ -379,7 +388,7 @@ class UnrealCommandTool:
         """Use UBT to query build targets."""
         cmd = [self.ubt, '-Mode=QueryTargets']
         if dir == self.project_dir:
-            cmd.append(self._project_argument())
+            cmd.append(self._escape_argument('-Project', self.project_file))
             if os.name == 'nt':
                 cmd = ' '.join(cmd)
         p = subprocess.run(cmd, text=True, capture_output=True, check=False)
@@ -399,14 +408,14 @@ class UnrealCommandTool:
             pass
         return []
 
-    def _project_argument(self):
+    def _escape_argument(self, name, value):
         """Return -Project=/Full/Path/To/NameOf.uproject."""
         assert self.project_file
         if os.name == 'nt':
             # On windows, double quote is necessary if path contains space.
-            return f'-Project="{self.project_file}"'
+            return f'{name}="{value}"'
         # On Linux and Mac, add double quote may cause runtime error.
-        return f'-Project={self.project_file}'
+        return f'{name}={value}'
 
     def _scan_targets(self, dir) -> list:
         """
@@ -516,7 +525,7 @@ class UnrealCommandTool:
         returncode = 0
         cmd_base = [self.ubt, self.platform, self.config]
         if self.project_file:
-            cmd_base.append(self._project_argument())
+            cmd_base.append(self._escape_argument('-Project', self.project_file))
         failed_targets = []
         for target in self.targets:
             print(f'Build {target}')
@@ -541,7 +550,7 @@ class UnrealCommandTool:
         returncode = 0
         cmd_base = [self.ubt, self.platform, self.config]
         if self.project_file:
-            cmd_base.append(self._project_argument())
+            cmd_base.append(self._escape_argument('-Project', self.project_file))
         failed_targets = []
         for target in self.targets:
             print(f'Clean {target}')
@@ -583,8 +592,8 @@ class UnrealCommandTool:
             console.error(f'Failed to run {" ".join(failed_targets)}.')
         return returncode
 
-    def _full_path_of_target(self, target, key='Launch'):
-        info = self._get_target_info(target)
+    def _full_path_of_target(self, target, key='Launch', platform=None, config=None):
+        info = self._get_target_info(target, platform, config)
         if not info:
             return ''
         executable = info[key]
@@ -592,9 +601,9 @@ class UnrealCommandTool:
         executable = executable.replace('$(ProjectDir)', self.project_dir)
         return executable
 
-    def _get_target_info(self, target) -> Optional[dict]:
+    def _get_target_info(self, target, platform, config=None) -> Optional[dict]:
         """Find and parse the target info from the target file."""
-        target_file = self._get_target_file(target)
+        target_file = self._get_target_file(target, platform, config)
         if not target_file:
             return None
 
@@ -607,20 +616,21 @@ class UnrealCommandTool:
 
         return None
 
-    def _get_target_file(self, target) -> str:
+    def _get_target_file(self, target, platform=None, config=None) -> str:
         """Get path of the {TargetName}.target file."""
-
-        suffix = f'-{self.platform}-{self.config}' if self.config != 'Development' else ''
+        platform = platform or self.platform
+        config = config or self.config
+        suffix = f'-{self.platform}-{config}' if config != 'Development' else ''
 
         # When a engine target is built with the -Project option, its target file is generated in the project directory.
         if self.project_dir:
-            target_file = os.path.join(self.project_dir, 'Binaries', self.platform, target + suffix + '.target')
+            target_file = os.path.join(self.project_dir, 'Binaries', platform, target + suffix + '.target')
             if os.path.exists(target_file):
                 return target_file
 
         # Also find it in the engine directory if it is an engine target.
         if self._is_engine_target(target):
-            target_file = os.path.join(self.engine_dir, 'Binaries', self.platform, target + suffix + '.target')
+            target_file = os.path.join(self.engine_dir, 'Binaries', platform, target + suffix + '.target')
             if os.path.exists(target_file):
                 return target_file
 
@@ -652,11 +662,12 @@ class UnrealCommandTool:
         print(f'Command line: {cmd}')
         return self._run_command(cmd)
 
-    def _full_path_of_editor(self, is_cmd=False):
+    def _full_path_of_editor(self, is_cmd=False, platform=None, config=None):
         if self.engine_major_version >= 5:
-            return self._full_path_of_target('UnrealEditor', 'LaunchCmd' if is_cmd else 'Launch')
+            return self._full_path_of_target('UnrealEditor', 'LaunchCmd' if is_cmd else 'Launch',
+                                             self.host_platform, config)
         # There is no LaunchCmd field in UE4's target file.
-        editor = self._full_path_of_target('UE4Editor', 'Launch')
+        editor = self._full_path_of_target('UE4Editor', 'Launch', platform, config)
         if is_cmd:
             if editor.endswith('.exe'):
                 return editor.replace('.exe', '-Cmd.exe')
@@ -682,6 +693,37 @@ class UnrealCommandTool:
         if self.options.test_cmds:
             cmds += self.options.test_cmds
         return '; '.join(cmds)
+
+    def pack(self) -> int:
+        """Pack targets"""
+        if not self.project_file:
+            console.error('not in project directory')
+            return 0
+
+        uat = self._find_build_script('RunUAT', platform='')
+        # UnrealEditor does not support the Shipping configuration
+        editor = self._full_path_of_editor(is_cmd=True, platform=self.host_platform, config='Development')
+        if not editor:
+            return 1
+
+        for target in self.targets:
+            print(f'Pack {target}')
+            cmd = [
+                uat, self._escape_argument('-ScriptsForProject', self.project_file),
+                'Turnkey', '-command=VerifySdk', f'-target={target}', f'-platform={self.platform}',
+                '-UpdateIfNeeded', self._escape_argument('-Project', self.project_file),
+                'BuildCookRun', '-nop4', '-utf8output', '-nocompile', '-nocompileeditor', '-nocompileuat',
+                '-skipbuildeditor', '-cook', self._escape_argument('-Project', self.project_file),
+                '-stage', '-archive', '-package', '-build', '-pak', '-iostore', '-compressed', '-prereqs',
+                f'-target={target}', self._escape_argument('-unrealexe', editor),
+                f'-clientconfig={self.config}', f'-serverconfig={self.config}',
+                self._escape_argument('-archivedirectory', os.path.abspath(self.options.output))
+            ]
+            # print(f'Run {' '.join(cmd)}')
+            ret = self._run_command(cmd)
+            if ret != 0:
+                return ret
+        return 0
 
 
 def check_targets(targets):

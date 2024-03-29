@@ -309,6 +309,27 @@ Automation SetFilter <filter name>
 Automation Quit
 ```
 
+### pack
+
+Pack the target to specified output directory.
+
+Arguments:
+
+- `--output` Output directory of the packed result.
+
+Example:
+
+```console
+$ uct pack --config=ship --output=pack_dir MyGame
+...
+Archive command time: 1.13 s
+********** ARCHIVE COMMAND COMPLETED **********
+BuildCookRun time: 58.27 s
+BUILD SUCCESSFUL
+AutomationTool executed for 0h 0m 59s
+AutomationTool exiting with ExitCode=0 (Success)
+```
+
 ### help
 
 To view help, use the `--help` parameter. To view help for a command, add `--test` after the command.
