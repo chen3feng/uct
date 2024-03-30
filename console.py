@@ -1,11 +1,16 @@
+"""
+Console and log support.
+"""
+
 import os
 import sys
 import subprocess
 
+ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004
+INVALID_HANDLE_VALUE = -1
+
 def _windows_console_support_ansi_color():
-    from ctypes import byref, windll, wintypes
-    ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004
-    INVALID_HANDLE_VALUE = -1
+    from ctypes import byref, windll, wintypes # pylint: disable=import-outside-toplevel
 
     handle = windll.kernel32.GetStdHandle(subprocess.STD_OUTPUT_HANDLE)
     if handle == INVALID_HANDLE_VALUE:
@@ -56,8 +61,10 @@ def colored(text, color):
 
 
 def error(message: str) -> None:
+    """Write a error message to the console."""
     print(colored(f'Error: {message}', 'red'), file=sys.stderr)
 
 
 def warn(message: str) -> None:
+    """Write a warning message to the console."""
     print(colored(f'Warn: {message}', 'yellow'), file=sys.stderr)

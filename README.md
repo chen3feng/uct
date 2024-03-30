@@ -16,10 +16,19 @@ Used in windows and UE 4.27:
 
 ## Background
 
-In many cases, I prefer command line tools because they are fast and easy automation. I often write code for UE in VS Code,
-because it is much fast and lightweight than Visual Studio, has better git integration.
-so I often need to call [UBT](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/UnrealBuildTool/) and editor manually,
-but the their command line interface are very verbose.
+Usually development on EU is done in Visual Studio and Editor on Windows systems. But sometimes,
+
+- When traveling or at home, without access to the Windows workstation in the office, I have to develop, build, and test on a Mac system.
+- Even on the Windows workstation, I often use Visual Studio Code to open projects because it is more lightweight,
+  rich in plug-ins, fast to start, and has better git integration.
+
+In these cases, you need to use command line tools, such as [UBT](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/UnrealBuildTool/),
+[UAT](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/AutomationTool/) and
+[Editor](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/CommandLineArguments/).
+
+And in many cases, it is more convenient to use command line tools because they are easy to batch and automate.
+
+But the command line interfaces in UE systems are very boring.
 
 For example, to build a program:
 
@@ -31,6 +40,20 @@ To run tests from command line:
 
 ```console
 G:\MyGame>G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/MyGame.uproject -ExecCmds="Automation RunAll"
+```
+
+To packing is insanely more complicated:
+
+```console
+E:\UE_5.2\Build\BatchFiles\RunUAT.bat ^
+BuildCookRun -project=E:/AllProject/UE_5_2_0/BuildTest/BuildTest.uproject ^
+-ScriptsForProject=E:/AllProject/UE_5_2_0/BuildTest/BuildTest.uproject ^
+Turnkey -command=VerifySdk -platform=Android -UpdateIfNeeded ^
+BuildCookRun -nop4 -utf8output -nocompileeditor -skipbuildeditor -cook ^
+-project=E:/AllProject/UE_5_2_0/BuildTest/BuildTest.uproject -target=BuildTest ^
+-unrealexe=E:\UE\UE_4.27_Source\UnrealEngine\Engine\Binaries\Win64\UnrealEditor-Cmd.exe ^
+-platform=Android -cookflavor=ASTC -stage -archive -package -build -pak -iostore -compressed -prereqs ^
+-archivedirectory=E:/AllProject/UE_5_2_0/BuildTest/PakOutputX -clientconfig=Development -nocompile -nocompileuat
 ```
 
 These user interface has the following problems:

@@ -9,7 +9,6 @@ import fnmatch
 import json
 import os
 import re
-import platform
 import subprocess
 import sys
 
@@ -220,10 +219,11 @@ class UnrealCommandTool:
         return self._find_installed_engine(engine_id)
 
     def _find_installed_engine(self, engine_id) -> str:
+        path = 'Epic/UnrealEngineLauncher/LauncherInstalled.dat'
         if os.name == 'nt':
-            path = os.path.expandvars(r'%ProgramData%\Epic\UnrealEngineLauncher\LauncherInstalled.dat')
+            path = os.path.join(os.path.expandvars('%ProgramData%'), path).replace('/', '\\')
         else:
-            path = os.path.expanduser('~/Library/Application Support/Epic/UnrealEngineLauncher/LauncherInstalled.dat')
+            path = os.path.expanduser('~/Library/Application Support/' + path)
         with open(path, encoding='utf8') as f:
             for install in json.load(f)['InstallationList']:
                 if install['AppName'] == 'UE_' + engine_id:
@@ -296,6 +296,7 @@ class UnrealCommandTool:
 
     def _host_platform(self):
         """Get host platform name as UE form."""
+        import platform # pylint: disable=import-outside-toplevel
         system = platform.system()
         if system == 'Windows':
             return 'Win64'
@@ -622,7 +623,8 @@ class UnrealCommandTool:
         config = config or self.config
         suffix = f'-{self.platform}-{config}' if config != 'Development' else ''
 
-        # When a engine target is built with the -Project option, its target file is generated in the project directory.
+        # When a engine target is built with the -Project option,
+        # its target file is generated in the project directory.
         if self.project_dir:
             target_file = os.path.join(self.project_dir, 'Binaries', platform, target + suffix + '.target')
             if os.path.exists(target_file):

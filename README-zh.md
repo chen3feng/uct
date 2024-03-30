@@ -16,9 +16,18 @@ UCT 是 Unreal Commandline Tool 的缩写，它是一个强大的命令行工具
 
 ## 背景
 
-很多情况下，我更喜欢命令行工具，因为它们是快速且容易自动化。 我经常在 VS Code 中为 UE 编写代码，因为它比 Visual Studio 更快更轻量，git 集成更好。
-所以我经常需要手动调用 [UBT](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/UnrealBuildTool/) 和 Editor，
-但它们的命令行界面非常冗长。
+通常 EU 上的开发是在 Windows 系统上的 Visual Studio 和 Editor 中进行。但是有些时候，
+
+- 出差或者在家时，无法访问办公室里的 Windows 工作站，要在 Mac 系统上开发构建测试。
+- 即使在 Windows 工作站中，我也常用 Visual Studio Code 来打开项目，因为它更轻量，插件丰富，启动速度快，git 集成也更好。
+
+在这些情况下，都需要用到命令行工具，比如 [UBT](https://docs.unrealengine.com/4.27/zh-CN/ProductionPipelines/BuildTools/UnrealBuildTool/)、
+[UAT](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/AutomationTool/) 和
+[Editor](https://docs.unrealengine.com/4.27/zh-CN/ProductionPipelines/CommandLineArguments/)。
+
+而且很多情况下，用命令行工具更方便，因为它们容易批量化和自动化。
+
+但是 UE 系统中的命令行界面都非常冗长。
 
 例如，要构建一个程序：
 
@@ -30,6 +39,20 @@ G:\MyGame> G:\UnrealEngine-5.1\Engine\Build\BatchFiles\Build.bat Benchmark Win64
 
 ```console
 G:\MyGame>G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/MyGame.uproject -ExecCmds="Automation RunAll"
+```
+
+打包就是更复杂到疯狂了:
+
+```console
+E:\UE_5.2\Build\BatchFiles\RunUAT.bat ^
+BuildCookRun -project=E:/AllProject/UE_5_2_0/BuildTest/BuildTest.uproject ^
+-ScriptsForProject=E:/AllProject/UE_5_2_0/BuildTest/BuildTest.uproject ^
+Turnkey -command=VerifySdk -platform=Android -UpdateIfNeeded ^
+BuildCookRun -nop4 -utf8output -nocompileeditor -skipbuildeditor -cook ^
+-project=E:/AllProject/UE_5_2_0/BuildTest/BuildTest.uproject -target=BuildTest ^
+-unrealexe=E:\UE\UE_4.27_Source\UnrealEngine\Engine\Binaries\Win64\UnrealEditor-Cmd.exe ^
+-platform=Android -cookflavor=ASTC -stage -archive -package -build -pak -iostore -compressed -prereqs ^
+-archivedirectory=E:/AllProject/UE_5_2_0/BuildTest/PakOutputX -clientconfig=Development -nocompile -nocompileuat
 ```
 
 这些命令行界面主要有如下问题：
