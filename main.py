@@ -4,7 +4,6 @@ A powerful command line tool for unreal engine.
 """
 
 import argparse
-import configparser
 import fnmatch
 import json
 import os
@@ -12,7 +11,7 @@ import re
 import subprocess
 import sys
 
-from typing import Optional, Tuple
+from typing import Optional
 
 import console
 import engine
@@ -80,7 +79,7 @@ def build_arg_parser():
     targets = list_parsers.add_parser('targets', help='list build targets', parents=[scope])
     targets.add_argument('--verbose', action='store_true', help='show detailed information')
 
-    engines = list_parsers.add_parser('engines', help='list engines')
+    list_parsers.add_parser('engines', help='list engines')
 
     build = subparsers.add_parser('build', help='Build specified targets', parents=build_parents)
 
@@ -240,10 +239,10 @@ class UnrealCommandTool:
         return ''
 
     def _find_built_engine(self, engine_id: str) -> str:
-        for engine in self.built_engines:
-            if engine.id == engine_id:
-                return engine.root
-        console.error(f"Engine '{engine_id}' is not registered in '{Engine.BUILT_REGISTRY}'.")
+        for eng in self.built_engines:
+            if eng.id == engine_id:
+                return eng.root
+        console.error(f"Engine '{engine_id}' is not registered in '{engine.BUILT_REGISTRY}'.")
         return ''
 
     def _parse_project_file(self, project_file) -> Optional[dict]:
@@ -256,20 +255,22 @@ class UnrealCommandTool:
 
     def _find_installed_engine(self, engine_id) -> str:
         engine_id = 'UE_' + engine_id
-        for engine in self.installed_engines:
-            if engine.id == engine_id:
-                return engine.root
-        console.error(f'{engine_id} is not installed in your system.')
+        for eng in self.installed_engines:
+            if eng.id == engine_id:
+                return eng.root
+        console.error(f'{engine_id} is not installed in your system, see {engine.INSTALLED_REGISTRY}.')
         return ''
 
     @property
     def installed_engines(self):
+        """"All installed engines."""
         if self.__installed_engines is None:
             self.__installed_engines = engine.find_installed()
         return self.__installed_engines
 
     @property
     def built_engines(self):
+        """"All source built engines."""
         if self.__built_engines is None:
             self.__built_engines = engine.find_builts()
         return self.__built_engines
@@ -512,15 +513,16 @@ class UnrealCommandTool:
         return False
 
     def list_engines(self) -> int:
+        """List all engines in current system."""
         if self.installed_engines:
             print('Installed engines:')
-            for engine in self.installed_engines:
-                print(engine)
+            for eng in self.installed_engines:
+                print(eng)
             print()
         if self.built_engines:
             print('Registered source built engines:')
-            for engine in self.built_engines:
-                print(engine)
+            for eng in self.built_engines:
+                print(eng)
             print()
         return 0
 

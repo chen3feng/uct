@@ -1,9 +1,13 @@
+"""
+Unreal Engine management.
+"""
+
 import configparser
 import json
 import os
 import platform
 
-from typing import Optional, Tuple
+from typing import Tuple
 
 import console
 
@@ -37,11 +41,13 @@ class Engine:
         self.version, self.major_version = parse_version(root)
 
     def __repr__(self) -> str:
-        version = f'{self.version['MajorVersion']}.{self.version['MinorVersion']}.{self.version['PatchVersion']}'
+        ver = self.version
+        version = f'{ver['MajorVersion']}.{ver['MinorVersion']}.{ver['PatchVersion']}'
         return f'{self.id}  {version:8} {self.root}'
 
 
 def find_builts() -> list:
+    """Find all source built engines in current system."""
     if os.name == 'posix':
         return _find_built_engines_posix()
     elif os.name == 'nt':
@@ -49,7 +55,7 @@ def find_builts() -> list:
     return []
 
 
-def _find_built_engines_posix() -> str:
+def _find_built_engines_posix() -> list:
     config_file = BUILT_REGISTRY
     config = configparser.ConfigParser()
     config.read(config_file)
@@ -76,6 +82,7 @@ def _find_built_engines_windows() -> list:
 
 
 def find_installed() -> list:
+    """Find all installed engines in current system."""
     engines = []
     with open(INSTALLED_REGISTRY, encoding='utf8') as f:
         for install in json.load(f)['InstallationList']:
@@ -85,6 +92,7 @@ def find_installed() -> list:
     return engines
 
 def parse_version(engine_root) -> Tuple[dict, int]:
+    """Parse version information of an engine."""
     with open(os.path.join(engine_root, 'Engine/Build/Build.version'), encoding='utf8') as f:
         version = json.load(f)
         return version, int(version['MajorVersion'])
