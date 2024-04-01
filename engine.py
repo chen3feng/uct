@@ -42,7 +42,7 @@ class Engine:
 
     def __repr__(self) -> str:
         ver = self.version
-        version = f'{ver['MajorVersion']}.{ver['MinorVersion']}.{ver['PatchVersion']}'
+        version = f"{ver['MajorVersion']}.{ver['MinorVersion']}.{ver['PatchVersion']}"
         return f'{self.id}  {version:8} {self.root}'
 
 
@@ -63,14 +63,14 @@ def _find_built_engines_posix() -> list:
         console.error(f"Invalid config file '{config_file}'.")
         return []
     engines = []
-    for id, root in config['Installations'].items():
+    for uuid, root in config['Installations'].items():
         if not os.path.exists(root):
             console.warn(f"Find built engines: {root} doesn't exist.")
             continue
-        id = id.upper()
-        if not id.startswith('{'): # UE4 format: ID isn't enclosed in '{}'
-            id = '{' + id + '}'
-        engines.append(Engine(id, root))
+        uuid = uuid.upper()
+        if not uuid.startswith('{'): # UE4 format: ID isn't enclosed in '{}'
+            uuid = '{' + uuid + '}'
+        engines.append(Engine(uuid, root))
 
     return engines
 
@@ -78,7 +78,23 @@ def _find_built_engines_posix() -> list:
 def _find_built_engines_windows() -> list:
     # On windows, this program is always called from the uct.bat,
     # finding engine by project was done there, we needn't query registry here.
-    return []
+    import winreg # pylint: disable=import-outside-toplevel
+    engines = []
+    try:
+        key_name = r"Software\Epic Games\Unreal Engine\Builds"
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_name) as hkey:
+            i = 0
+            while True:
+                try:
+                    value = winreg.EnumValue(hkey, i)
+                    engines.append(Engine(value[0], value[1]))
+                except OSError:
+                    break
+                i += 1
+    except OSError as e:
+        print(f"winreg.OpenKey: {e}: '{key_name}'")
+
+    return engines
 
 
 def find_installed() -> list:

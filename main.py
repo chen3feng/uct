@@ -518,12 +518,12 @@ class UnrealCommandTool:
             print('Installed engines:')
             for eng in self.installed_engines:
                 print(eng)
-            print()
         if self.built_engines:
+            if self.installed_engines:
+                print()
             print('Registered source built engines:')
             for eng in self.built_engines:
                 print(eng)
-            print()
         return 0
 
     def build(self) -> int:
