@@ -3,6 +3,7 @@ Unreal Engine management.
 """
 
 import configparser
+import itertools
 import json
 import os
 import platform
@@ -83,14 +84,14 @@ def _find_built_engines_windows() -> list:
     try:
         key_name = r"Software\Epic Games\Unreal Engine\Builds"
         with winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_name) as hkey:
-            i = 0
-            while True:
+            for i in itertools.count():
                 try:
-                    value = winreg.EnumValue(hkey, i)
-                    engines.append(Engine(value[0], value[1]))
+                    uuid, value, value_type = winreg.EnumValue(hkey, i)
+                    if value_type == winreg.REG_SZ:
+                        engines.append(Engine(uuid, value))
                 except OSError:
+                    # ERROR_NO_MORE_ITEMS
                     break
-                i += 1
     except OSError as e:
         print(f"winreg.OpenKey: {e}: '{key_name}'")
 
