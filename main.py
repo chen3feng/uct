@@ -183,7 +183,7 @@ class UnrealCommandTool:
         expanded_targets = []
         has_wildcard = False
         for target in targets:
-            if self._is_wildcard(target):
+            if fs.is_wildcard(target):
                 has_wildcard = True
                 expanded_targets += fnmatch.filter(all_target_names, target)
             else:
@@ -196,13 +196,6 @@ class UnrealCommandTool:
             print(f'Targets: {" ".join(expanded_targets)}')
 
         self.__targets = expanded_targets
-
-    def _is_wildcard(self, text):
-        """Check whether a string is a wildcard."""
-        for c in text:
-            if c in '*?![]':
-                return True
-        return False
 
     @property
     def all_targets(self):
@@ -282,8 +275,8 @@ class UnrealCommandTool:
         pattern = '*.Target.cs'
         excluded_dirs = ['Binaries', 'DerivedDataCache', 'Intermediate']
         files = []
-        files += fs.find_files_under(os.path.join(start_dir, 'Source'), pattern, excluded_dirs)
-        files += fs.find_files_under(os.path.join(start_dir, 'Plugins'), pattern, excluded_dirs)
+        files += fs.find_files_under(os.path.join(start_dir, 'Source'), [pattern], excluded_dirs)
+        files += fs.find_files_under(os.path.join(start_dir, 'Plugins'), [pattern], excluded_dirs)
         for file in files:
             target = self._parse_target_cs(file)
             if target:
@@ -401,7 +394,11 @@ class UnrealCommandTool:
             print(f'Build {target}')
             cmd = cmd_base + [target]
             if self.options.files:
-                cmd += [f'-singlefile={f}' for f in self.options.files]
+                files = self._expand_files(self.options.files)
+                if not files:
+                    console.error(f"Can't find {self.options.files}")
+                    return 1
+                cmd += [f'-singlefile={f}' for f in files]
             cmd += self.extra_args
             ret = self._run_command(cmd)
             if ret != 0:
@@ -411,6 +408,21 @@ class UnrealCommandTool:
         if failed_targets:
             console.error(f'Failed to build {" ".join(failed_targets)}.')
         return returncode
+
+    def _expand_files(self, files) -> list:
+        patterns = []
+        matching_files = []
+        for file in files:
+            if os.path.isabs(file):
+                matching_files.append(file)
+            else:
+                patterns.append(file)
+        if patterns:
+            excluded_dirs = ['Extras', 'Intermediate', 'ThirdParty']
+            if self.project_dir:
+                matching_files += fs.find_files_under(self.project_dir, patterns, excluded_dirs)
+            matching_files += fs.find_files_under(self.engine_dir, patterns, excluded_dirs)
+        return matching_files
 
     def clean(self) -> int:
         """Clean the specified targets."""
