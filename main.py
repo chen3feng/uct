@@ -3,7 +3,6 @@ UCT -- Unreal Command Tool.
 A powerful command line tool for unreal engine.
 """
 
-import argparse
 import fnmatch
 import json
 import os
@@ -13,165 +12,15 @@ import sys
 
 from typing import Optional
 
+import command_line
+import constants
 import console
 import engine
-
-# https://pypi.org/project/argcomplete/
-# PYTHON_ARGCOMPLETE_OK
-try:
-    import argcomplete # type: ignore[import-not-found]
-except ImportError:
-    argcomplete = None
-
-VERSION = '0.1'
-
-PLATFORM_MAP = {
-    'win64': 'Win64',
-    'linux': 'Linux',
-    'mac': 'Mac'
-}
-
-CONFIG_MAP = {
-    'debug': 'Debug',
-    'dbg': 'Debug',
-    'debuggame': 'DebugGame',
-    'dbgm': 'DebugGame',
-    'dev': 'Development',
-    'ship': 'Shipping',
-    'test': 'Test',
-}
+import fs
 
 # https://www.gnu.org/software/bash/manual/html_node/Exit-Status.html
 EXIT_COMMAND_NOT_FOUND = 127
 
-
-def build_arg_parser():
-    """
-    Build the argument parser.
-
-    This command parser support multiple subcommands. Each subcommand has its own
-    set of arguments.
-    """
-    parser = argparse.ArgumentParser(prog='UCT', description='Unreal command line tool')
-    parser.add_argument('--version', action='version', version='%(prog)s ' + VERSION)
-
-    subparsers = parser.add_subparsers(dest='command', help='Available commands', required=True)
-
-    config = argparse.ArgumentParser(add_help=False)
-    config.add_argument('-p', '--platform', dest='platform', type=str,
-                        choices=PLATFORM_MAP.keys(),
-                        help='target platform')
-    config.add_argument('-c', '--config', dest='config', type=str,
-                        choices=CONFIG_MAP.keys(),
-                        help='build configuration')
-
-    scope = argparse.ArgumentParser(add_help=False)
-    scope.add_argument('--project', action='store_true', help='in project scope')
-    scope.add_argument('--engine', action='store_true', help='in engine scope')
-
-    build_parents = [config]
-
-    subparsers.add_parser('setup', help='Setup the engine')
-    subparsers.add_parser('generate-project', help='Generate project files')
-
-    list_parsers = subparsers.add_parser('list', help='List objects in the project').add_subparsers(
-        dest='subcommand', help='Available subcommands', required=True)
-    targets = list_parsers.add_parser('targets', help='list build targets', parents=[scope])
-    targets.add_argument('--verbose', action='store_true', help='show detailed information')
-
-    list_parsers.add_parser('engines', help='list engines')
-
-    build = subparsers.add_parser('build', help='Build specified targets', parents=build_parents)
-
-    build.add_argument('-m', '--modules', type=str, nargs='+',
-                        help='modules to build')
-    build.add_argument('-f', '--files', type=str, nargs='+',
-                        help='source files to compile')
-
-    subparsers.add_parser('clean', help='Clean specified targets', parents=build_parents)
-
-    run = subparsers.add_parser(
-        'run',
-        help='Build and run a single target',
-        epilog='Any arguments after the empty "--" will be passed to the program',
-        parents=build_parents)
-    run.add_argument('--dry-run', action='store_true',
-                     help="Don't actually run any commands; just print them.")
-
-    test = subparsers.add_parser(
-        'test',
-        help='Build and run tests',
-        epilog='Any arguments after the empty "--" will be passed to the program',
-        parents=[config])
-    test.add_argument('--list', dest='list', action='store_true', help='list all tests')
-    test.add_argument('--run-all', dest='run_all', action='store_true', help='Run all test')
-    test.add_argument('--run', dest='tests', type=str,  nargs='+', help='Run tests')
-    test.add_argument('--cmds', dest='test_cmds', type=str, nargs='+', help='Extra test commands')
-
-    pack = subparsers.add_parser(
-        'pack',
-        help='Pack target',
-        epilog='Any arguments after the empty "--" will be passed to UAT',
-        parents=[config])
-    pack.add_argument('-o', '--output', dest='output', type=str, required=True,
-                      help='directory to archive the builds to')
-
-    return parser
-
-
-def parse_command_line():
-    """Parse and validate commandparameters"""
-    parser = build_arg_parser()
-
-    if argcomplete:
-        argcomplete.autocomplete(parser)
-
-    # If '--' in arguments, use all other arguments after it as run
-    # arguments
-    args = sys.argv[1:]
-    if '--' in args:
-        pos = args.index('--')
-        extra_args = args[pos + 1:]
-        args = args[:pos]
-    else:
-        extra_args = []
-
-    options, targets = parser.parse_known_args(args)
-    return options, targets, extra_args
-
-
-def find_file_bottom_up(pattern, from_dir=None) -> str:
-    """Find the specified file/dir from from_dir bottom up until found or failed.
-       Returns abspath if found, or empty if failed.
-    """
-    if from_dir is None:
-        from_dir = os.getcwd()
-    finding_dir = os.path.abspath(from_dir)
-    while True:
-        files = os.listdir(finding_dir)
-        for file in files:
-            if fnmatch.fnmatch(file, pattern):
-                return os.path.join(finding_dir, file)
-        parent_dir = os.path.dirname(finding_dir)
-        if parent_dir == finding_dir:
-            return ''
-        finding_dir = parent_dir
-    return ''
-
-
-def find_files_under(dir, pattern, excluded_dirs=None, relpath=False) -> list:
-    """Find files under dir matching pattern."""
-    result = []
-    for root, dirs, files in os.walk(dir):
-        if excluded_dirs:
-            dirs[:] = [d for d in dirs if d not in excluded_dirs]
-        for file in files:
-            if fnmatch.fnmatch(file, pattern):
-                path = os.path.join(root, file)
-                if relpath:
-                    path = os.path.relpath(path, dir)
-                result.append(path)
-    return result
 
 class UnrealCommandTool:
     """Unreal Command Line Tool."""
@@ -208,10 +57,10 @@ class UnrealCommandTool:
         """Find the project file and engine root."""
         project_file = os.environ.get('PROJECT_FILE')
         if not project_file:
-            project_file = find_file_bottom_up('*.uproject')
+            project_file = fs.find_file_bottom_up('*.uproject')
         engine_root =  os.environ.get('ENGINE_ROOT')
         if not engine_root:
-            key_file = find_file_bottom_up('GenerateProjectFiles.bat')
+            key_file = fs.find_file_bottom_up('GenerateProjectFiles.bat')
             if key_file:
                 engine_root = os.path.dirname(key_file)
         if not engine_root:
@@ -301,9 +150,9 @@ class UnrealCommandTool:
     def _expand_options(self, options):
         """Expand option values."""
         if hasattr(options, 'platform'):
-            self.platform = PLATFORM_MAP.get(options.platform, self.host_platform)
+            self.platform = constants.PLATFORM_MAP.get(options.platform, self.host_platform)
         if hasattr(options, 'config'):
-            self.config = CONFIG_MAP.get(options.config, 'Development')
+            self.config = constants.CONFIG_MAP.get(options.config, 'Development')
 
     @property
     def targets(self):
@@ -372,17 +221,17 @@ class UnrealCommandTool:
             self.__project_targets = self._collect_targets(self.project_dir)
         self.__all_targets = self.__engine_targets + self.__project_targets
 
-    def _collect_targets(self, dir) -> list:
+    def _collect_targets(self, start_dir) -> list:
         # Try 2 ways to collect target info.
-        targets = self._query_targets(dir)
+        targets = self._query_targets(start_dir)
         if not targets:
-            targets = self._scan_targets(dir)
+            targets = self._scan_targets(start_dir)
         return targets
 
-    def _query_targets(self, dir) -> list:
+    def _query_targets(self, start_dir) -> list:
         """Use UBT to query build targets."""
         cmd = [self.ubt, '-Mode=QueryTargets']
-        if dir == self.project_dir:
+        if start_dir == self.project_dir:
             cmd.append(self._escape_argument('-Project', self.project_file))
             if os.name == 'nt':
                 cmd = ' '.join(cmd)
@@ -390,11 +239,11 @@ class UnrealCommandTool:
         if p.returncode != 0:
             console.warn(f'QueryTargets failed: {" ".join(cmd)}\n{p.stdout}')
             return []
-        return self._load_target_info(dir)
+        return self._load_target_info(start_dir)
 
-    def _load_target_info(self, dir) -> list:
+    def _load_target_info(self, start_dir) -> list:
         """Try load target info from TargetInfo.json under the dir."""
-        path = os.path.join(dir, 'Intermediate', 'TargetInfo.json')
+        path = os.path.join(start_dir, 'Intermediate', 'TargetInfo.json')
         try:
             with open(path, encoding='utf8') as f:
                 return json.load(f)['Targets']
@@ -412,7 +261,7 @@ class UnrealCommandTool:
         # On Linux and Mac, add double quote may cause runtime error.
         return f'{name}={value}'
 
-    def _scan_targets(self, dir) -> list:
+    def _scan_targets(self, start_dir) -> list:
         """
         Scan and load all .Target.cs files under the dir.
         This is slower than _query_targets but can be a failover.
@@ -421,8 +270,8 @@ class UnrealCommandTool:
         pattern = '*.Target.cs'
         excluded_dirs = ['Binaries', 'DerivedDataCache', 'Intermediate']
         files = []
-        files += find_files_under(os.path.join(dir, 'Source'), pattern, excluded_dirs)
-        files += find_files_under(os.path.join(dir, 'Plugins'), pattern, excluded_dirs)
+        files += fs.find_files_under(os.path.join(start_dir, 'Source'), pattern, excluded_dirs)
+        files += fs.find_files_under(os.path.join(start_dir, 'Plugins'), pattern, excluded_dirs)
         for file in files:
             target = self._parse_target_cs(file)
             if target:
@@ -749,7 +598,7 @@ def check_targets(targets):
 
 def main():
     """Welcome to UCT: the Unreal CommandLine Tool."""
-    options, targets, extra_args = parse_command_line()
+    options, targets, extra_args = command_line.parse()
     check_targets(targets)
     uct = UnrealCommandTool(options, targets, extra_args)
     ret = uct.execute()
