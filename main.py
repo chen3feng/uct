@@ -389,7 +389,7 @@ class UnrealCommandTool:
             print(f'Build {target}')
             cmd = cmd_base + [target]
             if self.options.files:
-                cmd += [f'--singlefile={f}' for f in self.options.files]
+                cmd += [f'-singlefile={f}' for f in self.options.files]
             cmd += self.extra_args
             ret = self._run_command(cmd)
             if ret != 0:
