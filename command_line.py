@@ -34,7 +34,7 @@ def build_parser():
     scope.add_argument('--project', action='store_true', help='in project scope')
     scope.add_argument('--engine', action='store_true', help='in engine scope')
 
-    build_parents = [build_config]
+    build_parents = [build_config, scope]
 
     subparsers.add_parser('setup', help='Setup the engine')
     subparsers.add_parser('generate-project', help='Generate project files')

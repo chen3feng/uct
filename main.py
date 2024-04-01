@@ -167,9 +167,21 @@ class UnrealCommandTool:
         if not targets:
             self.__targets = []
             return
-        has_wildcard = False
-        all_target_names = [t['Name'] for t in self.all_targets]
+
+        candidate_targets = []
+        if self.options.project:
+            if not self.project_file:
+                console.error('You are not under a game project directory.')
+                sys.exit(1)
+            candidate_targets += self.project_targets
+        if self.options.engine:
+            candidate_targets += self.engine_targets
+        if not self.options.project and not self.options.engine:
+            candidate_targets = self.all_targets
+
+        all_target_names = [t['Name'] for t in candidate_targets]
         expanded_targets = []
+        has_wildcard = False
         for target in targets:
             if self._is_wildcard(target):
                 has_wildcard = True
