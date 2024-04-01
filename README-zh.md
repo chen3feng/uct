@@ -187,6 +187,21 @@ Program   BenchmarkTool                   G:\UnrealEngine-5.1\Engine\Source\Prog
 Program   BlankProgram                    G:\UnrealEngine-5.1\Engine\Source\Programs\BlankProgram\BlankProgram.Target.cs
 ```
 
+#### list engines
+
+列出当前系统中所有的虚幻引擎：
+
+```console
+$ uct list engines
+Installed engines:
+UE_5.3  5.3.2    /Volumes/SSD/software/EpicGames/UE_5.3
+
+Registered source built engines:
+{46E95257-8C4E-4D80-C21A-AB88D9179249}  5.1.0    /Volumes/SSD/code/UnrealEngine-5.1
+{CCB0C841-B544-47A2-A486-C3908D365428}  5.2.1    /Volumes/SSD/code/UnrealEngine-5.2
+{3BC4DCDD-7743-67E3-8361-5D90FEB4A5B2}  4.27.2   /Volumes/SSD/code/UnrealEngine-4.27
+```
+
 ### build
 
 构建一个目标：

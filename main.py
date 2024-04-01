@@ -4,7 +4,6 @@ A powerful command line tool for unreal engine.
 """
 
 import argparse
-import configparser
 import fnmatch
 import json
 import os
@@ -12,9 +11,10 @@ import re
 import subprocess
 import sys
 
-from typing import Optional, Tuple
+from typing import Optional
 
 import console
+import engine
 
 # https://pypi.org/project/argcomplete/
 # PYTHON_ARGCOMPLETE_OK
@@ -65,6 +65,10 @@ def build_arg_parser():
                         choices=CONFIG_MAP.keys(),
                         help='build configuration')
 
+    scope = argparse.ArgumentParser(add_help=False)
+    scope.add_argument('--project', action='store_true', help='in project scope')
+    scope.add_argument('--engine', action='store_true', help='in engine scope')
+
     build_parents = [config]
 
     subparsers.add_parser('setup', help='Setup the engine')
@@ -72,10 +76,10 @@ def build_arg_parser():
 
     list_parsers = subparsers.add_parser('list', help='List objects in the project').add_subparsers(
         dest='subcommand', help='Available subcommands', required=True)
-    targets = list_parsers.add_parser('targets', help='list build targets')
-    targets.add_argument('--project', action='store_true', help='in project scope')
-    targets.add_argument('--engine', action='store_true', help='in engine scope')
+    targets = list_parsers.add_parser('targets', help='list build targets', parents=[scope])
     targets.add_argument('--verbose', action='store_true', help='show detailed information')
+
+    list_parsers.add_parser('engines', help='list engines')
 
     build = subparsers.add_parser('build', help='Build specified targets', parents=build_parents)
 
@@ -172,6 +176,8 @@ def find_files_under(dir, pattern, excluded_dirs=None, relpath=False) -> list:
 class UnrealCommandTool:
     """Unreal Command Line Tool."""
     def __init__(self, options, targets, extra_args):
+        self.__installed_engines = None
+        self.__built_engines = None
         self.__engine_targets = None
         self.__project_targets = None
         self.__all_targets = None
@@ -183,15 +189,20 @@ class UnrealCommandTool:
         self.extra_args = extra_args
         self._expand_options(options)
 
+        if not self._need_engine(options):
+            return
 
         self.engine_root, self.project_file = self._find_project()
         self.engine_dir = os.path.join(self.engine_root, 'Engine')
-        self.engine_version, self.engine_major_version = self._parse_engine_version()
+        self.engine_version, self.engine_major_version = engine.parse_version(self.engine_root)
         self.ubt = self._find_ubt()
         assert os.path.exists(self.ubt), self.ubt
 
         self.project_dir = os.path.dirname(self.project_file)
 
+    def _need_engine(self, options):
+        return (options.command != 'list' or
+                not hasattr(options, 'subcommand') or options.subcommand != 'engines')
 
     def _find_project(self):
         """Find the project file and engine root."""
@@ -204,6 +215,9 @@ class UnrealCommandTool:
             if key_file:
                 engine_root = os.path.dirname(key_file)
         if not engine_root:
+            if not project_file:
+                console.error("UCT should be ran under the directory of an engine or a game project.")
+                sys.exit(1)
             engine_root = self._find_engine_by_project(project_file)
         if not engine_root:
             console.error("Can't find engine root.")
@@ -218,23 +232,17 @@ class UnrealCommandTool:
             return self._find_built_engine(engine_id)
         return self._find_installed_engine(engine_id)
 
-    def _find_installed_engine(self, engine_id) -> str:
-        path = 'Epic/UnrealEngineLauncher/LauncherInstalled.dat'
-        if os.name == 'nt':
-            path = os.path.join(os.path.expandvars('%ProgramData%'), path).replace('/', '\\')
-        else:
-            path = os.path.expanduser('~/Library/Application Support/' + path)
-        with open(path, encoding='utf8') as f:
-            for install in json.load(f)['InstallationList']:
-                if install['AppName'] == 'UE_' + engine_id:
-                    return install['InstallLocation']
-        console.error(f'UE{engine_id} is not installed in your system.')
-        return ''
-
     def _find_engine_association(self, project_file) -> str:
         project = self._parse_project_file(project_file)
         if project:
             return project['EngineAssociation']
+        return ''
+
+    def _find_built_engine(self, engine_id: str) -> str:
+        for eng in self.built_engines:
+            if eng.id == engine_id:
+                return eng.root
+        console.error(f"Engine '{engine_id}' is not registered in '{engine.BUILT_REGISTRY}'.")
         return ''
 
     def _parse_project_file(self, project_file) -> Optional[dict]:
@@ -245,41 +253,27 @@ class UnrealCommandTool:
             console.error(f"Error parsing '{project_file}': {e}")
             return None
 
-    def _find_built_engine(self, engine_id: str) -> str:
-        if os.name == 'posix':
-            return self._find_built_engine_posix(engine_id)
-        elif os.name == 'nt':
-            return self._find_built_engine_windows(engine_id)
+    def _find_installed_engine(self, engine_id) -> str:
+        engine_id = 'UE_' + engine_id
+        for eng in self.installed_engines:
+            if eng.id == engine_id:
+                return eng.root
+        console.error(f'{engine_id} is not installed in your system, see {engine.INSTALLED_REGISTRY}.')
         return ''
 
-    def _find_built_engine_posix(self, engine_id) -> str:
-        config_file = '~/.config/Epic/UnrealEngine/Install.ini'
-        if self.host_platform == 'Mac':
-            config_file = '~/Library/Application Support/Epic/UnrealEngine/Install.ini'
-        config_file = os.path.expanduser(config_file)
-        config = configparser.ConfigParser()
-        config.read(config_file)
-        if 'Installations' not in config:
-            console.error(f"Invalid config file '{config_file}'.")
-            return ''
-        installations = config['Installations']
-        if engine_id in installations:
-            return config['Installations'][engine_id]
-        engine_id = engine_id.strip('{}') # UE5 format
-        if engine_id in installations:
-            return config['Installations'][engine_id]
-        console.error(f"Engine '{engine_id}' is not registered in '{config_file}'.")
-        return ''
+    @property
+    def installed_engines(self):
+        """"All installed engines."""
+        if self.__installed_engines is None:
+            self.__installed_engines = engine.find_installed()
+        return self.__installed_engines
 
-    def _find_built_engine_windows(self, engine_id):
-        # On windows, this program is always called from the uct.bat,
-        # finding engine by project was done there, we needn't query registry here.
-        return ''
-
-    def _parse_engine_version(self) -> Tuple[dict, int]:
-        with open(os.path.join(self.engine_dir, 'Build/Build.version'), encoding='utf8') as f:
-            version = json.load(f)
-            return version, int(version['MajorVersion'])
+    @property
+    def built_engines(self):
+        """"All source built engines."""
+        if self.__built_engines is None:
+            self.__built_engines = engine.find_builts()
+        return self.__built_engines
 
     def _find_ubt(self):
         """Find full path of UBT based on host platform."""
@@ -517,6 +511,20 @@ class UnrealCommandTool:
             if target['Name'] == name:
                 return True
         return False
+
+    def list_engines(self) -> int:
+        """List all engines in current system."""
+        if self.installed_engines:
+            print('Installed engines:')
+            for eng in self.installed_engines:
+                print(eng)
+        if self.built_engines:
+            if self.installed_engines:
+                print()
+            print('Registered source built engines:')
+            for eng in self.built_engines:
+                print(eng)
+        return 0
 
     def build(self) -> int:
         """Build the specified targets."""
