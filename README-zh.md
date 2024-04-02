@@ -204,6 +204,8 @@ Registered source built engines:
 
 ### build
 
+#### 目标语法
+
 构建一个目标：
 
 ```console
@@ -242,6 +244,8 @@ uct build --project "*"
 
 构建游戏项目中的所有目标。
 
+#### 目标平台和配置
+
 它支持指定[构建配置](https://dev.epicgames.com/documentation/en-us/unreal-engine/build-configurations-reference-for-unreal-engine?application_version=5.3)
 和[目标平台](https://unrealcommunity.wiki/6100e8109c9d1a89e0c31618)：
 
@@ -264,6 +268,27 @@ uct build -c debug -p linux
 - `Test`: `test`
 
 为了简化输入，在 UCT 中，这些名称均为小写。
+
+#### 编译单个文件
+
+构建命令还支持 `-f` 或 `--files` 来指定仅编译的文件。这对快速验证语法和非统一构建的正确性非常有用。
+
+文件支持以下格式：
+
+- 绝对路径：`/Work/MyGame/Source/MyGame/HelloWorldGreeterImpl.cpp`
+- 相对路径：`MyGame/HelloWorldGreeterImpl.cpp`，相对当前目录。
+- 带有 `@engine` 前缀的路径：`@engine/Source/Runtime/Engine/Private/NetDriver.cpp`，表示在引擎目录下。
+
+以上格式均支持通配符模式：`Source/**/*Test.cpp`，`**`表示任意层子目录。
+
+示例：
+
+```console
+uct build Pb4ueTest -f Source/**/HelloWorldGreeterImpl.cpp '**/*Test.cpp'
+uct build MyGame -f "@engine/Source/**/NetDriver.cpp" "@engine/Source/**/DataChannel.cpp"
+```
+
+#### 传递 UBT 选项
 
 UCT 会根据命令行参数生成合适的 UBT 命令进行实际的构建。
 要将额外的[构建参数](https://ikrima.dev/ue4guide/build-guide/utilities/devops-build-automation/)传递给 UBT，请这样将它们放在单独的 `--` 后面：

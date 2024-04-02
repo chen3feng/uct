@@ -410,19 +410,7 @@ class UnrealCommandTool:
         return returncode
 
     def _expand_files(self, files) -> list:
-        patterns = []
-        matching_files = []
-        for file in files:
-            if os.path.isabs(file):
-                matching_files.append(file)
-            else:
-                patterns.append(file)
-        if patterns:
-            excluded_dirs = ['Extras', 'Intermediate', 'ThirdParty']
-            if self.project_dir:
-                matching_files += fs.find_files_under(self.project_dir, patterns, excluded_dirs)
-            matching_files += fs.find_files_under(self.engine_dir, patterns, excluded_dirs)
-        return matching_files
+        return fs.expand_source_files(files, self.engine_dir)
 
     def clean(self) -> int:
         """Clean the specified targets."""
