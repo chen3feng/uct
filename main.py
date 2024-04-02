@@ -398,7 +398,7 @@ class UnrealCommandTool:
                 if not files:
                     console.error(f"Can't find {self.options.files}")
                     return 1
-                cmd += [f'-singlefile={f}' for f in files]
+                cmd += [self._escape_argument('-singlefile',f) for f in files]
             cmd += self.extra_args
             ret = self._run_command(cmd)
             if ret != 0:
