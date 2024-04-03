@@ -194,6 +194,8 @@ Program   BlankProgram                    G:\UnrealEngine-5.1\Engine\Source\Prog
 ```console
 $ uct list engines
 Installed engines:
+UE_5.1  5.1.1    /Volumes/SSD/software/EpicGames/UE_5.1
+UE_5.2  5.2.1    /Volumes/SSD/software/EpicGames/UE_5.2
 UE_5.3  5.3.2    /Volumes/SSD/software/EpicGames/UE_5.3
 
 Registered source built engines:
@@ -203,6 +205,8 @@ Registered source built engines:
 ```
 
 ### build
+
+构建指定的目标。
 
 #### 目标语法
 
@@ -235,6 +239,9 @@ uct build "MyProject*"
 uct build *Editor
 uct build "MyProject*" *Editor
 ```
+
+在 Linux 和 Mac 上，单引号和双引号都可以。在 Windows 上，由于通配符是由程序自己而不是 shell 来展开的，
+引号不是必需的，但是如果要用，只能用双引号不能用单引号。
 
 默认情况下，目标将同时在项目和引擎中匹配。 您可以使用 `--project` 或 `--engine` 选项来限制匹配范围。
 
@@ -279,13 +286,13 @@ uct build -c debug -p linux
 - 相对路径：`MyGame/HelloWorldGreeterImpl.cpp`，相对当前目录。
 - 带有 `@engine` 前缀的路径：`@engine/Source/Runtime/Engine/Private/NetDriver.cpp`，表示在引擎目录下。
 
-以上格式均支持通配符模式：`Source/**/*Test.cpp`，`**`表示任意层子目录。
+以上格式均支持通配符模式：`Source/**/*Test.cpp`，`**` 表示任意层的子目录。引号的使用规则和构建目标中一样。
 
 示例：
 
 ```console
 # Build all source files.
-uct build Pb4ueTest -f "Source/**/HelloWorldGreeterImpl.cpp"
+uct build MyGame -f "Source/**/HelloWorldGreeterImpl.cpp"
 
 # Compile NetDriver.cpp and DataChannel.cpp under the engine directory.
 uct build MyGame -f "@engine/Source/**/NetDriver.cpp" "@engine/Source/**/DataChannel.cpp"
@@ -312,7 +319,7 @@ $ uct clean Benchmark UnrealEditor
 ...
 ```
 
-请参阅上面的 `build` 命令以供参考。
+支持的选项和 `build` 类似，请参阅上面的 `build` 命令。
 
 ### run
 
@@ -460,9 +467,6 @@ UBT 会为每个目标生成一个 JSON 格式的 \<目标名\>`.target` 文件�
 ```console
 # Run explicit test
 uct test MyGameTest
-
-# Pack
-uct pack
 
 # Create a new module
 uct new module

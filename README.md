@@ -198,6 +198,8 @@ List all unreal engines in the current system.
 ```console
 $ uct list engines
 Installed engines:
+UE_5.1  5.1.1    /Volumes/SSD/software/EpicGames/UE_5.1
+UE_5.2  5.2.1    /Volumes/SSD/software/EpicGames/UE_5.2
 UE_5.3  5.3.2    /Volumes/SSD/software/EpicGames/UE_5.3
 
 Registered source built engines:
@@ -207,6 +209,8 @@ Registered source built engines:
 ```
 
 ### Build
+
+Build specified targets.
 
 #### Targets Syntax
 
@@ -239,6 +243,10 @@ uct build "MyProject*"
 uct build *Editor
 uct build "MyProject*" *Editor
 ```
+
+On Linux and Mac, both single and double quotes are OK. On Windows, since wildcards are expanded by the program itself
+rather than by the shell, quotation marks are not necessary, but if they are used, they must be double quotation marks
+and not single quotation marks.
 
 The targets will be matched in both project and engine by default. You can use `--project` or `--engine` option to limit the matching scope.
 
@@ -281,17 +289,18 @@ Bucause in the single file compile mode unity build is always disabled.
 
 It support the following formats:
 
-- An absolute path: `/Work/MyGame/Source/MyGame/HelloWorldGreeterImpl.cpp`
-- A relative path: `MyGame/HelloWorldGreeterImpl.cpp`
-- A path with @engine prefix: `@engine/Source/Runtime/Engine/Private/NetDriver.cpp`
+- An absolute path: `/Work/MyGame/Source/MyGame/HelloWorldGreeterImpl.cpp`.
+- A relative path: `MyGame/HelloWorldGreeterImpl.cpp` from current directory.
+- A path with @engine prefix: `@engine/Source/Runtime/Engine/Private/NetDriver.cpp` means under the engine directory.
 
 All above format supports wildcard pattern: `Source/**/*Test.cpp`, `**` means any layer of subdirectories.
+The rules for using quotes are the same as in build targets.
 
 Example:
 
 ```console
 # Build all source files.
-uct build Pb4ueTest -f "Source/**/HelloWorldGreeterImpl.cpp"
+uct build MyGame -f "Source/**/HelloWorldGreeterImpl.cpp"
 
 # Compile NetDriver.cpp and DataChannel.cpp under the engine directory.
 uct build MyGame -f "@engine/Source/**/NetDriver.cpp" "@engine/Source/**/DataChannel.cpp"
@@ -319,7 +328,7 @@ $ uct clean Benchmark UnrealEditor
 ...
 ```
 
-See the above `build` command for reference.
+The supported options are similar to `build`, See the above `build` for reference.
 
 ### Run
 
@@ -468,9 +477,6 @@ Currently only `Automation` testing in the editor is supported. The working prin
 ```console
 # Run explicit test
 uct test MyGameTest
-
-# Pack
-uct pack
 
 # Create a new module
 uct new module
