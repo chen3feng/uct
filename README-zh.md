@@ -59,9 +59,9 @@ BuildCookRun -nop4 -utf8output -nocompileeditor -skipbuildeditor -cook ^
 
 - 你必须使用正确的引擎目录下的 UBT 来构建游戏工程。在我的开发机上有好几个版本的引擎，而且都在使用，所以无法把 UBT 的路径加入 PATH 环境变量，只能使用全路径。
 - UBT 和其他脚本的路径和后缀在 Windows 和 Mac/Linux 上都不一样。
+- 编辑器的文件名对不同的配置也有不同的后缀，例如 `UnrealEditor-Win64-Debug.exe`。
 - `-Project` 参数的路径必须是绝对路径，这很无聊，我们可以使用 `%CD%` 来简化，但它仍然需要项目文件名。
 - 有些选项比如 `Development` 等太长了。
-- 编辑器的文件名对不同的配置有不同的后缀，例如 `UnrealEditor-Win64-Debug.exe`。
 
 因此，我开发了这个便利的工具，以方便我的生活，也许能同样方便您的生活。
 

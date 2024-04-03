@@ -41,7 +41,8 @@ class UnrealCommandTool:
         if not self._need_engine(options):
             return
 
-        self.engine_root, self.project_file = self._find_project()
+        self.project_file = self._find_project_file()
+        self.engine_root = self._find_engine(self.project_file)
         self.engine_dir = os.path.join(self.engine_root, 'Engine')
         self.engine_version, self.engine_major_version = engine.parse_version(self.engine_root)
         self.ubt = self._find_ubt()
@@ -53,11 +54,14 @@ class UnrealCommandTool:
         return (options.command != 'list' or
                 not hasattr(options, 'subcommand') or options.subcommand != 'engines')
 
-    def _find_project(self):
+    def _find_project_file(self):
         """Find the project file and engine root."""
         project_file = os.environ.get('PROJECT_FILE')
         if not project_file:
             project_file = fs.find_file_bottom_up('*.uproject')
+        return project_file
+
+    def _find_engine(self, project_file):
         engine_root =  os.environ.get('ENGINE_ROOT')
         if not engine_root:
             key_file = fs.find_file_bottom_up('GenerateProjectFiles.bat')
@@ -71,7 +75,7 @@ class UnrealCommandTool:
         if not engine_root:
             console.error("Can't find engine root.")
             sys.exit(1)
-        return engine_root, project_file
+        return engine_root
 
     def _find_engine_by_project(self, project_file) -> str:
         engine_id = self._find_engine_association(project_file)

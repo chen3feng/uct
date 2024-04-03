@@ -62,10 +62,10 @@ These user interface has the following problems:
   There are several versions of the engine on my workstation, and they are all in use,
   so I can not add the UBT path to the PATH environment variable. I have to use the full path.
 - The path and suffix of UBT and other scripts are different between Windows and Mac/Linux.
+- The file name of the editor also have different suffix for different configurations, for example `UnrealEditor-Win64-Debug.exe`.
 - The path of the `-Project` argument must be a absolute path, it's boring, we can use `%CD%` to simplify it
   but it still need the project file name.
 - Some options such as `Development` are so long.
-- The file name of the editor have different suffix for different configurations, for example `UnrealEditor-Win64-Debug.exe`.
 
 So, I developed this handy tool, to simplify my life, and, maybe yours.
 

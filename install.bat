@@ -14,5 +14,5 @@ if errorlevel 1 (
     setx PATH "%UserPath%;%THIS_DIR%"
     echo UCT is added to you user PATH.
 ) else (
-    echo UCT is already in your path
+    echo UCT is already in your PATH.
 )
