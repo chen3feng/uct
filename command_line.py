@@ -39,12 +39,19 @@ def build_parser():
     subparsers.add_parser('setup', help='Setup the engine')
     subparsers.add_parser('generate-project', help='Generate project files')
 
-    list_parsers = subparsers.add_parser('list', help='List objects in the project').add_subparsers(
+    list_parsers = subparsers.add_parser('list', help='List objects in the workspace').add_subparsers(
         dest='subcommand', help='Available subcommands', required=True)
     targets = list_parsers.add_parser('targets', help='list build targets', parents=[scope])
     targets.add_argument('--verbose', action='store_true', help='show detailed information')
 
     list_parsers.add_parser('engines', help='list engines')
+
+    open_parsers = subparsers.add_parser('open', help='Open objects in the workspace').add_subparsers(
+        dest='subcommand', help='Available subcommands', required=True)
+    open_parsers.add_parser('file', help='open file', parents=[scope])
+    open_parsers.add_parser('folder', help='open folder', parents=[scope])
+    open_parsers.add_parser('module', help='open module', parents=[scope])
+    open_parsers.add_parser('plugin', help='open plugin', parents=[scope])
 
     build = subparsers.add_parser('build', help='Build specified targets', parents=build_parents)
 

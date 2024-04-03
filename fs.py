@@ -5,6 +5,8 @@ File system utility.
 import fnmatch
 import os
 import pathlib
+import subprocess
+import sys
 
 
 def is_wildcard(text):
@@ -34,8 +36,9 @@ def find_file_bottom_up(pattern, from_dir=None) -> str:
     return ''
 
 
-def find_files_under(start_dir, patterns, excluded_dirs=None, relpath=False) -> list:
+def find_files_under(start_dir, patterns, excluded_dirs=None, relpath=False, limit=sys.maxsize) -> list:
     """Find files under dir matching pattern."""
+    assert isinstance(patterns, list)
     result = []
     for root, dirs, files in os.walk(start_dir):
         if excluded_dirs:
@@ -47,6 +50,8 @@ def find_files_under(start_dir, patterns, excluded_dirs=None, relpath=False) -> 
                     if relpath:
                         path = os.path.relpath(path, start_dir)
                     result.append(path)
+                    if len(result) >= limit:
+                        return result
     return result
 
 
@@ -83,3 +88,9 @@ def expand_source_files(files, engine_dir) -> list:
                 matched_files.append(str(path.absolute()))
 
     return matched_files
+
+
+def reveal_file(path):
+    """Open a file in system specific file explorer."""
+    cmd = ['open', '--reveal', path]
+    return subprocess.call(cmd)

@@ -385,6 +385,46 @@ class UnrealCommandTool:
                 print(eng)
         return 0
 
+    def open_module(self):
+        """Reveal a module in file explorer."""
+        if len(self.raw_targets) != 1:
+            console.error('open module command accept exactly one module name')
+            return 1
+        return self._open_file(self.raw_targets[0] + '.Build.cs')
+
+    def open_plugin(self):
+        """Reveal a uplugin in file explorer."""
+        if len(self.raw_targets) != 1:
+            console.error('open plugin command accept exactly one plugin name')
+            return 1
+        return self._open_file(self.raw_targets[0] + '.uplugin')
+
+    def _open_file(self, filename):
+        fullpath = self._find_file(filename)
+        if not fullpath:
+            console.error(f"Can't find '{filename}'")
+            return 1
+        return fs.reveal_file(fullpath[0])
+
+    def _find_file(self, filename):
+        search_in_project = False
+        search_in_engine = self.options.engine
+        if self.options.project:
+            if not self.project_dir:
+                console.error('You are not under a game project directory.')
+                return ''
+            search_in_project = True
+        if not self.options.project and not self.options.engine:
+            search_in_project = bool(self.project_dir)
+            search_in_engine = True
+        if search_in_project:
+            build_file = fs.find_files_under(self.project_dir, [filename], limit=1)
+            if build_file:
+                return build_file
+        if search_in_engine:
+            return fs.find_files_under(self.engine_dir, [filename], limit=1)
+        return ''
+
     def build(self) -> int:
         """Build the specified targets."""
         if not self.targets:
