@@ -40,6 +40,7 @@ class Engine:
         self.id = id
         self.root = root
         self.version, self.major_version = parse_version(root)
+        self.is_installed = os.path.join(root, 'Engine/Build', 'InstalledBuild.txt')
 
     def __repr__(self) -> str:
         ver = self.version

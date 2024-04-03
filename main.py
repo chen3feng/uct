@@ -330,10 +330,11 @@ class UnrealCommandTool:
 
     def generate_project(self) -> int:
         """Run the GenerateProjectFiles.bat or sh."""
-        cmd = [self._find_build_script('GenerateProjectFiles')]
+        cmd = [self.ubt, '-ProjectFiles', '-SharedBuildEnvironment']
         if self.project_file:
             cmd.append(self.project_file)
         cmd += self.extra_args
+        print(' '.join(cmd))
         return self._run_command(cmd)
 
     def list_targets(self) -> int:
