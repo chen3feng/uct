@@ -277,6 +277,7 @@ To simplify typing, in UCT, all these values are lowercase.
 
 The build command also supports `-f` or `--files` to specify files to comile only.
 It is useful to verify the syntax and non-unity build correctness quickly.
+Bucause in the single file compile mode unity build is always disabled.
 
 It support the following formats:
 
@@ -289,8 +290,14 @@ All above format supports wildcard pattern: `Source/**/*Test.cpp`, `**` means an
 Example:
 
 ```console
-uct build Pb4ueTest -f Source/**/HelloWorldGreeterImpl.cpp '**/*Test.cpp'
+# Build all source files.
+uct build Pb4ueTest -f "Source/**/HelloWorldGreeterImpl.cpp"
+
+# Compile NetDriver.cpp and DataChannel.cpp under the engine directory.
 uct build MyGame -f "@engine/Source/**/NetDriver.cpp" "@engine/Source/**/DataChannel.cpp"
+
+# Build all source files under MyModule.
+uct Build MyGame -f "Source/MyModule/**/*.cpp"
 ```
 
 #### Pass UBT flags

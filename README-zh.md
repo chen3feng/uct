@@ -271,7 +271,7 @@ uct build -c debug -p linux
 
 #### 编译单个文件
 
-构建命令还支持 `-f` 或 `--files` 来指定仅编译的文件。这对快速验证语法和非统一构建的正确性非常有用。
+构建命令还支持 `-f` 或 `--files` 来指定仅编译的文件。这对快速验证语法和非统一构建的正确性非常有用，因为单文件编译模式总是禁用 Unity Build。
 
 文件支持以下格式：
 
@@ -284,8 +284,14 @@ uct build -c debug -p linux
 示例：
 
 ```console
-uct build Pb4ueTest -f Source/**/HelloWorldGreeterImpl.cpp '**/*Test.cpp'
+# Build all source files.
+uct build Pb4ueTest -f "Source/**/HelloWorldGreeterImpl.cpp"
+
+# Compile NetDriver.cpp and DataChannel.cpp under the engine directory.
 uct build MyGame -f "@engine/Source/**/NetDriver.cpp" "@engine/Source/**/DataChannel.cpp"
+
+# Build all source files under MyModule.
+uct Build MyGame -f "Source/MyModule/**/*.cpp"
 ```
 
 #### 传递 UBT 选项
