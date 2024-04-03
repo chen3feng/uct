@@ -208,6 +208,8 @@ Registered source built engines:
 
 ### Build
 
+#### Targets Syntax
+
 Build one target:
 
 ```console
@@ -246,6 +248,8 @@ uct build --project "*"
 
 build all targets in the game project.
 
+#### Target Platform and Configuration
+
 It supports specifying [build configuration](https://dev.epicgames.com/documentation/en-us/unreal-engine/build-configurations-reference-for-unreal-engine?application_version=5.3)
 and [target platform](https://unrealcommunity.wiki/6100e8109c9d1a89e0c31618):
 
@@ -269,8 +273,38 @@ Option values for build configurations:
 
 To simplify typing, in UCT, all these values are lowercase.
 
+#### Compile Single File
+
+The build command also supports `-f` or `--files` to specify files to comile only.
+It is useful to verify the syntax and non-unity build correctness quickly.
+Bucause in the single file compile mode unity build is always disabled.
+
+It support the following formats:
+
+- An absolute path: `/Work/MyGame/Source/MyGame/HelloWorldGreeterImpl.cpp`
+- A relative path: `MyGame/HelloWorldGreeterImpl.cpp`
+- A path with @engine prefix: `@engine/Source/Runtime/Engine/Private/NetDriver.cpp`
+
+All above format supports wildcard pattern: `Source/**/*Test.cpp`, `**` means any layer of subdirectories.
+
+Example:
+
+```console
+# Build all source files.
+uct build Pb4ueTest -f "Source/**/HelloWorldGreeterImpl.cpp"
+
+# Compile NetDriver.cpp and DataChannel.cpp under the engine directory.
+uct build MyGame -f "@engine/Source/**/NetDriver.cpp" "@engine/Source/**/DataChannel.cpp"
+
+# Build all source files under MyModule.
+uct Build MyGame -f "Source/MyModule/**/*.cpp"
+```
+
+#### Pass UBT flags
+
 UCT will generate appropriate UBT commands based on the command line parameters for the actual build.
-To pass extra [arguments](https://ikrima.dev/ue4guide/build-guide/utilities/devops-build-automation/) to UBT, put them after a standalone `--` like this:
+To pass extra [arguments](https://ikrima.dev/ue4guide/build-guide/utilities/devops-build-automation/)
+to UBT, put them after a standalone `--` like this:
 
 ```console
 uct build MyGame -- -StaticAnalyzer=VisualCpp
