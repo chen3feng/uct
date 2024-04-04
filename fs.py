@@ -60,10 +60,12 @@ def find_source_files_under(start_dir, patterns, excluded_dirs=None, relpath=Fal
     """Find source files under dir matching pattern."""
     result = []
     excluded_dirs = ['Binaries', 'Intermediate']
-    result += _find_files_under_subdir(start_dir, 'Source', patterns, excluded_dirs=excluded_dirs, relpath=relpath, limit=limit)
+    result += _find_files_under_subdir(start_dir, 'Source', patterns, excluded_dirs=excluded_dirs,
+                                       relpath=relpath, limit=limit)
     if len(result) >= limit:
         return result
-    result += _find_files_under_subdir(start_dir, 'Plugins', patterns, excluded_dirs=excluded_dirs, relpath=relpath, limit=limit)
+    result += _find_files_under_subdir(start_dir, 'Plugins', patterns, excluded_dirs=excluded_dirs,
+                                       relpath=relpath, limit=limit-len(result))
     return result
 
 
