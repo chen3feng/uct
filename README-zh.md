@@ -280,7 +280,7 @@ uct build -c debug -p linux
 
 构建命令还支持 `-f` 或 `--files` 来指定仅编译的文件。这对快速验证语法和非统一构建的正确性非常有用，因为单文件编译模式总是禁用 Unity Build。
 
-文件支持以下格式：
+本选项的参数支持以下格式：
 
 - 绝对路径：`/Work/MyGame/Source/MyGame/HelloWorldGreeterImpl.cpp`
 - 相对路径：`MyGame/HelloWorldGreeterImpl.cpp`，相对当前目录。
@@ -386,6 +386,40 @@ Automation RunAll
 Automation RunFilter <filter name>
 Automation SetFilter <filter name>
 Automation Quit
+```
+
+### open
+
+打开特定的文件。
+
+#### open module
+
+打开当前工作空间中指定模块的 `.Build.cs` 文件。
+
+根据当前所在的终端环境：
+
+- 如果是在 Visual Studio 或者 Visual Studio Code 的集成终端中，在相应的文本编辑器中打开。
+- 否则，在系统的文件浏览器中打开。
+
+本命令支持 `--engine` 和 `--project` 选项。
+
+示例：
+
+```console
+uct open module MyGameModule
+uct open module Core
+uct open module Engine
+```
+
+#### open plugin
+
+类似 `open module`，打开指定插件的 `.uplugin` 文件。
+
+示例：
+
+```console
+uct open plugin Paper2D
+uct open plugin OnlineSubsystem
 ```
 
 ### pack
