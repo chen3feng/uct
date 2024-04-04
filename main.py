@@ -378,6 +378,9 @@ class UnrealCommandTool:
             engine_id = engine_id[3:]
         project_file_new = project_file + '.new'
         project_file_old = project_file + '.old'
+        # Modify the value of "EngineAssociation" field in the project file.
+        # The format of a .uproject file is json. Using string replacement instead of python's
+        # json module is to ensure that the file format is unchanged.
         with open(project_file, encoding='utf8') as infile:
             with open(project_file_new, 'w', encoding='utf8') as outfile:
                 for line in infile:

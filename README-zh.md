@@ -139,6 +139,23 @@ $ uct generate-project
 ...
 ```
 
+### switch-engine - 切换项目的引擎
+
+当执行本命令时，UCT 生成一个选单，列出当前系统所有已安装的引擎和源代码构建的引擎。用上下箭头选择，回车确认，ESC 取消。
+
+```console
+Switch engine
+Installed engines:
+[ ] 5.1.1    D:\Game\UE_5.1
+[ ] 5.3.2    D:\Game\UE_5.3
+[ ] 5.2.1    D:\Game\UE_5.2
+Source built engines:
+[x] 5.1.1    G:/UnrealEngine-5.1
+[ ] 4.27.2   G:/UnrealEngine-4.27.2
+[ ] 5.3.1    G:/UnrealEngine-5.3.1
+Engine is switched to {750E0EB6-4428-07C4-DFB6-888F4E6452A6}  5.1.1    G:/UnrealEngine-5.1
+```
+
 ### list 列出
 
 #### list targets
