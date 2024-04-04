@@ -3,7 +3,4 @@
 
 # Set line endings for shell scripts to LF (UNIX format)
 *.sh text eol=lf
-cltue text eol=lf
-
-# Default behavior for all other files (unchanged)
-* -text
+/uct text eol=lf

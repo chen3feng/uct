@@ -51,7 +51,7 @@ class Engine:
 
 
 def find_builts() -> list:
-    """Find all source built engines in current system."""
+    """Find all source build engines in current system."""
     if os.name == 'posix':
         return _find_built_engines_posix()
     elif os.name == 'nt':

@@ -127,7 +127,7 @@ class UnrealCommandTool:
 
     @property
     def built_engines(self):
-        """"All source built engines."""
+        """"All source build engines."""
         if self.__built_engines is None:
             self.__built_engines = engine.find_builts()
         return self.__built_engines
@@ -363,7 +363,7 @@ class UnrealCommandTool:
                 engines.append(eng)
         if self.built_engines:
             caption_indices.append(len(options))
-            options.append('Source built engines:')
+            options.append('Source build engines:')
             engines.append(None)
             for eng in self.built_engines:
                 options.append(f'{eng.version_string():8} {eng.root}')
@@ -436,7 +436,7 @@ class UnrealCommandTool:
         if self.built_engines:
             if self.installed_engines:
                 print()
-            print('Registered source built engines:')
+            print('Registered source build engines:')
             for eng in self.built_engines:
                 print(eng)
         return 0
