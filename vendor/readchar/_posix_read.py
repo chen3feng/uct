@@ -1,3 +1,4 @@
+import os
 import sys
 import termios
 
@@ -10,46 +11,32 @@ from ._config import config
 # more infos from:
 # https://gist.github.com/michelbl/efda48b19d3e587685e3441a74457024
 # Thanks to Michel Blancard
-def readchar() -> str:
-    """Reads a single character from the input stream.
+def _readkeybuffer(maxlength: int) -> str:
+    """Reads at most  maxlength characters from the input stream.
     Blocks until a character is available."""
 
     fd = sys.stdin.fileno()
     old_settings = termios.tcgetattr(fd)
     term = termios.tcgetattr(fd)
     try:
+        # http://www.unixwiz.net/techtips/termios-vmin-vtime.html
         term[3] &= ~(termios.ICANON | termios.ECHO | termios.IGNBRK | termios.BRKINT)
+        term[6][termios.VMIN] = 1  # wait at least one character
+        term[6][termios.VTIME] = 0 #
         termios.tcsetattr(fd, termios.TCSAFLUSH, term)
-
-        ch = sys.stdin.read(1)
+        ch = os.read(fd, maxlength).decode('ascii')
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
     return ch
 
 
+def readchar() -> str:
+    """Reads a single character from the input stream.
+    Blocks until a character is available."""
+    return _readkeybuffer(1)
+
+
 def readkey() -> str:
     """Get a keypress. If an escaped key is pressed, the full sequence is
     read and returned as noted in `_posix_key.py`."""
-
-    c1 = readchar()
-
-    if c1 in config.INTERRUPT_KEYS:
-        raise KeyboardInterrupt
-
-    if c1 != "\x1B":
-        return c1
-
-    c2 = readchar()
-    if c2 not in "\x4F\x5B":
-        return c1 + c2
-
-    c3 = readchar()
-    if c3 not in "\x31\x32\x33\x35\x36":
-        return c1 + c2 + c3
-
-    c4 = readchar()
-    if c4 not in "\x30\x31\x33\x34\x35\x37\x38\x39":
-        return c1 + c2 + c3 + c4
-
-    c5 = readchar()
-    return c1 + c2 + c3 + c4 + c5
+    return _readkeybuffer(8)

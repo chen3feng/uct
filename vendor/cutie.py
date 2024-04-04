@@ -183,7 +183,7 @@ def select(
         elif keypress in DefaultKeys.down:
             selected_index = next_selectable()
             if selected_index == -1:
-                selected_index = prev_selectable()
+                selected_index = first_selectable()
         elif keypress in DefaultKeys.home:
             selected_index = first_selectable()
         elif keypress in DefaultKeys.end:

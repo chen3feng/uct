@@ -369,7 +369,7 @@ class UnrealCommandTool:
                 options.append(f'{eng.version_string():8} {eng.root}')
                 engines.append(eng)
         selected = cutie.select(options, caption_indices, confirm_on_select=False)
-        if selected < 0:
+        if selected < 0 or not engines[selected]:
             return 0
         return self._modify_engine_association(self.project_file, engines[selected])
 
