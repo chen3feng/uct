@@ -250,7 +250,8 @@ class UnrealCommandTool:
                 cmd = ' '.join(cmd)
         p = subprocess.run(cmd, text=True, capture_output=True, check=False)
         if p.returncode != 0:
-            console.warn(f'QueryTargets failed: {" ".join(cmd)}\n{p.stdout}')
+            cmdstr = ' '.join(cmd) if isinstance(cmd, list) else cmd
+            console.warn(f'QueryTargets failed: {cmdstr}\n{p.stdout}')
             return []
         return self._load_target_info(start_dir)
 
