@@ -8,6 +8,7 @@ import pathlib
 import subprocess
 import sys
 
+import console
 
 def is_wildcard(text):
     """Check whether a string is a wildcard."""
@@ -92,5 +93,46 @@ def expand_source_files(files, engine_dir) -> list:
 
 def reveal_file(path):
     """Open a file in system specific file explorer."""
+    if _in_vscode():
+        return _reveal_file_vscode(path)
+    if _in_visual_studio():
+        return _reveal_file_visual_studio(path)
+    if sys.platform.startswith('win'):
+        return _reveal_file_windows(path)
+    if sys.platform.startswith('darwin'):
+        return _reveal_file_mac(path)
+    console.error(f'Unsupported platform {sys.platform}')
+    return 1
+
+
+def _in_vscode():
+    if os.environ.get('TERM_PROGRAM') != 'vscode':
+        return False
+    if os.name == 'nt':
+        return subprocess.call('where code', stdout=subprocess.DEVNULL) == 0
+    return subprocess.call(['which', 'code'], stdout=subprocess.DEVNULL) == 0
+
+
+def _in_visual_studio():
+    return os.environ.get('VSAPPIDNAME')
+
+
+def _reveal_file_visual_studio(path):
+    return subprocess.call(f'{os.environ.get("VSAPPIDNAME")} /edit "{path}"')
+
+
+def _reveal_file_windows(path):
+    cmd = ['explorer.exe', f'/select,"{path}"']
+    return subprocess.call(' '.join(cmd))
+
+
+def _reveal_file_vscode(path):
+    cmd = ['code', path]
+    if os.name == 'nt':
+        return subprocess.call(' '.join(cmd), shell=True)
+    return subprocess.call(cmd)
+
+
+def _reveal_file_mac(path):
     cmd = ['open', '--reveal', path]
     return subprocess.call(cmd)

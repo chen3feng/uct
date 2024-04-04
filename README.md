@@ -228,7 +228,7 @@ $ uct build Benchmark UnrealEditor
 ...
 ```
 
-It supports wildcard target names:
+This command supports wildcard target names:
 
 ```console
 uct build MyProject*
@@ -258,7 +258,7 @@ build all targets in the game project.
 
 #### Target Platform and Configuration
 
-It supports specifying [build configuration](https://dev.epicgames.com/documentation/en-us/unreal-engine/build-configurations-reference-for-unreal-engine?application_version=5.3)
+This command supports specifying [build configuration](https://dev.epicgames.com/documentation/en-us/unreal-engine/build-configurations-reference-for-unreal-engine?application_version=5.3)
 and [target platform](https://unrealcommunity.wiki/6100e8109c9d1a89e0c31618):
 
 ```console
@@ -287,7 +287,7 @@ The build command also supports `-f` or `--files` to specify files to comile onl
 It is useful to verify the syntax and non-unity build correctness quickly.
 Bucause in the single file compile mode unity build is always disabled.
 
-It support the following formats:
+This option supports the following formats:
 
 - An absolute path: `/Work/MyGame/Source/MyGame/HelloWorldGreeterImpl.cpp`.
 - A relative path: `MyGame/HelloWorldGreeterImpl.cpp` from current directory.
@@ -396,6 +396,40 @@ Automation RunAll
 Automation RunFilter <filter name>
 Automation SetFilter <filter name>
 Automation Quit
+```
+
+### open
+
+Open specified file.
+
+#### open module
+
+Open the `.Build.cs` file for the specified module in your workspace.
+
+According to your terminal environment:
+
+- If you in the integrated terminal in Visual Studio or Visual Studio Code, it will be opened in the according text editor.
+- Otherwise, it will be opend in file explorer.
+
+This command supports the `--engine` and `--project` option.
+
+Example:
+
+```console
+uct open module MyGameModule
+uct open module Core
+uct open module Engine
+```
+
+#### open plugin
+
+Similar to `open module`, but open the `.uplugin` file.
+
+Example:
+
+```console
+uct open plugin Paper2D
+uct open plugin OnlineSubsystem
 ```
 
 ### pack
