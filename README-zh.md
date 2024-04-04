@@ -121,7 +121,7 @@ uct build -c dbg -p linux Benchmark
 
 UCT 支持以下命令：
 
-### setup
+### setup 设置
 
 执行引擎根目录下的 `Setup.bat` 或者 `Setup.sh` 命令.
 
@@ -130,7 +130,7 @@ $ uct setup
 ...
 ```
 
-### generate-project
+### generate-project - 生成项目文件
 
 根据当前目录的是项目还是引擎来生成相应的项目文件。
 
@@ -139,7 +139,7 @@ $ uct generate-project
 ...
 ```
 
-### list
+### list 列出
 
 #### list targets
 
@@ -204,7 +204,7 @@ Registered source built engines:
 {3BC4DCDD-7743-67E3-8361-5D90FEB4A5B2}  4.27.2   /Volumes/SSD/code/UnrealEngine-4.27
 ```
 
-### build
+### build - 构建
 
 构建指定的目标。
 
@@ -310,7 +310,7 @@ UCT 会根据命令行参数生成合适的 UBT 命令进行实际的构建。
 uct build MyGame -- -StaticAnalyzer=VisualCpp
 ```
 
-### clean
+### clean - 清理
 
 清理一个或多个目标，例如：
 
@@ -321,9 +321,9 @@ $ uct clean Benchmark UnrealEditor
 
 支持的选项和 `build` 类似，请参阅上面的 `build` 命令。
 
-### run
+### run - 运行
 
-运行一个或者多个程序：
+运行一个或者多个目标程序：
 
 ```console
 $ uct run Benchmark
@@ -342,7 +342,7 @@ uct run Benchmark -- --help --help
 
 该程序就会收到 `--help ---help` 参数。
 
-### test
+### test - 测试
 
 UCT 使用 [`-ExecCmds Automation ...`](https://docs.unrealengine.com/4.27/en-US/TestingAndOptimization/Automation/TechnicalGuide/)
 执行自动化测试。
@@ -388,7 +388,7 @@ Automation SetFilter <filter name>
 Automation Quit
 ```
 
-### open
+### open - 打开
 
 打开特定的文件。
 
@@ -422,7 +422,7 @@ uct open plugin Paper2D
 uct open plugin OnlineSubsystem
 ```
 
-### pack
+### pack - 打包
 
 将目标打包到指定的输出目录。
 
@@ -443,7 +443,7 @@ AutomationTool executed for 0h 0m 59s
 AutomationTool exiting with ExitCode=0 (Success)
 ```
 
-### 帮助
+### help - 帮助
 
 要查看帮助，使用 `--help` 参数，要查看命令的帮助，在命令后加 `--test`。
 

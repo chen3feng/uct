@@ -12,11 +12,15 @@ import sys
 
 from typing import Optional
 
+sys.path.append(os.path.join(os.path.dirname(__file__), 'vendor'))
+
 import command_line
 import constants
 import console
 import engine
 import fs
+
+import cutie
 
 # https://www.gnu.org/software/bash/manual/html_node/Exit-Status.html
 EXIT_COMMAND_NOT_FOUND = 127
@@ -340,6 +344,54 @@ class UnrealCommandTool:
         cmd += self.extra_args
         print(' '.join(cmd))
         return self._run_command(cmd)
+
+    def switch_engine(self):
+        if not self.project_file:
+            console.error('You are not under the directory of a game project.')
+            return 1
+        print('Switch engine')
+        options = []
+        engines = []
+        caption_indices = []
+        if self.installed_engines:
+            caption_indices.append(len(options))
+            options.append('Installed engines:')
+            engines.append(None)
+            for eng in self.installed_engines:
+                options.append(f'{eng.version_string():8} {eng.root}')
+                engines.append(eng)
+        if self.built_engines:
+            caption_indices.append(len(options))
+            options.append('Source built engines:')
+            engines.append(None)
+            for eng in self.built_engines:
+                options.append(f'{eng.version_string():8} {eng.root}')
+                engines.append(eng)
+        selected = cutie.select(options, caption_indices, confirm_on_select=False)
+        if selected < 0:
+            return 0
+        return self._modify_engine_association(self.project_file, engines[selected])
+
+    def _modify_engine_association(self, project_file, engine):
+        engine_id = engine.id
+        if engine_id.startswith('UE_'): # Python 2.7 in UE4 doesn't support removesuffix
+            engine_id = engine_id[3:]
+        project_file_new = project_file + '.new'
+        project_file_old = project_file + '.old'
+        with open(project_file, encoding='utf8') as infile:
+            with open(project_file_new, 'w', encoding='utf8') as outfile:
+                for line in infile:
+                    if 'EngineAssociation' in line:
+                        line = re.sub(r'(?<=\"EngineAssociation\": )\".*\"', f'"{engine_id}"', line)
+                    outfile.write(line)
+        try:
+            os.remove(project_file_old)
+        except OSError:
+            pass
+        os.rename(project_file, project_file_old)
+        os.rename(project_file_new, project_file)
+        print(f'Engine is switched to {engine}')
+        return 0
 
     def list_targets(self) -> int:
         """Print out available build targets."""

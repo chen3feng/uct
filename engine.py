@@ -43,9 +43,11 @@ class Engine:
         self.is_installed = os.path.join(root, 'Engine/Build', 'InstalledBuild.txt')
 
     def __repr__(self) -> str:
+        return f'{self.id}  {self.version_string():8} {self.root}'
+
+    def version_string(self):
         ver = self.version
-        version = f"{ver['MajorVersion']}.{ver['MinorVersion']}.{ver['PatchVersion']}"
-        return f'{self.id}  {version:8} {self.root}'
+        return f"{ver['MajorVersion']}.{ver['MinorVersion']}.{ver['PatchVersion']}"
 
 
 def find_builts() -> list:
