@@ -473,11 +473,11 @@ class UnrealCommandTool:
             search_in_project = bool(self.project_dir)
             search_in_engine = True
         if search_in_project:
-            build_file = fs.find_files_under(self.project_dir, [filename], limit=1)
+            build_file = fs.find_source_files_under(self.project_dir, [filename], limit=1)
             if build_file:
                 return build_file
         if search_in_engine:
-            return fs.find_files_under(self.engine_dir, [filename], limit=1)
+            return fs.find_source_files_under(self.engine_dir, [filename], limit=1)
         return ''
 
     def build(self) -> int:
