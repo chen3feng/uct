@@ -400,6 +400,10 @@ class UnrealCommandTool:
     def list_targets(self) -> int:
         """Print out available build targets."""
         # print('List targets')
+        if self.raw_targets:
+            targets = [t for t in self.all_targets if t['Name'] in self.targets]
+            self._print_targets(targets)
+            return 0
         if self.options.engine:
             self._print_targets(self.engine_targets)
         if self.options.project:
