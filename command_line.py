@@ -38,6 +38,7 @@ def build_parser():
 
     subparsers.add_parser('setup', help='Setup the engine')
     subparsers.add_parser('generate-project', help='Generate project files')
+    subparsers.add_parser('switch-engine', help='Swith engine for current project')
 
     list_parsers = subparsers.add_parser('list', help='List objects in the workspace').add_subparsers(
         dest='subcommand', help='Available subcommands', required=True)

@@ -1,0 +1,15 @@
+._*
+
+__pycache__/
+*.pyc
+.mypy_cache/
+htmlcov/
+.coverage
+
+
+.DS_Store
+.Trashes
+
+build
+cutie.egg-info
+dist

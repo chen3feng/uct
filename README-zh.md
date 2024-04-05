@@ -121,7 +121,7 @@ uct build -c dbg -p linux Benchmark
 
 UCT 支持以下命令：
 
-### setup
+### setup 设置
 
 执行引擎根目录下的 `Setup.bat` 或者 `Setup.sh` 命令.
 
@@ -130,7 +130,7 @@ $ uct setup
 ...
 ```
 
-### generate-project
+### generate-project - 生成项目文件
 
 根据当前目录的是项目还是引擎来生成相应的项目文件。
 
@@ -139,7 +139,24 @@ $ uct generate-project
 ...
 ```
 
-### list
+### switch-engine - 切换项目的引擎
+
+当执行本命令时，UCT 生成一个选单，列出当前系统所有已安装的引擎和源代码构建的引擎。用上下箭头选择，回车确认，ESC 取消。
+
+```console
+Switch engine
+Installed engines:
+[ ] 5.1.1    D:\Game\UE_5.1
+[ ] 5.3.2    D:\Game\UE_5.3
+[ ] 5.2.1    D:\Game\UE_5.2
+Source build engines:
+[x] 5.1.1    G:/UnrealEngine-5.1
+[ ] 4.27.2   G:/UnrealEngine-4.27.2
+[ ] 5.3.1    G:/UnrealEngine-5.3.1
+Engine is switched to {750E0EB6-4428-07C4-DFB6-888F4E6452A6}  5.1.1    G:/UnrealEngine-5.1
+```
+
+### list 列出
 
 #### list targets
 
@@ -198,13 +215,13 @@ UE_5.1  5.1.1    /Volumes/SSD/software/EpicGames/UE_5.1
 UE_5.2  5.2.1    /Volumes/SSD/software/EpicGames/UE_5.2
 UE_5.3  5.3.2    /Volumes/SSD/software/EpicGames/UE_5.3
 
-Registered source built engines:
+Registered source build engines:
 {46E95257-8C4E-4D80-C21A-AB88D9179249}  5.1.0    /Volumes/SSD/code/UnrealEngine-5.1
 {CCB0C841-B544-47A2-A486-C3908D365428}  5.2.1    /Volumes/SSD/code/UnrealEngine-5.2
 {3BC4DCDD-7743-67E3-8361-5D90FEB4A5B2}  4.27.2   /Volumes/SSD/code/UnrealEngine-4.27
 ```
 
-### build
+### build - 构建
 
 构建指定的目标。
 
@@ -310,7 +327,7 @@ UCT 会根据命令行参数生成合适的 UBT 命令进行实际的构建。
 uct build MyGame -- -StaticAnalyzer=VisualCpp
 ```
 
-### clean
+### clean - 清理
 
 清理一个或多个目标，例如：
 
@@ -321,9 +338,9 @@ $ uct clean Benchmark UnrealEditor
 
 支持的选项和 `build` 类似，请参阅上面的 `build` 命令。
 
-### run
+### run - 运行
 
-运行一个或者多个程序：
+运行一个或者多个目标程序：
 
 ```console
 $ uct run Benchmark
@@ -342,7 +359,7 @@ uct run Benchmark -- --help --help
 
 该程序就会收到 `--help ---help` 参数。
 
-### test
+### test - 测试
 
 UCT 使用 [`-ExecCmds Automation ...`](https://docs.unrealengine.com/4.27/en-US/TestingAndOptimization/Automation/TechnicalGuide/)
 执行自动化测试。
@@ -388,7 +405,7 @@ Automation SetFilter <filter name>
 Automation Quit
 ```
 
-### open
+### open - 打开
 
 打开特定的文件。
 
@@ -422,7 +439,7 @@ uct open plugin Paper2D
 uct open plugin OnlineSubsystem
 ```
 
-### pack
+### pack - 打包
 
 将目标打包到指定的输出目录。
 
@@ -443,7 +460,7 @@ AutomationTool executed for 0h 0m 59s
 AutomationTool exiting with ExitCode=0 (Success)
 ```
 
-### 帮助
+### help - 帮助
 
 要查看帮助，使用 `--help` 参数，要查看命令的帮助，在命令后加 `--test`。
 

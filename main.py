@@ -12,11 +12,15 @@ import sys
 
 from typing import Optional
 
+sys.path.append(os.path.join(os.path.dirname(__file__), 'vendor'))
+
 import command_line
 import constants
 import console
 import engine
 import fs
+
+import cutie
 
 # https://www.gnu.org/software/bash/manual/html_node/Exit-Status.html
 EXIT_COMMAND_NOT_FOUND = 127
@@ -123,7 +127,7 @@ class UnrealCommandTool:
 
     @property
     def built_engines(self):
-        """"All source built engines."""
+        """"All source build engines."""
         if self.__built_engines is None:
             self.__built_engines = engine.find_builts()
         return self.__built_engines
@@ -246,7 +250,8 @@ class UnrealCommandTool:
                 cmd = ' '.join(cmd)
         p = subprocess.run(cmd, text=True, capture_output=True, check=False)
         if p.returncode != 0:
-            console.warn(f'QueryTargets failed: {" ".join(cmd)}\n{p.stdout}')
+            cmdstr = ' '.join(cmd) if isinstance(cmd, list) else cmd
+            console.warn(f'QueryTargets failed: {cmdstr}\n{p.stdout}')
             return []
         return self._load_target_info(start_dir)
 
@@ -341,6 +346,57 @@ class UnrealCommandTool:
         print(' '.join(cmd))
         return self._run_command(cmd)
 
+    def switch_engine(self):
+        if not self.project_file:
+            console.error('You are not under the directory of a game project.')
+            return 1
+        print('Switch engine')
+        options = []
+        engines = []
+        caption_indices = []
+        if self.installed_engines:
+            caption_indices.append(len(options))
+            options.append('Installed engines:')
+            engines.append(None)
+            for eng in self.installed_engines:
+                options.append(f'{eng.version_string():8} {eng.root}')
+                engines.append(eng)
+        if self.built_engines:
+            caption_indices.append(len(options))
+            options.append('Source build engines:')
+            engines.append(None)
+            for eng in self.built_engines:
+                options.append(f'{eng.version_string():8} {eng.root}')
+                engines.append(eng)
+        selected = cutie.select(options, caption_indices, confirm_on_select=False)
+        if selected < 0 or not engines[selected]:
+            return 0
+        return self._modify_engine_association(self.project_file, engines[selected])
+
+    def _modify_engine_association(self, project_file, engine):
+        engine_id = engine.id
+        if engine_id.startswith('UE_'): # Python 2.7 in UE4 doesn't support removesuffix
+            engine_id = engine_id[3:]
+        project_file_new = project_file + '.new'
+        project_file_old = project_file + '.old'
+        # Modify the value of "EngineAssociation" field in the project file.
+        # The format of a .uproject file is json. Using string replacement instead of python's
+        # json module is to ensure that the file format is unchanged.
+        with open(project_file, encoding='utf8') as infile:
+            with open(project_file_new, 'w', encoding='utf8') as outfile:
+                for line in infile:
+                    if 'EngineAssociation' in line:
+                        line = re.sub(r'(?<=\"EngineAssociation\": )\".*\"', f'"{engine_id}"', line)
+                    outfile.write(line)
+        try:
+            os.remove(project_file_old)
+        except OSError:
+            pass
+        os.rename(project_file, project_file_old)
+        os.rename(project_file_new, project_file)
+        print(f'Engine is switched to {engine}')
+        return 0
+
     def list_targets(self) -> int:
         """Print out available build targets."""
         # print('List targets')
@@ -380,7 +436,7 @@ class UnrealCommandTool:
         if self.built_engines:
             if self.installed_engines:
                 print()
-            print('Registered source built engines:')
+            print('Registered source build engines:')
             for eng in self.built_engines:
                 print(eng)
         return 0
@@ -418,11 +474,11 @@ class UnrealCommandTool:
             search_in_project = bool(self.project_dir)
             search_in_engine = True
         if search_in_project:
-            build_file = fs.find_files_under(self.project_dir, [filename], limit=1)
+            build_file = fs.find_source_files_under(self.project_dir, [filename], limit=1)
             if build_file:
                 return build_file
         if search_in_engine:
-            return fs.find_files_under(self.engine_dir, [filename], limit=1)
+            return fs.find_source_files_under(self.engine_dir, [filename], limit=1)
         return ''
 
     def build(self) -> int:

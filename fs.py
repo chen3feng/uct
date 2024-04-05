@@ -56,6 +56,26 @@ def find_files_under(start_dir, patterns, excluded_dirs=None, relpath=False, lim
     return result
 
 
+def find_source_files_under(start_dir, patterns, excluded_dirs=None, relpath=False, limit=sys.maxsize) -> list:
+    """Find source files under dir matching pattern."""
+    result = []
+    excluded_dirs = ['Binaries', 'Intermediate']
+    result += _find_files_under_subdir(start_dir, 'Source', patterns, excluded_dirs=excluded_dirs,
+                                       relpath=relpath, limit=limit)
+    if len(result) >= limit:
+        return result
+    result += _find_files_under_subdir(start_dir, 'Plugins', patterns, excluded_dirs=excluded_dirs,
+                                       relpath=relpath, limit=limit-len(result))
+    return result
+
+
+def _find_files_under_subdir(start_dir, subdir, patterns, relpath, **kwargs) -> list:
+    files = find_files_under(os.path.join(start_dir, subdir), patterns, relpath=relpath, **kwargs)
+    if relpath:
+        return [os.path.join(subdir, f) for f in files]
+    return files
+
+
 def expand_source_files(files, engine_dir) -> list:
     """
     Expand source file patterns to file list.
