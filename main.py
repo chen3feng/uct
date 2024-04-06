@@ -42,10 +42,11 @@ class UnrealCommandTool:
         self.extra_args = extra_args
         self._expand_options(options)
 
+        self.project_file = self._find_project_file()
+
         if not self._need_engine(options):
             return
 
-        self.project_file = self._find_project_file()
         self.engine_root = self._find_engine(self.project_file)
         self.engine_dir = os.path.join(self.engine_root, 'Engine')
         self.engine_version, self.engine_major_version = engine.parse_version(self.engine_root)
@@ -55,8 +56,12 @@ class UnrealCommandTool:
         self.project_dir = os.path.dirname(self.project_file)
 
     def _need_engine(self, options):
-        return (options.command != 'list' or
-                not hasattr(options, 'subcommand') or options.subcommand != 'engines')
+        if options.command == 'switch-engine':
+            return False
+        if options.command == 'list':
+            if hasattr(options, 'subcommand') and options.subcommand == 'engines':
+                return False
+        return True
 
     def _find_project_file(self):
         """Find the project file and engine root."""
