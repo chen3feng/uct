@@ -24,7 +24,7 @@ def _readkeybuffer(maxlength: int) -> str:
         term[6][termios.VMIN] = 1  # wait at least one character
         term[6][termios.VTIME] = 0 #
         termios.tcsetattr(fd, termios.TCSAFLUSH, term)
-        ch = os.read(fd, maxlength).decode('ascii')
+        ch = os.read(fd, maxlength).decode('utf8')
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
     return ch
@@ -39,4 +39,5 @@ def readchar() -> str:
 def readkey() -> str:
     """Get a keypress. If an escaped key is pressed, the full sequence is
     read and returned as noted in `_posix_key.py`."""
-    return _readkeybuffer(8)
+    # It can be quite long when input is from IME.
+    return _readkeybuffer(1000)
