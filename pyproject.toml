@@ -1,0 +1,2 @@
+[tool.pylint.MASTER]
+ignore-paths = '^vendor/.*$'
