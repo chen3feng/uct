@@ -7,7 +7,6 @@ import fnmatch
 import json
 import os
 import re
-import subprocess
 import sys
 
 from typing import Optional
@@ -20,7 +19,10 @@ import console
 import engine
 import fs
 
+from utils import subprocess_call, subprocess_run
+
 import cutie
+
 
 # https://www.gnu.org/software/bash/manual/html_node/Exit-Status.html
 EXIT_COMMAND_NOT_FOUND = 127
@@ -30,7 +32,7 @@ class UnrealCommandTool:
     """Unreal Command Line Tool."""
     def __init__(self, options, targets, extra_args):
         self.__installed_engines = None
-        self.__built_engines = None
+        self.__source_build_engines = None
         self.__engine_targets = None
         self.__project_targets = None
         self.__all_targets = None
@@ -91,7 +93,7 @@ class UnrealCommandTool:
         if not engine_id:
             return ''
         if engine_id.startswith('{'): # Id of a built engine is a UUID encloded in '{}'.
-            return self._find_built_engine(engine_id)
+            return self._find_source_build_engine(engine_id)
         return self._find_installed_engine(engine_id)
 
     def _find_engine_association(self, project_file) -> str:
@@ -100,11 +102,11 @@ class UnrealCommandTool:
             return project['EngineAssociation']
         return ''
 
-    def _find_built_engine(self, engine_id: str) -> str:
-        for eng in self.built_engines:
+    def _find_source_build_engine(self, engine_id: str) -> str:
+        for eng in self.source_build_engines:
             if eng.id == engine_id:
                 return eng.root
-        console.error(f"Engine '{engine_id}' is not registered in '{engine.BUILT_REGISTRY}'.")
+        console.error(f"Engine '{engine_id}' is not registered in '{engine.SOURCE_BUILD_REGISTRY}'.")
         return ''
 
     def _parse_project_file(self, project_file) -> Optional[dict]:
@@ -131,11 +133,11 @@ class UnrealCommandTool:
         return self.__installed_engines
 
     @property
-    def built_engines(self):
+    def source_build_engines(self):
         """"All source build engines."""
-        if self.__built_engines is None:
-            self.__built_engines = engine.find_builts()
-        return self.__built_engines
+        if self.__source_build_engines is None:
+            self.__source_build_engines = engine.find_source_builds()
+        return self.__source_build_engines
 
     def _find_ubt(self):
         """Find full path of UBT based on host platform."""
@@ -251,9 +253,7 @@ class UnrealCommandTool:
         cmd = [self.ubt, '-Mode=QueryTargets']
         if start_dir == self.project_dir:
             cmd.append(self._escape_argument('-Project', self.project_file))
-            if os.name == 'nt':
-                cmd = ' '.join(cmd)
-        p = subprocess.run(cmd, text=True, capture_output=True, check=False)
+        p = subprocess_run(cmd, text=True, capture_output=True, check=False)
         if p.returncode != 0:
             cmdstr = ' '.join(cmd) if isinstance(cmd, list) else cmd
             console.warn(f'QueryTargets failed: {cmdstr}\n{p.stdout}')
@@ -326,32 +326,22 @@ class UnrealCommandTool:
         assert command in dir(self), f'{command} method is not defined'
         return getattr(self, command)()
 
-    def _run_command(self, cmd, *args, **kwargs):
-        """Run an external command."""
-        if self.host_platform == 'Win64':
-            # Windows can't handle command arguments correctly.
-            # For example, in the handling of test command,
-            # neither pass the list directly nor use subprocess.list2cmd works because they convert
-            # -ExecCmds="Automation List; Quit" to "-ExecCmds=\"Automation List; Quit\"",
-            # But simplay join the list with spaces works.
-            return subprocess.call(' '.join(cmd), *args, **kwargs)
-        return subprocess.call(cmd, *args, **kwargs)
-
     def setup(self) -> int:
-        """Run the Setup script in the engine."""
+        """Handle the `setup` command."""
         setup = 'Setup.' + ('bat' if self.host_platform == 'Win64' else 'sh')
-        return subprocess.call(os.path.join(self.engine_root, setup))
+        return subprocess_call(os.path.join(self.engine_root, setup))
 
     def generate_project(self) -> int:
-        """Run the GenerateProjectFiles.bat or sh."""
+        """Handle the `generate-project` command."""
         cmd = [self.ubt, '-ProjectFiles', '-SharedBuildEnvironment']
         if self.project_file:
             cmd.append(self.project_file)
         cmd += self.extra_args
         print(' '.join(cmd))
-        return self._run_command(cmd)
+        return subprocess_call(cmd)
 
     def switch_engine(self):
+        """Handle the `switch-engine` command."""
         if not self.project_file:
             console.error('You are not under the directory of a game project.')
             return 1
@@ -366,11 +356,11 @@ class UnrealCommandTool:
             for eng in self.installed_engines:
                 options.append(f'{eng.version_string():8} {eng.root}')
                 engines.append(eng)
-        if self.built_engines:
+        if self.source_build_engines:
             caption_indices.append(len(options))
             options.append('Source build engines:')
             engines.append(None)
-            for eng in self.built_engines:
+            for eng in self.source_build_engines:
                 options.append(f'{eng.version_string():8} {eng.root}')
                 engines.append(eng)
         selected = cutie.select(options, caption_indices, confirm_on_select=False)
@@ -403,8 +393,7 @@ class UnrealCommandTool:
         return 0
 
     def list_targets(self) -> int:
-        """Print out available build targets."""
-        # print('List targets')
+        """Handle the `list targets` command."""
         if self.raw_targets:
             targets = [t for t in self.all_targets if t['Name'] in self.targets]
             self._print_targets(targets)
@@ -437,28 +426,31 @@ class UnrealCommandTool:
         return False
 
     def list_engines(self) -> int:
-        """List all engines in current system."""
+        """
+        Handle the `list targets` command.
+        List all engines in current system.
+        """
         if self.installed_engines:
             print('Installed engines:')
             for eng in self.installed_engines:
                 print(eng)
-        if self.built_engines:
+        if self.source_build_engines:
             if self.installed_engines:
                 print()
             print('Registered source build engines:')
-            for eng in self.built_engines:
+            for eng in self.source_build_engines:
                 print(eng)
         return 0
 
     def open_module(self):
-        """Reveal a module in file explorer."""
+        """Handle the `open module` command."""
         if len(self.raw_targets) != 1:
             console.error('open module command accept exactly one module name')
             return 1
         return self._open_file(self.raw_targets[0] + '.Build.cs')
 
     def open_plugin(self):
-        """Reveal a uplugin in file explorer."""
+        """Handle the `open plugin` command."""
         if len(self.raw_targets) != 1:
             console.error('open plugin command accept exactly one plugin name')
             return 1
@@ -491,7 +483,10 @@ class UnrealCommandTool:
         return ''
 
     def build(self) -> int:
-        """Build the specified targets."""
+        """
+        Handle the `build` command.
+        Build the specified targets.
+        """
         if not self.targets:
             console.error('Missing targets, nothing to build.')
             return 1
@@ -510,7 +505,7 @@ class UnrealCommandTool:
                     return 1
                 cmd += [self._escape_argument('-singlefile',f) for f in files]
             cmd += self.extra_args
-            ret = self._run_command(cmd)
+            ret = subprocess_call(cmd)
             if ret != 0:
                 # Use first failed exitcode
                 returncode = returncode or ret
@@ -523,7 +518,10 @@ class UnrealCommandTool:
         return fs.expand_source_files(files, self.engine_dir)
 
     def clean(self) -> int:
-        """Clean the specified targets."""
+        """
+        Handle the `clean` command.
+        Clean the specified targets.
+        """
         if not self.targets:
             console.error('Missing targets, nothing to clean.')
             return 1
@@ -536,7 +534,7 @@ class UnrealCommandTool:
             print(f'Clean {target}')
             cmd = cmd_base + ['-Clean', target]
             cmd += self.extra_args
-            ret = self._run_command(cmd)
+            ret = subprocess_call(cmd)
             if ret != 0:
                 # Use first failed exitcode
                 returncode = returncode or ret
@@ -546,7 +544,10 @@ class UnrealCommandTool:
         return returncode
 
     def run(self) -> int:
-        """Run the specified targets."""
+        """
+        Handle the `run` command.
+        Run the specified targets.
+        """
         if not self.targets:
             console.error('Missing targets, nothing to run.')
             return 1
@@ -563,7 +564,7 @@ class UnrealCommandTool:
             print(f'Run {" ".join(cmd)}')
             if self.options.dry_run:
                 continue
-            ret = self._run_command(cmd)
+            ret = subprocess_call(cmd)
             if ret != 0:
                 # Use first failed exitcode
                 returncode = returncode or ret
@@ -622,7 +623,10 @@ class UnrealCommandTool:
         return any(t['Name'] == target for t in self.engine_targets)
 
     def test(self) -> int:
-        """Run the automation tests."""
+        """
+        Handle the `test` command.
+        Run the different kinds of tests.
+        """
         test_cmds = self._make_test_cmds()
         if not test_cmds:
             console.error('No test command to execute.')
@@ -641,7 +645,7 @@ class UnrealCommandTool:
             cmd += ['-LogCmds="global Error, LogAutomationCommandLine Display"', '-NullRHI']
         cmd += self.extra_args
         print(f'Command line: {cmd}')
-        return self._run_command(cmd)
+        return subprocess_call(cmd)
 
     def _full_path_of_editor(self, is_cmd=False, platform=None, config=None):
         if self.engine_major_version >= 5:
@@ -676,7 +680,10 @@ class UnrealCommandTool:
         return '; '.join(cmds)
 
     def pack(self) -> int:
-        """Pack targets"""
+        """
+        Handle the `pack` command.
+        Pack targets.
+        """
         if not self.project_file:
             console.error('not in project directory')
             return 0
@@ -701,7 +708,7 @@ class UnrealCommandTool:
                 self._escape_argument('-archivedirectory', os.path.abspath(self.options.output))
             ]
             # print(f'Run {' '.join(cmd)}')
-            ret = self._run_command(cmd)
+            ret = subprocess_call(cmd)
             if ret != 0:
                 return ret
         return 0

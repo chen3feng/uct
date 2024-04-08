@@ -22,7 +22,9 @@ def _installed_engine_registry() -> str:
     return path
 
 
-def _built_engine_registry() -> str:
+def _source_build_engine_registry() -> str:
+    if platform.system() == 'Windows':
+        return r"HKEY_CURRENT_USER\Software\Epic Games\Unreal Engine\Builds"
     path = '~/.config/Epic/UnrealEngine/Install.ini'
     if platform.system() == 'Darwin':
         path = '~/Library/Application Support/Epic/UnrealEngine/Install.ini'
@@ -30,8 +32,7 @@ def _built_engine_registry() -> str:
 
 
 INSTALLED_REGISTRY = _installed_engine_registry()
-BUILT_REGISTRY = _built_engine_registry()
-
+SOURCE_BUILD_REGISTRY = _source_build_engine_registry()
 
 
 class Engine:
@@ -50,7 +51,7 @@ class Engine:
         return f"{ver['MajorVersion']}.{ver['MinorVersion']}.{ver['PatchVersion']}"
 
 
-def find_builts() -> list:
+def find_source_builds() -> list:
     """Find all source build engines in current system."""
     if os.name == 'posix':
         return _find_built_engines_posix()
@@ -60,7 +61,7 @@ def find_builts() -> list:
 
 
 def _find_built_engines_posix() -> list:
-    config_file = BUILT_REGISTRY
+    config_file = SOURCE_BUILD_REGISTRY
     config = configparser.ConfigParser()
     config.read(config_file)
     if 'Installations' not in config:
