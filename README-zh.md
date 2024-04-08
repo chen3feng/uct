@@ -26,6 +26,7 @@ UCT 是 Unreal Commandline Tool 的缩写，它是一个强大的命令行工具
 [Editor](https://docs.unrealengine.com/4.27/zh-CN/ProductionPipelines/CommandLineArguments/)。
 
 而且很多情况下，用命令行工具更方便，因为它们容易批量化和自动化。
+另外，有些 UE 功能只能通过命令行使用，例如[低级测试中的隐式测试](https://dev.epicgames.com/documentation/zh-cn/unreal-engine/build-and-run-low-level-tests-in-unreal-engine).
 
 但是 UE 系统中的命令行界面都非常冗长。
 

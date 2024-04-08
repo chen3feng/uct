@@ -27,6 +27,7 @@ In these cases, you need to use command line tools, such as [UBT](https://docs.u
 [Editor](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/CommandLineArguments/).
 
 And in many cases, it is more convenient to use command line tools because they are easy to batch and automate.
+Additionally, some UE features can only be accessed from the command line, such as [implicit tests in the low level tests](https://dev.epicgames.com/documentation/en-us/unreal-engine/build-and-run-low-level-tests-in-unreal-engine).
 
 But the command line interfaces in UE systems are very boring.
 
