@@ -52,7 +52,10 @@ class UnrealCommandTool:
             return
 
         if not self.engine_root:
-            console.error("Can't find engine root.")
+            if self.project_file:
+                console.error("Can't find engine root fot this project.")
+            else:
+                console.error("UCT should be ran under the directory of an engine or a game project.")
             sys.exit(1)
 
         self.engine_dir = os.path.join(self.engine_root, 'Engine')
@@ -83,10 +86,7 @@ class UnrealCommandTool:
             key_file = fs.find_file_bottom_up('GenerateProjectFiles.bat')
             if key_file:
                 engine_root = os.path.dirname(key_file)
-        if not engine_root:
-            if not project_file:
-                console.error("UCT should be ran under the directory of an engine or a game project.")
-                sys.exit(1)
+        if not engine_root and project_file:
             engine_root = self._find_engine_by_project(project_file)
         return engine_root
 
