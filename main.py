@@ -3,6 +3,7 @@ UCT -- Unreal Command Tool.
 A powerful command line tool for unreal engine.
 """
 
+import filecmp
 import fnmatch
 import json
 import os
@@ -45,11 +46,15 @@ class UnrealCommandTool:
         self._expand_options(options)
 
         self.project_file = self._find_project_file()
+        self.engine_root = self._find_engine(self.project_file)
 
         if not self._need_engine(options):
             return
 
-        self.engine_root = self._find_engine(self.project_file)
+        if not self.engine_root:
+            console.error("Can't find engine root.")
+            sys.exit(1)
+
         self.engine_dir = os.path.join(self.engine_root, 'Engine')
         self.engine_version, self.engine_major_version = engine.parse_version(self.engine_root)
         self.ubt = self._find_ubt()
@@ -83,9 +88,6 @@ class UnrealCommandTool:
                 console.error("UCT should be ran under the directory of an engine or a game project.")
                 sys.exit(1)
             engine_root = self._find_engine_by_project(project_file)
-        if not engine_root:
-            console.error("Can't find engine root.")
-            sys.exit(1)
         return engine_root
 
     def _find_engine_by_project(self, project_file) -> str:
@@ -349,11 +351,14 @@ class UnrealCommandTool:
         options = []
         engines = []
         caption_indices = []
+        selected_index = 0
         if self.installed_engines:
             caption_indices.append(len(options))
             options.append('Installed engines:')
             engines.append(None)
             for eng in self.installed_engines:
+                if self._is_current_engine(eng):
+                    selected_index = len(engines)
                 options.append(f'{eng.version_string():8} {eng.root}')
                 engines.append(eng)
         if self.source_build_engines:
@@ -361,12 +366,17 @@ class UnrealCommandTool:
             options.append('Source build engines:')
             engines.append(None)
             for eng in self.source_build_engines:
+                if self._is_current_engine(eng):
+                    selected_index = len(engines)
                 options.append(f'{eng.version_string():8} {eng.root}')
                 engines.append(eng)
-        selected = cutie.select(options, caption_indices, confirm_on_select=False)
+        selected = cutie.select(options, caption_indices, confirm_on_select=False, selected_index=selected_index)
         if selected < 0 or not engines[selected]:
             return 0
         return self._modify_engine_association(self.project_file, engines[selected])
+    
+    def _is_current_engine(self, engine) -> bool:
+        return os.path.normpath(self.engine_root) == os.path.normpath(engine.root)
 
     def _modify_engine_association(self, project_file, engine):
         engine_id = engine.id
@@ -383,13 +393,17 @@ class UnrealCommandTool:
                     if 'EngineAssociation' in line:
                         line = re.sub(r'(?<=\"EngineAssociation\": )\".*\"', f'"{engine_id}"', line)
                     outfile.write(line)
-        try:
-            os.remove(project_file_old)
-        except OSError:
-            pass
-        os.rename(project_file, project_file_old)
-        os.rename(project_file_new, project_file)
-        print(f'Engine is switched to {engine}')
+        if not filecmp.cmp(project_file_new, project_file):
+            try:
+                os.remove(project_file_old)
+            except OSError:
+                pass
+            os.rename(project_file, project_file_old)
+            os.rename(project_file_new, project_file)
+            print(f'Engine is switched to {engine}.')
+        else:
+            print(f'Engine is not changed.')
+            os.remove(project_file_new)
         return 0
 
     def list_targets(self) -> int:
