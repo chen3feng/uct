@@ -140,16 +140,17 @@ $ uct setup
 Generate project files for the engine or game project.
 
 ```console
-$ uct generate-project
+$ uct generate project
 ...
 ```
 
-### switch-engine
+### switch engine
 
 When this command is executed, UCT generates a menu listing all installed engines and engines built from source code
 on the current system. Use the up and down arrows to select, press Enter to confirm, and ESC to cancel.
 
 ```console
+G:\MyGame>switch engine
 Switch engine
 Installed engines:
 [ ] 5.1.1    D:\Game\UE_5.1

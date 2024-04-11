@@ -37,8 +37,9 @@ def build_parser():
     build_parents = [build_config, scope]
 
     subparsers.add_parser('setup', help='Setup the engine')
-    subparsers.add_parser('generate-project', help='Generate project files')
-    subparsers.add_parser('switch-engine', help='Swith engine for current project')
+
+    add_dual_subcommand(subparsers, 'generate', 'project', help='Generate project files')
+    add_dual_subcommand(subparsers, 'switch', 'engine', help='Swith engine for current project')
 
     list_parsers = subparsers.add_parser('list', help='List objects in the workspace').add_subparsers(
         dest='subcommand', help='Available subcommands', required=True)
@@ -90,6 +91,13 @@ def build_parser():
                       help='directory to archive the builds to')
 
     return parser
+
+
+def add_dual_subcommand(subparsers, command, subcommand, **kwargs):
+    """Add a dual sub command like `list engine`."""
+    subparsers = subparsers.add_parser(command, help=command + ' command').add_subparsers(
+        dest='subcommand', help='Available subcommands', required=True)
+    return subparsers.add_parser(subcommand, **kwargs)
 
 
 def parse():
