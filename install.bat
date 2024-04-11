@@ -8,10 +8,10 @@ set "PATH=%THIS_DIR%;%PATH%"
 
 set UserPath=
 for /f "tokens=3*" %%i in ('reg query "HKCU\Environment" /v "Path" 2^>nul') do set "UserPath=%%i"
-
-echo %UserPath% | findstr /C:%THIS_DIR%
+echo %UserPath%| findstr /C:%THIS_DIR% > NUL
 if errorlevel 1 (
     setx PATH "%UserPath%;%THIS_DIR%"
+    echo %UserPath%> YourOldPath.txt
     echo UCT is added to you user PATH.
 ) else (
     echo UCT is already in your PATH.

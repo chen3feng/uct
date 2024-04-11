@@ -332,8 +332,11 @@ uct Build MyGame -f "Source/MyModule/**/*.cpp"
 #### Pass UBT flags
 
 UCT will generate appropriate UBT commands based on the command line parameters for the actual build.
-To pass extra [arguments](https://ikrima.dev/ue4guide/build-guide/utilities/devops-build-automation/)
-to UBT, put them after a standalone `--` like this:
+
+UBT has many [options](https://ikrima.dev/ue4guide/build-guide/utilities/devops-build-automation/),
+a useful usecase is to enable [Clang Sanitizers](https://dev.epicgames.com/documentation/en-us/unreal-engine/using-clang-sanitizers-in-unreal-engine-projects).
+
+To pass extra options to UBT, put them after a standalone `--` like this:
 
 ```console
 uct build MyGame -- -StaticAnalyzer=VisualCpp

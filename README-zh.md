@@ -323,7 +323,11 @@ uct Build MyGame -f "Source/MyModule/**/*.cpp"
 #### 传递 UBT 选项
 
 UCT 会根据命令行参数生成合适的 UBT 命令进行实际的构建。
-要将额外的[构建参数](https://ikrima.dev/ue4guide/build-guide/utilities/devops-build-automation/)传递给 UBT，请这样将它们放在单独的 `--` 后面：
+
+UBT 有很多[选项](https://ikrima.dev/ue4guide/build-guide/utilities/devops-build-automation/)，
+一个有用的使用场景是开启 [Clang Sanitizers](https://dev.epicgames.com/documentation/zh-cn/unreal-engine/using-clang-sanitizers-in-unreal-engine-projects)。
+
+要将额外的构建选项传递给 UBT，请这样将它们放在单独的 `--` 后面：
 
 ```console
 uct build MyGame -- -StaticAnalyzer=VisualCpp
