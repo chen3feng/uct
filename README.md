@@ -334,7 +334,10 @@ uct Build MyGame -f "Source/MyModule/**/*.cpp"
 UCT will generate appropriate UBT commands based on the command line parameters for the actual build.
 
 UBT has many [options](https://ikrima.dev/ue4guide/build-guide/utilities/devops-build-automation/),
-a useful usecase is to enable [Clang Sanitizers](https://dev.epicgames.com/documentation/en-us/unreal-engine/using-clang-sanitizers-in-unreal-engine-projects).
+Some useful usecases:
+
+- Enable [Clang Sanitizers](https://dev.epicgames.com/documentation/en-us/unreal-engine/using-clang-sanitizers-in-unreal-engine-projects)
+- Enable [Static Code Analysis](https://dev.epicgames.com/documentation/en-us/unreal-engine/static-code-analysis-in-unreal-engine)
 
 To pass extra options to UBT, put them after a standalone `--` like this:
 
