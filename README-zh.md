@@ -131,20 +131,21 @@ $ uct setup
 ...
 ```
 
-### generate-project - 生成项目文件
+### generate project - 生成项目文件
 
 根据当前目录的是项目还是引擎来生成相应的项目文件。
 
 ```console
-$ uct generate-project
+$ uct generate project
 ...
 ```
 
-### switch-engine - 切换项目的引擎
+### switch engine - 切换项目的引擎
 
 当执行本命令时，UCT 生成一个选单，列出当前系统所有已安装的引擎和源代码构建的引擎。用上下箭头选择，回车确认，ESC 取消。
 
 ```console
+G:\MyGame>switch engine
 Switch engine
 Installed engines:
 [ ] 5.1.1    D:\Game\UE_5.1

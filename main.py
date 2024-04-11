@@ -66,7 +66,7 @@ class UnrealCommandTool:
         self.project_dir = os.path.dirname(self.project_file)
 
     def _need_engine(self, options):
-        if options.command == 'switch-engine':
+        if options.command == 'switch engine':
             return False
         if options.command == 'list':
             if hasattr(options, 'subcommand') and options.subcommand == 'engines':
@@ -334,7 +334,7 @@ class UnrealCommandTool:
         return subprocess_call(os.path.join(self.engine_root, setup))
 
     def generate_project(self) -> int:
-        """Handle the `generate-project` command."""
+        """Handle the `generate project` command."""
         cmd = [self.ubt, '-ProjectFiles', '-SharedBuildEnvironment']
         if self.project_file:
             cmd.append(self.project_file)
@@ -343,7 +343,7 @@ class UnrealCommandTool:
         return subprocess_call(cmd)
 
     def switch_engine(self):
-        """Handle the `switch-engine` command."""
+        """Handle the `switch engine` command."""
         if not self.project_file:
             console.error('You are not under the directory of a game project.')
             return 1
@@ -594,6 +594,7 @@ class UnrealCommandTool:
         executable = info[key]
         executable = executable.replace('$(EngineDir)', self.engine_dir)
         executable = executable.replace('$(ProjectDir)', self.project_dir)
+        executable = os.path.normpath(executable)
         return executable
 
     def _get_target_info(self, target, platform, config=None) -> Optional[dict]:

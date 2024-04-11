@@ -92,10 +92,11 @@ def _find_built_engines_windows() -> list:
                 try:
                     uuid, value, value_type = winreg.EnumValue(hkey, i)
                     if value_type == winreg.REG_SZ:
-                        if not os.path.exists(value):
-                            console.warn(f"Source build engine {uuid}: {value} doesn't exist.")
+                        path = os.path.normpath(value)
+                        if not os.path.exists(path):
+                            console.warn(f"Source build engine {uuid}: {path} doesn't exist.")
                             continue
-                        engines.append(Engine(uuid, value))
+                        engines.append(Engine(uuid, path))
                 except OSError:
                     # ERROR_NO_MORE_ITEMS
                     break
