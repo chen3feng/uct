@@ -152,10 +152,10 @@ Installed engines:
 [ ] 5.3.2    D:\Game\UE_5.3
 [ ] 5.2.1    D:\Game\UE_5.2
 Source build engines:
-[x] 5.1.1    G:/UnrealEngine-5.1
-[ ] 4.27.2   G:/UnrealEngine-4.27.2
-[ ] 5.3.1    G:/UnrealEngine-5.3.1
-Engine is switched to {750E0EB6-4428-07C4-DFB6-888F4E6452A6}  5.1.1    G:/UnrealEngine-5.1
+[x] 5.1.1    G:\UnrealEngine-5.1
+[ ] 4.27.2   G:\UnrealEngine-4.27.2
+[ ] 5.3.1    G:\UnrealEngine-5.3.1
+Engine is switched to {750E0EB6-4428-07C4-DFB6-888F4E6452A6}  5.1.1    G:\UnrealEngine-5.1
 ```
 
 ### list 列出
