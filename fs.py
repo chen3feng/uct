@@ -187,7 +187,8 @@ def _reveal_file_windows(path):
 def _reveal_file_vscode(path):
     cmd = ['code', path]
     if os.name == 'nt':
-        return subprocess.call(' '.join(cmd), shell=True)
+        # start is faster because it doesn't wait for the process to complete.
+        return subprocess.call('start /b ' + ' '.join(cmd), shell=True)
     return subprocess.call(cmd)
 
 

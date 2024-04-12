@@ -479,7 +479,7 @@ class UnrealCommandTool:
         for manifest in glob.glob(os.path.join(start_dir, 'Intermediate/Build/BuildRules', '*Manifest.json')):
             with open(manifest, encoding='utf8') as f:
                 for build_file in json.load(f)['SourceFiles']:
-                    if os.path.basename(build_file) == name + '.Build.cs':
+                    if os.path.basename(build_file).lower() == (name + '.Build.cs').lower():
                         return fs.reveal_file(build_file)
         return None
 
