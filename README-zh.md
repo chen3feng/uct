@@ -419,16 +419,33 @@ Automation Quit
 
 打开特定的文件。
 
-#### open module
-
-打开当前工作空间中指定模块的 `.Build.cs` 文件。
-
 根据当前所在的终端环境：
 
 - 如果是在 Visual Studio 或者 Visual Studio Code 的集成终端中，在相应的文本编辑器中打开。
 - 否则，在系统的文件浏览器中打开。
 
 本命令支持 `--engine` 和 `--project` 选项。
+
+#### open file
+
+打开特定的源文件。
+
+示例：
+
+```console
+# Open Engine/Source/Runtime/Core/Private/Containers/String.cpp
+uct open file string.cpp
+
+# Open Engine/Source/Runtime/Core/Public/Containers/UnrealString.h
+uct open file unrealstring.h
+
+# Open Engine/Source/Runtime/Core/Core.Build.cs
+uct open file "core.*.cs"
+```
+
+#### open module
+
+打开当前工作空间中指定模块的 `.Build.cs` 文件。
 
 示例：
 

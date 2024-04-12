@@ -199,12 +199,11 @@ class UnrealCommandTool:
         for target in targets:
             if fs.is_wildcard(target):
                 has_wildcard = True
-                expanded_targets += fnmatch.filter(all_target_names, target)
-            else:
-                if target not in all_target_names:
-                    console.warn(f"target '{target}' doesn't exist.")
-                    continue
-                expanded_targets.append(target)
+            matched_targets = fnmatch.filter(all_target_names, target)
+            if not matched_targets:
+                console.warn(f"target '{target}' doesn't exist.")
+                continue
+            expanded_targets += matched_targets
 
         if has_wildcard:
             print(f'Targets: {" ".join(expanded_targets)}')
@@ -454,6 +453,13 @@ class UnrealCommandTool:
             for eng in self.source_build_engines:
                 print(eng)
         return 0
+
+    def open_file(self):
+        """Handle the `open file` command."""
+        if len(self.raw_targets) != 1:
+            console.error('open file command accept exactly one file name')
+            return 1
+        return self._open_file(self.raw_targets[0])
 
     def open_module(self):
         """Handle the `open module` command."""

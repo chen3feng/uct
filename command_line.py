@@ -51,7 +51,6 @@ def build_parser():
     open_parsers = subparsers.add_parser('open', help='Open objects in the workspace').add_subparsers(
         dest='subcommand', help='Available subcommands', required=True)
     open_parsers.add_parser('file', help='open file', parents=[scope])
-    open_parsers.add_parser('folder', help='open folder', parents=[scope])
     open_parsers.add_parser('module', help='open module', parents=[scope])
     open_parsers.add_parser('plugin', help='open plugin', parents=[scope])
 

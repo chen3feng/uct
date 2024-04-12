@@ -428,16 +428,33 @@ Automation Quit
 
 Open specified file.
 
-#### open module
-
-Open the `.Build.cs` file for the specified module in your workspace.
-
 According to your terminal environment:
 
 - If you in the integrated terminal in Visual Studio or Visual Studio Code, it will be opened in the according text editor.
 - Otherwise, it will be opend in file explorer.
 
 This command supports the `--engine` and `--project` option.
+
+#### open file
+
+Open specified source file.
+
+Examples:
+
+```console
+# Open Engine/Source/Runtime/Core/Private/Containers/String.cpp
+uct open file string.cpp
+
+# Open Engine/Source/Runtime/Core/Public/Containers/UnrealString.h
+uct open file unrealstring.h
+
+# Open Engine/Source/Runtime/Core/Core.Build.cs
+uct open file "core.*.cs"
+```
+
+#### open module
+
+Open the `.Build.cs` file for the specified module in your workspace.
 
 Example:
 
