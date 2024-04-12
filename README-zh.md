@@ -251,16 +251,7 @@ uct build *Editor
 uct build MyProject* *Editor
 ```
 
-在 Linux 和 Mac 上，由于通配符是由 shell 展开的，必要时要加上引号以避免展开为匹配的工程文件名：
-
-```console
-uct build "MyProject*"
-uct build *Editor
-uct build "MyProject*" *Editor
-```
-
-在 Linux 和 Mac 上，单引号和双引号都可以。在 Windows 上，由于通配符是由程序自己而不是 shell 来展开的，
-引号不是必需的，但是如果要用，只能用双引号不能用单引号。
+在 Linux 或者 Mac 上，有些情况下通配符要加引号才能正常工作，详情参见后文。
 
 默认情况下，目标将同时在项目和引擎中匹配。 您可以使用 `--project` 或 `--engine` 选项来限制匹配范围。
 
@@ -498,6 +489,27 @@ uct --help
 # 查看 build 命令的帮助
 uct build --help
 ```
+
+### 通配符
+
+很多命令支持通配符，比如 build 命令：
+
+```console
+uct build MyProject*
+uct build *Editor
+uct build MyProject* *Editor
+```
+
+在 Linux 和 Mac 上，由于通配符是由 shell 展开的，必要时要加上引号以避免展开为匹配的工程文件名：
+
+```console
+uct build "MyProject*"
+uct build *Editor
+uct build "MyProject*" *Editor
+```
+
+在 Linux 和 Mac 上，单引号和双引号都可以。在 Windows 上，由于通配符是由程序自己而不是 shell 来展开的，
+引号不是必需的，但是如果要用，只能用双引号不能用单引号。
 
 ### 命令行补全
 

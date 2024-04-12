@@ -256,17 +256,7 @@ uct build *Editor
 uct build MyProject* *Editor
 ```
 
-On Linux and Mac, since wildcards are expanded by the shell, add quotes if necessary to avoid expansion into matching project file names:
-
-```console
-uct build "MyProject*"
-uct build *Editor
-uct build "MyProject*" *Editor
-```
-
-On Linux and Mac, both single and double quotes are OK. On Windows, since wildcards are expanded by the program itself
-rather than by the shell, quotation marks are not necessary, but if they are used, they must be double quotation marks
-and not single quotation marks.
+On Linux or Mac, in some cases wildcards need to be quoted in order to work properly, see below for details.
 
 The targets will be matched in both project and engine by default. You can use `--project` or `--engine` option to limit the matching scope.
 
@@ -507,6 +497,28 @@ uct --help
 # View help for the build command
 uct build --help
 ```
+
+### Wildcards
+
+Many commands supports wildcards:
+
+```console
+uct build MyProject*
+uct build *Editor
+uct build MyProject* *Editor
+```
+
+On Linux and Mac, since wildcards are expanded by the shell, add quotes if necessary to avoid expansion into matching project file names:
+
+```console
+uct build "MyProject*"
+uct build *Editor
+uct build "MyProject*" *Editor
+```
+
+On Linux and Mac, both single and double quotes are OK. On Windows, since wildcards are expanded by the program itself
+rather than by the shell, quotation marks are not necessary, but if they are used, they must be double quotation marks
+and not single quotation marks.
 
 ### Command Line Completion
 
