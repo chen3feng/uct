@@ -142,8 +142,46 @@ def _reveal_file_visual_studio(path):
 
 
 def _reveal_file_windows(path):
-    cmd = ['explorer.exe', f'/select,"{path}"']
-    return subprocess.call(' '.join(cmd))
+    # pylint: disable=all
+    # Taken from https://github.com/exaile/exaile/blob/master/xl/common.py#L352
+    #
+    # We could run `explorer /select,filename`, but that doesn't support
+    # reusing an existing Explorer window when selecting a file in a
+    # directory that is already open.
+
+    import ctypes # pylint: disable=import-outside-toplevel
+
+    CoInitialize = ctypes.windll.ole32.CoInitialize
+    CoInitialize.argtypes = [ctypes.c_void_p]
+    CoInitialize.restype = ctypes.HRESULT
+    CoUninitialize = ctypes.windll.ole32.CoUninitialize
+    CoUninitialize.argtypes = []
+    CoUninitialize.restype = None
+    ILCreateFromPath = ctypes.windll.shell32.ILCreateFromPathW
+    ILCreateFromPath.argtypes = [ctypes.c_wchar_p]
+    ILCreateFromPath.restype = ctypes.c_void_p
+    ILFree = ctypes.windll.shell32.ILFree
+    ILFree.argtypes = [ctypes.c_void_p]
+    ILFree.restype = None
+    SHOpenFolderAndSelectItems = ctypes.windll.shell32.SHOpenFolderAndSelectItems
+    SHOpenFolderAndSelectItems.argtypes = [
+        ctypes.c_void_p,
+        ctypes.c_uint,
+        ctypes.c_void_p,
+        ctypes.c_ulong,
+    ]
+    SHOpenFolderAndSelectItems.restype = ctypes.HRESULT
+
+    CoInitialize(None)
+    pidl = ILCreateFromPath(path)
+    res = SHOpenFolderAndSelectItems(pidl, 0, None, 0)
+    ILFree(pidl)
+    CoUninitialize()
+    return int(res)
+
+    # This method is much slower and alyways returns 1.
+    # cmd = ['explorer.exe', f'/select,"{path}"']
+    # return subprocess.call(' '.join(cmd))
 
 
 def _reveal_file_vscode(path):
