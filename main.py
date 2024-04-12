@@ -5,12 +5,13 @@ A powerful command line tool for unreal engine.
 
 import filecmp
 import fnmatch
+import glob
 import json
 import os
 import re
 import sys
 
-from typing import Optional
+from typing import Optional, Tuple
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'vendor'))
 
@@ -186,15 +187,11 @@ class UnrealCommandTool:
             return
 
         candidate_targets = []
-        if self.options.project:
-            if not self.project_file:
-                console.error('You are not under a game project directory.')
-                sys.exit(1)
+        search_in_engine, search_in_project = self._get_search_scope()
+        if search_in_project:
             candidate_targets += self.project_targets
-        if self.options.engine:
+        if search_in_engine:
             candidate_targets += self.engine_targets
-        if not self.options.project and not self.options.engine:
-            candidate_targets = self.all_targets
 
         all_target_names = [t['Name'] for t in candidate_targets]
         expanded_targets = []
@@ -412,15 +409,17 @@ class UnrealCommandTool:
             targets = [t for t in self.all_targets if t['Name'] in self.targets]
             self._print_targets(targets)
             return 0
-        if self.options.engine:
-            self._print_targets(self.engine_targets)
-        if self.options.project:
-            if not self.project_file:
-                console.error('You are not under a game project directory.')
-                return 1
-            self._print_targets(self.project_targets)
-        if not self.options.engine and not self.options.project:
+        search_in_engine, search_in_project = self._get_search_scope()
+        if search_in_engine and search_in_project:
             self._print_targets(self.all_targets)
+        elif search_in_engine:
+            self._print_targets(self.engine_targets)
+        elif search_in_project:
+            self._print_targets(self.project_targets)
+        else:
+            # Specified `--project`` but not under a project directory.
+            return 1
+
         return 0
 
     def _print_targets(self, targets):
@@ -461,7 +460,28 @@ class UnrealCommandTool:
         if len(self.raw_targets) != 1:
             console.error('open module command accept exactly one module name')
             return 1
+        ret = self._open_module_by_manifest(self.raw_targets[0])
+        if ret is not None:
+            return ret
         return self._open_file(self.raw_targets[0] + '.Build.cs')
+
+    def _open_module_by_manifest(self, name) -> Optional[int]:
+        search_in_engine, search_in_project = self._get_search_scope()
+        if search_in_project:
+            ret = self._open_module_by_manifest_under(self.project_dir, name)
+            if ret is not None:
+                return ret
+        if search_in_engine:
+            return self._open_module_by_manifest_under(self.engine_dir, name)
+        return None
+
+    def _open_module_by_manifest_under(self, start_dir, name) -> Optional[int]:
+        for manifest in glob.glob(os.path.join(start_dir, 'Intermediate/Build/BuildRules', '*Manifest.json')):
+            with open(manifest, encoding='utf8') as f:
+                for build_file in json.load(f)['SourceFiles']:
+                    if os.path.basename(build_file) == name + '.Build.cs':
+                        return fs.reveal_file(build_file)
+        return None
 
     def open_plugin(self):
         """Handle the `open plugin` command."""
@@ -469,6 +489,19 @@ class UnrealCommandTool:
             console.error('open plugin command accept exactly one plugin name')
             return 1
         return self._open_file(self.raw_targets[0] + '.uplugin')
+
+    def _get_search_scope(self) -> Tuple[bool, bool]:
+        search_in_project = False
+        search_in_engine = self.options.engine
+        if self.options.project:
+            if self.project_dir:
+                search_in_project = True
+            else:
+                console.error('You are not under a game project directory.')
+        if not self.options.project and not self.options.engine:
+            search_in_project = bool(self.project_dir)
+            search_in_engine = True
+        return search_in_engine, search_in_project
 
     def _open_file(self, filename):
         fullpath = self._find_file(filename)
@@ -478,16 +511,7 @@ class UnrealCommandTool:
         return fs.reveal_file(fullpath[0])
 
     def _find_file(self, filename):
-        search_in_project = False
-        search_in_engine = self.options.engine
-        if self.options.project:
-            if not self.project_dir:
-                console.error('You are not under a game project directory.')
-                return ''
-            search_in_project = True
-        if not self.options.project and not self.options.engine:
-            search_in_project = bool(self.project_dir)
-            search_in_engine = True
+        search_in_engine, search_in_project = self._get_search_scope()
         if search_in_project:
             build_file = fs.find_source_files_under(self.project_dir, [filename], limit=1)
             if build_file:
