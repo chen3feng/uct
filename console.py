@@ -67,4 +67,4 @@ def error(message: str) -> None:
 
 def warn(message: str) -> None:
     """Write a warning message to the console."""
-    print(colored(f'Warn: {message}', 'yellow'), file=sys.stderr)
+    print(colored(f'Warning: {message}', 'yellow'), file=sys.stderr)
