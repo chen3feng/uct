@@ -67,7 +67,7 @@ class UnrealCommandTool:
         self.project_dir = os.path.dirname(self.project_file)
 
     def _need_engine(self, options):
-        if options.command == 'switch engine':
+        if options.command == 'switch' and options.subcommand == 'engine':
             return False
         if options.command == 'list':
             if hasattr(options, 'subcommand') and options.subcommand == 'engines':
