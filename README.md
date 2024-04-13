@@ -258,6 +258,13 @@ uct build MyProject* *Editor
 
 On Linux or Mac, in some cases wildcards need to be quoted in order to work properly, see below for details.
 
+Target patterns are case insensitive, so you can also use `unrealeditor` to build `UnrealEditor`:
+
+```console
+$ uct build unrealeditor
+...
+```
+
 The targets will be matched in both project and engine by default. You can use `--project` or `--engine` option to limit the matching scope.
 
 ```console

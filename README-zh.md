@@ -253,6 +253,13 @@ uct build MyProject* *Editor
 
 在 Linux 或者 Mac 上，有些情况下通配符要加引号才能正常工作，详情参见后文。
 
+目标名模式不区分大小写，因此您还可以使用 `unrealeditor` 来构建 `UnrealEditor`：
+
+```console
+$ uct build unrealeditor
+...
+```
+
 默认情况下，目标将同时在项目和引擎中匹配。 您可以使用 `--project` 或 `--engine` 选项来限制匹配范围。
 
 ```console

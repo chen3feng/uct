@@ -370,7 +370,7 @@ class UnrealCommandTool:
         if selected < 0 or not engines[selected]:
             return 0
         return self._modify_engine_association(self.project_file, engines[selected])
-    
+
     def _is_current_engine(self, engine) -> bool:
         return os.path.normpath(self.engine_root) == os.path.normpath(engine.root)
 
