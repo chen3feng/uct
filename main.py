@@ -199,7 +199,7 @@ class UnrealCommandTool:
         for target in targets:
             if fs.is_wildcard(target):
                 has_wildcard = True
-            matched_targets = fnmatch.filter(all_target_names, target)
+            matched_targets = fs.fnmatch_ifilter(all_target_names, target)
             if not matched_targets:
                 console.warn(f"target '{target}' doesn't exist.")
                 continue

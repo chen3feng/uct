@@ -8,6 +8,8 @@ import pathlib
 import subprocess
 import sys
 
+from typing import List
+
 import console
 
 def is_wildcard(text):
@@ -46,6 +48,7 @@ def find_files_under(start_dir, patterns, excluded_dirs=None, relpath=False, lim
             dirs[:] = [d for d in dirs if d not in excluded_dirs]
         for file in files:
             for pattern in patterns:
+                pattern = case_insensitive(pattern)
                 if fnmatch.fnmatch(file, pattern):
                     path = os.path.join(root, file)
                     if relpath:
@@ -76,6 +79,19 @@ def _find_files_under_subdir(start_dir, subdir, patterns, relpath, **kwargs) -> 
     return files
 
 
+def fnmatch_ifilter(names: List[str], pattern: str) -> List[str]:
+    """Case insensitive fnmatch.filter."""
+    pattern = case_insensitive(pattern)
+    return fnmatch.filter(names, pattern)
+
+
+def case_insensitive(pattern):
+    """Convert a file pattern to case insensitive form."""
+    if os.name == 'nt':
+        return pattern
+    return ''.join('[%s%s]' % (c.lower(), c.upper()) if c.isalpha() else c for c in pattern)
+
+
 def expand_source_files(files, engine_dir) -> list:
     """
     Expand source file patterns to file list.
@@ -103,6 +119,7 @@ def expand_source_files(files, engine_dir) -> list:
 
     if patterns:
         for start_dir, pattern in patterns:
+            pattern = case_insensitive(pattern)
             for path in pathlib.Path(start_dir).glob(pattern):
                 if 'Intermediate' in path.parts:
                     continue
