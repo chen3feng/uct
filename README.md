@@ -282,11 +282,13 @@ and [target platform](https://unrealcommunity.wiki/6100e8109c9d1a89e0c31618):
 uct build -c debug -p linux
 ```
 
-Option values for target platforms:
+Option values for target platforms are all lower case:
 
 - `Win64`: `win64`
 - `Linux`: `linux`
 - `Mac`: `mac`
+
+Other platforms are all lower case such as `linuxarm64`, `android`, `ios`, `tvos`, `hololens`.
 
 Option values for build configurations:
 

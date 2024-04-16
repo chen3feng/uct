@@ -277,11 +277,13 @@ uct build --project "*"
 uct build -c debug -p linux
 ```
 
-不同目标平台所用的选项值：
+不同目标平台所用的选项值均为小写：
 
 - `Win64`：`win64`
 - `Linux`：`linux`
 - `Mac`：`mac`
+
+其余目标平台也全都是小写形式，例如 `linuxarm64`、`android`、`ios`、`tvos`、`hololens` 等。
 
 不同构建配置的选项值：
 

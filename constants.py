@@ -5,7 +5,12 @@ The config module.
 PLATFORM_MAP = {
     'win64': 'Win64',
     'linux': 'Linux',
-    'mac': 'Mac'
+    'linuxarm64': 'LinuxArm64',
+    'mac': 'Mac',
+    'android': 'Android',
+    'ios': 'IOS',
+    'tvos': 'TVOS',
+    'hololens': 'HoloLens',
 }
 
 CONFIG_MAP = {
