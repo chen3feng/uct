@@ -112,15 +112,14 @@ def expand_source_files(files, engine_dir) -> list:
             if file.startswith('/') or file.startswith('\\'):
                 file = file[1:]
             start_dir = engine_dir
-        if not is_wildcard(file):
-            matched_files.append(os.path.join(start_dir, file))
-        else:
-            patterns.append((start_dir, file))
+        patterns.append((start_dir, file))
 
     if patterns:
         for start_dir, pattern in patterns:
-            pattern = case_insensitive(pattern)
-            for path in pathlib.Path(start_dir).glob(pattern):
+            paths = pathlib.Path(start_dir).glob(case_insensitive(pattern))
+            if not paths:
+                console.error(f"Can't find '{pattern}'")
+            for path in paths:
                 if 'Intermediate' in path.parts:
                     continue
                 matched_files.append(str(path.absolute()))

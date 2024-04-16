@@ -250,7 +250,7 @@ class UnrealCommandTool:
         """Use UBT to query build targets."""
         cmd = [self.ubt, '-Mode=QueryTargets']
         if start_dir == self.project_dir:
-            cmd.append(self._escape_argument('-Project', self.project_file))
+            cmd.append(self._make_path_argument('-Project', self.project_file))
         p = subprocess_run(cmd, text=True, capture_output=True, check=False)
         if p.returncode != 0:
             cmdstr = ' '.join(cmd) if isinstance(cmd, list) else cmd
@@ -269,9 +269,8 @@ class UnrealCommandTool:
             pass
         return []
 
-    def _escape_argument(self, name, value):
-        """Return -Project=/Full/Path/To/NameOf.uproject."""
-        assert self.project_file
+    def _make_path_argument(self, name, value):
+        """Return something like -Project=/Full/Path/To/NameOf.uproject."""
         if os.name == 'nt':
             # On windows, double quote is necessary if path contains space.
             return f'{name}="{value}"'
@@ -526,6 +525,13 @@ class UnrealCommandTool:
             return fs.find_source_files_under(self.engine_dir, [filename], limit=1)
         return ''
 
+    def runuat(self):
+        uat = self._find_build_script('RunUAT', platform='')
+        return subprocess_call([uat] + self.extra_args)
+
+    def runubt(self):
+        return subprocess_call([self.ubt] + self.extra_args)
+
     def build(self) -> int:
         """
         Handle the `build` command.
@@ -537,7 +543,7 @@ class UnrealCommandTool:
         returncode = 0
         cmd_base = [self.ubt, self.platform, self.config]
         if self.project_file:
-            cmd_base.append(self._escape_argument('-Project', self.project_file))
+            cmd_base.append(self._make_path_argument('-Project', self.project_file))
         failed_targets = []
         for target in self.targets:
             print(f'Build {target}')
@@ -547,7 +553,7 @@ class UnrealCommandTool:
                 if not files:
                     console.error(f"Can't find {self.options.files}")
                     return 1
-                cmd += [self._escape_argument('-singlefile',f) for f in files]
+                cmd += [self._make_path_argument('-singlefile', f) for f in files]
             cmd += self.extra_args
             ret = subprocess_call(cmd)
             if ret != 0:
@@ -572,7 +578,7 @@ class UnrealCommandTool:
         returncode = 0
         cmd_base = [self.ubt, self.platform, self.config]
         if self.project_file:
-            cmd_base.append(self._escape_argument('-Project', self.project_file))
+            cmd_base.append(self._make_path_argument('-Project', self.project_file))
         failed_targets = []
         for target in self.targets:
             print(f'Clean {target}')
@@ -742,15 +748,15 @@ class UnrealCommandTool:
         for target in self.targets:
             print(f'Pack {target}')
             cmd = [
-                uat, self._escape_argument('-ScriptsForProject', self.project_file),
+                uat, self._make_path_argument('-ScriptsForProject', self.project_file),
                 'Turnkey', '-command=VerifySdk', f'-target={target}', f'-platform={self.platform}',
-                '-UpdateIfNeeded', self._escape_argument('-Project', self.project_file),
+                '-UpdateIfNeeded', self._make_path_argument('-Project', self.project_file),
                 'BuildCookRun', '-nop4', '-utf8output', '-nocompile', '-nocompileeditor', '-nocompileuat',
-                '-skipbuildeditor', '-cook', self._escape_argument('-Project', self.project_file),
+                '-skipbuildeditor', '-cook', self._make_path_argument('-Project', self.project_file),
                 '-stage', '-archive', '-package', '-build', '-pak', '-iostore', '-compressed', '-prereqs',
-                f'-target={target}', self._escape_argument('-unrealexe', editor),
+                f'-target={target}', self._make_path_argument('-unrealexe', editor),
                 f'-clientconfig={self.config}', f'-serverconfig={self.config}',
-                self._escape_argument('-archivedirectory', os.path.abspath(self.options.output))
+                self._make_path_argument('-archivedirectory', os.path.abspath(self.options.output))
             ]
             # print(f'Run {' '.join(cmd)}')
             ret = subprocess_call(cmd)

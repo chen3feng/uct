@@ -493,6 +493,26 @@ AutomationTool executed for 0h 0m 59s
 AutomationTool exiting with ExitCode=0 (Success)
 ```
 
+### runubt and runuat
+
+Building and packaging are performed by calling UBT or UAT, which are their specific usage modes. UCT also provides the ability to fully use them by calling them directly:
+
+- `runubt`: Run [UnrealBuildTool](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/UnrealBuildTool/)
+- `runuat`: Run [AutomationTool](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/AutomationTool/)
+
+All options after the first standalone `--` are passed to the tool.
+
+Example:
+
+```console
+$ uct runuat -- -help
+...
+$ uct runubt -- -help
+...
+```
+
+The advantage compared to directly calling the corresponding script in the engine is that there is no need to specify the path and extension (`.bat` or `.sh`).
+
 ### help
 
 To view help, use the `--help` parameter. To view help for a command, add `--test` after the command.

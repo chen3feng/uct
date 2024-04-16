@@ -485,6 +485,26 @@ AutomationTool executed for 0h 0m 59s
 AutomationTool exiting with ExitCode=0 (Success)
 ```
 
+### runubt 和 runuat
+
+构建和打包都是通过调用 UBT 或者 UAT 进行的，这些都是它们特定的使用模式。UCT 也提供直接调用他们的方式以完全使用它们的能力：
+
+- `runubt` 运行[虚幻编译工具](https://docs.unrealengine.com/4.27/zh-CN/ProductionPipelines/BuildTools/UnrealBuildTool/)
+- `runuat` 运行[自动工具](https://docs.unrealengine.com/4.27/zh-CN/ProductionPipelines/BuildTools/AutomationTool/)
+
+第一个单独的 `--` 之后的所有命令行参数都会传给工具本身。
+
+Example:
+
+```console
+$ uct runuat -- -help
+...
+$ uct runubt -- -help
+...
+```
+
+比起直接调用引擎里相应脚本的好处是不用指定路径和扩展名（`.bat` 或者 `.sh`）。
+
 ### help - 帮助
 
 要查看帮助，使用 `--help` 参数，要查看命令的帮助，在命令后加 `--test`。

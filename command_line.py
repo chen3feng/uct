@@ -54,6 +54,9 @@ def build_parser():
     open_parsers.add_parser('module', help='open module', parents=[scope])
     open_parsers.add_parser('plugin', help='open plugin', parents=[scope])
 
+    subparsers.add_parser('runubt', help='Run UnrelBuildTool')
+    subparsers.add_parser('runuat', help='Run AutomationTool')
+
     build = subparsers.add_parser('build', help='Build specified targets', parents=build_parents)
 
     build.add_argument('-m', '--modules', type=str, nargs='+',
