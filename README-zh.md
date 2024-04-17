@@ -348,6 +348,10 @@ $ uct clean Benchmark UnrealEditor
 
 支持的选项和 `build` 类似，请参阅上面的 `build` 命令。
 
+### rebuild - 重新构建
+
+先清空然后再构建。
+
 ### run - 运行
 
 运行一个或者多个目标程序：

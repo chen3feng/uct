@@ -355,6 +355,10 @@ $ uct clean Benchmark UnrealEditor
 
 The supported options are similar to `build`, See the above `build` for reference.
 
+### Rebuild
+
+Clean and build.
+
 ### Run
 
 Run one or more programs:

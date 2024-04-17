@@ -532,7 +532,7 @@ class UnrealCommandTool:
     def runubt(self):
         return subprocess_call([self.ubt] + self.extra_args)
 
-    def build(self) -> int:
+    def build(self, is_rebuild=False) -> int:
         """
         Handle the `build` command.
         Build the specified targets.
@@ -541,12 +541,13 @@ class UnrealCommandTool:
             console.error('Missing targets, nothing to build.')
             return 1
         returncode = 0
-        cmd_base = [self.ubt, self.platform, self.config]
+        action = 'Rebuild' if is_rebuild else 'Build'
+        cmd_base = [self._find_build_script(action), self.platform, self.config]
         if self.project_file:
             cmd_base.append(self._make_path_argument('-Project', self.project_file))
         failed_targets = []
         for target in self.targets:
-            print(f'Build {target}')
+            print(f'{action} {target}')
             cmd = cmd_base + [target]
             if self.options.files:
                 files = self._expand_files(self.options.files)
@@ -566,6 +567,9 @@ class UnrealCommandTool:
 
     def _expand_files(self, files) -> list:
         return fs.expand_source_files(files, self.engine_dir)
+
+    def rebuild(self) -> int:
+        return self.build(True)
 
     def clean(self) -> int:
         """

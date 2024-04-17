@@ -58,11 +58,11 @@ def build_parser():
     subparsers.add_parser('runuat', help='Run AutomationTool')
 
     build = subparsers.add_parser('build', help='Build specified targets', parents=build_parents)
-
     build.add_argument('-m', '--modules', type=str, nargs='+',
                         help='modules to build')
     build.add_argument('-f', '--files', type=str, nargs='+',
                         help='source files to compile')
+    subparsers.add_parser('rebuild', help='Rebuild specified targets', parents=[build], add_help=False)
 
     subparsers.add_parser('clean', help='Clean specified targets', parents=build_parents)
 

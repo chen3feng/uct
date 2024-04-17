@@ -22,18 +22,14 @@ if defined ENGINE_ROOT_KEY_FILE (
     )
 )
 
-if defined ENGINE_ROOT (
-    :: echo Find unreal engine "!ENGINE_ROOT!"
-    set "PYTHON_EXE=!ENGINE_ROOT!\Engine\Binaries\ThirdParty\Python3\Win64\python.exe"
-    if exist !PYTHON_EXE! (
-        set PYTHONDONTWRITEBYTECODE=1
-        !PYTHON_EXE! %~dp0main.py %*
-    ) else if "%1" == "setup" (
-        :: The python in UE is downloaded in setup.
-        call %ENGINE_ROOT%\Setup.bat
-    ) else (
-        echo Can't find python !PYTHON_EXE! in your engine, maybe it is not setup. 1>&2
-    )
+set PYTHON_EXE=
+call :FindPythonExe PYTHON_EXE %ENGINE_ROOT%
+if defined PYTHON_EXE (
+    set PYTHONDONTWRITEBYTECODE=1
+    call !PYTHON_EXE! %~dp0main.py %*
+) else if "%1" == "setup" (
+    :: The python in UE is downloaded in setup.
+    call %ENGINE_ROOT%\Setup.bat
 ) else (
     if "%1" == "/?" (
         echo UCT: Unreal command line tool. 1>&2
@@ -139,4 +135,37 @@ exit /b
     set InstallLocation=
 :FindInstalledEngine_found
     endlocal & set %~2=%InstallLocation:\\=\%
+exit /b
+
+
+:: function FindPythonExe(&python_exe path, engine_root)
+:FindPythonExe
+    setlocal
+    set result=
+
+    :: Prefer using python in the engine.
+    if not "%2" == "" (
+        set "python=%2\Engine\Binaries\ThirdParty\Python3\Win64\python.exe"
+        if exist !python! (
+            set "result=!python!"
+            goto :FindPythonExe_End
+        )
+    )
+
+    :: Try to find installed python.
+    :: The `where` command is untrustable because there is a Microsoft Store stub in the system.
+    python3 --version > nul 2>&1
+    if %errorlevel% == 0 (
+        set result=python3
+        goto :FindPythonExe_End
+    )
+
+    python --version > nul 2>&1
+    if %errorlevel% == 0 (
+        set result=python
+        goto :FindPythonExe_End
+    )
+
+:FindPythonExe_End
+    endlocal & set "%~1=%result%"
 exit /b
