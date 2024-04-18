@@ -4,7 +4,6 @@ A powerful command line tool for unreal engine.
 """
 
 import filecmp
-import fnmatch
 import glob
 import json
 import os
@@ -397,7 +396,7 @@ class UnrealCommandTool:
             os.rename(project_file_new, project_file)
             print(f'Engine is switched to {engine}.')
         else:
-            print(f'Engine is not changed.')
+            print('Engine is not changed.')
             os.remove(project_file_new)
         return 0
 
