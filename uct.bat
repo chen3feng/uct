@@ -122,6 +122,7 @@ exit /b
 :: function FindInstalledEngine(engine_id, &path path)
 :FindInstalledEngine
     setlocal
+    set InstallLocation=
     set "config_file=%ProgramData%\Epic\UnrealEngineLauncher\LauncherInstalled.dat"
     for /f "tokens=*" %%a in ('type "%config_file%"') do (
         for /f tokens^=1^,3^ delims^=^" %%b in ("%%a") do (
@@ -132,7 +133,6 @@ exit /b
             )
         )
     )
-    set InstallLocation=
 :FindInstalledEngine_found
     endlocal & set %~2=%InstallLocation:\\=\%
 exit /b
