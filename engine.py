@@ -15,12 +15,14 @@ import console
 
 def _installed_engine_registry() -> str:
     path = 'Epic/UnrealEngineLauncher/LauncherInstalled.dat'
-    if os.name == 'nt':
-        path = os.path.join(os.path.expandvars('%ProgramData%'), path).replace('/', '\\')
-    else:
-        path = os.path.expanduser('~/Library/Application Support/' + path)
-    return path
-
+    if platform.system() == 'Windows':
+        return os.path.join(os.path.expandvars('%ProgramData%'), path).replace('/', '\\')
+    elif platform.system() == 'Darwin':
+        return os.path.expanduser('~/Library/Application Support/' + path)
+    elif platform.system() == 'Linux':
+        return os.path.expanduser('~/.config/') + path
+    assert False, f'Unsupported platform {platform.system()}'
+    return ''
 
 def _source_build_engine_registry() -> str:
     if platform.system() == 'Windows':
@@ -109,15 +111,19 @@ def _find_built_engines_windows() -> list:
 def find_installed() -> list:
     """Find all installed engines in current system."""
     engines = []
-    with open(INSTALLED_REGISTRY, encoding='utf8') as f:
-        for install in json.load(f)['InstallationList']:
-            name = install['AppName']
-            if name.startswith('UE_'):
-                location = install['InstallLocation']
-                if not os.path.exists(location):
-                    console.warn(f"Installed engine {name}: {location} doesn't exist.")
-                    continue
-                engines.append(Engine(name, location))
+    try:
+        with open(INSTALLED_REGISTRY, encoding='utf8') as f:
+            for install in json.load(f)['InstallationList']:
+                name = install['AppName']
+                if name.startswith('UE_'):
+                    location = install['InstallLocation']
+                    if not os.path.exists(location):
+                        console.warn(f"Installed engine {name}: {location} doesn't exist.")
+                        continue
+                    engines.append(Engine(name, location))
+    except FileNotFoundError:
+        # There can be no installed engine.
+        pass
     return engines
 
 def parse_version(engine_root) -> Tuple[dict, int]:
