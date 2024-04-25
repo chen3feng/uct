@@ -14,7 +14,7 @@ Used in windows and UE 4.27:
 
 [![asciicast](https://asciinema.org/a/nDX0Gdw5KFvDckNGp7HA12PGJ.svg)](https://asciinema.org/a/nDX0Gdw5KFvDckNGp7HA12PGJ)
 
-注意：视频录制较早，有些信息可能已经过时，请以文档为准。
+**NOTE: These videos were recorded earlier, so some information may be outdated. Please refer to the document for the most accurate information.**
 
 ## Background
 

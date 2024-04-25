@@ -14,7 +14,7 @@ UCT 是 Unreal Commandline Tool 的缩写，它是一个强大的命令行工具
 
 [![asciicast](https://asciinema.org/a/nDX0Gdw5KFvDckNGp7HA12PGJ.svg)](https://asciinema.org/a/nDX0Gdw5KFvDckNGp7HA12PGJ)
 
-NOTE: These videos were recorded earlier, so some information may be outdated. Please refer to the document for the most accurate information.
+**注意：视频录制较早，有些信息可能已经过时，请以文档为准。**
 
 ## 背景
 
