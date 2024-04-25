@@ -43,10 +43,10 @@ def build_parser():
 
     list_parsers = subparsers.add_parser('list', help='List objects in the workspace').add_subparsers(
         dest='subcommand', help='Available subcommands', required=True)
-    targets = list_parsers.add_parser('targets', help='list build targets', parents=[scope])
+    targets = list_parsers.add_parser('target', help='list build targets', parents=[scope])
     targets.add_argument('--verbose', action='store_true', help='show detailed information')
 
-    list_parsers.add_parser('engines', help='list engines')
+    list_parsers.add_parser('engine', help='list all unreal engines in this computer')
 
     open_parsers = subparsers.add_parser('open', help='Open objects in the workspace').add_subparsers(
         dest='subcommand', help='Available subcommands', required=True)

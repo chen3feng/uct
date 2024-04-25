@@ -14,6 +14,8 @@ UCT 是 Unreal Commandline Tool 的缩写，它是一个强大的命令行工具
 
 [![asciicast](https://asciinema.org/a/nDX0Gdw5KFvDckNGp7HA12PGJ.svg)](https://asciinema.org/a/nDX0Gdw5KFvDckNGp7HA12PGJ)
 
+NOTE: These videos were recorded earlier, so some information may be outdated. Please refer to the document for the most accurate information.
+
 ## 背景
 
 通常 EU 上的开发是在 Windows 系统上的 Visual Studio 和 Editor 中进行。但是有些时候，
@@ -160,12 +162,12 @@ Engine is switched to {750E0EB6-4428-07C4-DFB6-888F4E6452A6}  5.1.1    G:\Unreal
 
 ### list 列出
 
-#### list targets
+#### list target
 
 列出所有目标：
 
 ```console
-$ uct list targets
+$ uct list target
 BaseTextureBuildWorker
 BenchmarkTool
 BlankProgram
@@ -176,7 +178,7 @@ BuildPatchTool
 列出所有引擎目标：
 
 ```console
-$ uct list targets --engine
+$ uct list target --engine
 BaseTextureBuildWorker
 BenchmarkTool
 BlankProgram
@@ -187,7 +189,7 @@ BuildPatchTool
 列出所有项目目标：
 
 ```console
-$ uct list targets --project
+$ uct list target --project
 MyGameTest
 MyGameClient
 MyGameEditor
@@ -198,7 +200,7 @@ MyGameBenchmark
 用 `--verbose` 选项输出详情：
 
 ```console
-$ uct list targets --verbose
+$ uct list target --verbose
 Type      Name                            Path
 ------------------------------------------------------------------------------------------------------------------------
 Program   BaseTextureBuildWorker          G:\UnrealEngine-5.1\Engine\Source\Programs\BaseTextureBuildWorker\BaseTextureBuildWorker.Target.cs
@@ -206,12 +208,12 @@ Program   BenchmarkTool                   G:\UnrealEngine-5.1\Engine\Source\Prog
 Program   BlankProgram                    G:\UnrealEngine-5.1\Engine\Source\Programs\BlankProgram\BlankProgram.Target.cs
 ```
 
-#### list engines
+#### list engine
 
 列出当前系统中所有的虚幻引擎：
 
 ```console
-$ uct list engines
+$ uct list engine
 Installed engines:
 UE_5.1  5.1.1    /Volumes/SSD/software/EpicGames/UE_5.1
 UE_5.2  5.2.1    /Volumes/SSD/software/EpicGames/UE_5.2
