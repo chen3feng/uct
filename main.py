@@ -48,7 +48,7 @@ class UnrealCommandTool:
         self.project_file = self._find_project_file()
         self.engine_root = self._find_engine(self.project_file)
 
-        if not self._need_engine(options):
+        if not self._command_need_engine(options):
             return
 
         if not self.engine_root:
@@ -65,11 +65,11 @@ class UnrealCommandTool:
 
         self.project_dir = os.path.dirname(self.project_file)
 
-    def _need_engine(self, options):
+    def _command_need_engine(self, options):
         if options.command == 'switch' and options.subcommand == 'engine':
+            # The engine associated with the current project maybe does not exist.
             return False
-        if options.command == 'list':
-            if hasattr(options, 'subcommand') and options.subcommand == 'engines':
+        if options.command == 'list' and options.subcommand == 'engine':
                 return False
         return True
 
@@ -400,8 +400,8 @@ class UnrealCommandTool:
             os.remove(project_file_new)
         return 0
 
-    def list_targets(self) -> int:
-        """Handle the `list targets` command."""
+    def list_target(self) -> int:
+        """Handle the `list target` command."""
         if self.raw_targets:
             targets = [t for t in self.all_targets if t['Name'] in self.targets]
             self._print_targets(targets)
@@ -435,9 +435,9 @@ class UnrealCommandTool:
                 return True
         return False
 
-    def list_engines(self) -> int:
+    def list_engine(self) -> int:
         """
-        Handle the `list targets` command.
+        Handle the `list engine` command.
         List all engines in current system.
         """
         if self.installed_engines:

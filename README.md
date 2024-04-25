@@ -14,6 +14,8 @@ Used in windows and UE 4.27:
 
 [![asciicast](https://asciinema.org/a/nDX0Gdw5KFvDckNGp7HA12PGJ.svg)](https://asciinema.org/a/nDX0Gdw5KFvDckNGp7HA12PGJ)
 
+注意：视频录制较早，有些信息可能已经过时，请以文档为准。
+
 ## Background
 
 Usually development on EU is done in Visual Studio and Editor on Windows systems. But sometimes,
@@ -165,12 +167,12 @@ Engine is switched to {750E0EB6-4428-07C4-DFB6-888F4E6452A6}  5.1.1    G:\Unreal
 
 ### List
 
-#### list targets
+#### list target
 
 List all targets:
 
 ```console
-$ uct list targets
+$ uct list target
 BaseTextureBuildWorker
 BenchmarkTool
 BlankProgram
@@ -181,7 +183,7 @@ BuildPatchTool
 List all engine targets:
 
 ```console
-$ uct list targets --engine
+$ uct list target --engine
 BaseTextureBuildWorker
 BenchmarkTool
 BlankProgram
@@ -192,7 +194,7 @@ BuildPatchTool
 List all project targets:
 
 ```console
-$ uct list targets --project
+$ uct list target --project
 MyGameTest
 MyGameClient
 MyGameEditor
@@ -203,7 +205,7 @@ MyGameBenchmark
 Make verbose output with the `--verbose` option:
 
 ```console
-$ uct list targets --verbose
+$ uct list target --verbose
 Type      Name                            Path
 ------------------------------------------------------------------------------------------------------------------------
 Program   BaseTextureBuildWorker          G:\UnrealEngine-5.1\Engine\Source\Programs\BaseTextureBuildWorker\BaseTextureBuildWorker.Target.cs
@@ -211,12 +213,12 @@ Program   BenchmarkTool                   G:\UnrealEngine-5.1\Engine\Source\Prog
 Program   BlankProgram                    G:\UnrealEngine-5.1\Engine\Source\Programs\BlankProgram\BlankProgram.Target.cs
 ```
 
-#### list engines
+#### list engine
 
 List all unreal engines in the current system.
 
 ```console
-$ uct list engines
+$ uct list engine
 Installed engines:
 UE_5.1  5.1.1    /Volumes/SSD/software/EpicGames/UE_5.1
 UE_5.2  5.2.1    /Volumes/SSD/software/EpicGames/UE_5.2
