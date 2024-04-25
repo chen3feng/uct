@@ -495,6 +495,8 @@ class UnrealCommandTool:
         return self._open_file(self.raw_targets[0] + '.uplugin')
 
     def _get_search_scope(self) -> Tuple[bool, bool]:
+        if not hasattr(self.options, 'engine'):
+            return True, True
         search_in_project = False
         search_in_engine = self.options.engine
         if self.options.project:
