@@ -735,9 +735,9 @@ class UnrealCommandTool:
             cmds += self.options.test_cmds
         return '; '.join(cmds)
 
-    def pack(self) -> int:
+    def pack_target(self) -> int:
         """
-        Handle the `pack` command.
+        Handle the `pack target` command.
         Pack targets.
         """
         if not self.project_file:
@@ -768,6 +768,39 @@ class UnrealCommandTool:
             if ret != 0:
                 return ret
         return 0
+
+    def pack_plugin(self) -> int:
+        """
+        Handle the `pack target` command.
+        Pack targets.
+        """
+        if not self.project_dir:
+            console.error('This command must run under a game project.')
+            return 1
+        if not self.raw_targets:
+            console.error('Missing plugin name, nothing to pack.')
+            return 1
+        if len(self.raw_targets) != 1:
+            console.error('Too many plugin names, only accept one.')
+            return 1
+        plugin_name = self.raw_targets[0]
+        plugins = fs.find_source_files_under(self.project_dir, [plugin_name + '.uplugin'], limit=1)
+        if not plugins:
+            console.error(f"Can't find plugin '{plugin_name}'")
+            return 1
+        plugin_file = plugins[0]
+        console.warn(f'pack plugin {plugin_file}')
+        cmd = [
+            self._find_build_script('RunUAT', platform=''),
+            'BuildPlugin', self._make_path_argument('-Plugin', plugin_file),
+            self._make_path_argument('-Package', os.path.abspath(self.options.output)),
+            '-CreateSubFolder'
+        ]
+        if self.options.platforms:
+            platforms = [constants.PLATFORM_MAP[p] for p in self.options.platforms]
+            cmd.append('-TargetPlatforms=' + '+'.join(platforms))
+        cmd += self.extra_args
+        return subprocess_call(cmd)
 
 
 def check_targets(targets):

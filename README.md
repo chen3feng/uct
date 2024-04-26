@@ -482,6 +482,10 @@ uct open plugin OnlineSubsystem
 
 ### pack
 
+Pack specific objects.
+
+### pack target
+
 Pack the target to specified output directory.
 
 Arguments:
@@ -499,6 +503,28 @@ BuildCookRun time: 58.27 s
 BUILD SUCCESSFUL
 AutomationTool executed for 0h 0m 59s
 AutomationTool exiting with ExitCode=0 (Success)
+```
+
+#### pack plugin
+
+Build and pack a unreal plugin into specified directory.
+
+```console
+uct pack plugin pb4uerpc --output ..\pbp
+```
+
+The `--output` or `-o` option is used to specify the output directory.
+
+The `--platforms` 或 `-p` option is used to specify the target platforms:
+
+```console
+uct pack plugin pb4uerpc --output ..\pbp --platforms win64 linux
+```
+
+Any arguments after the first `--` are passed to UAT.
+
+```console
+uct pack plugin pb4uerpc --output ..\pbp --platforms win64 linux -- -nocompile -nocompileuat
 ```
 
 ### runubt and runuat

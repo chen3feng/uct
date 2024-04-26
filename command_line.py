@@ -84,14 +84,20 @@ def build_parser():
     test.add_argument('--run', dest='tests', type=str,  nargs='+', help='Run tests')
     test.add_argument('--cmds', dest='test_cmds', type=str, nargs='+', help='Extra test commands')
 
-    pack = subparsers.add_parser(
-        'pack',
-        help='Pack target',
-        epilog='Any arguments after the empty "--" will be passed to UAT',
-        parents=[build_config])
-    pack.add_argument('-o', '--output', dest='output', type=str, required=True,
-                      help='directory to archive the builds to')
+    pack = subparsers.add_parser('pack', help='Pack some objects').add_subparsers(
+        dest='subcommand', help='Available subcommands', required=True)
+    pack_target = pack.add_parser('target', help='Pack game targets',
+                                  epilog='Any arguments after the empty "--" will be passed to UAT',
+                                  parents=[build_config])
+    pack_target.add_argument('-o', '--output', dest='output', type=str, required=True,
+                             help='directory to archive the builds to')
 
+    pack_plugin = pack.add_parser('plugin', help='Pack plugin',
+                                  epilog='Any arguments after the empty "--" will be passed to UAT')
+    pack_plugin.add_argument('-o', '--output', dest='output', type=str, required=True,
+                             help='directory to archive the plugin to')
+    pack_plugin.add_argument('-p', '--platforms', type=str, nargs='+', choices=constants.PLATFORM_MAP.keys(),
+                             help='Target platforms')
     return parser
 
 

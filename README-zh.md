@@ -474,6 +474,10 @@ uct open plugin OnlineSubsystem
 
 ### pack - 打包
 
+一些打包操作。
+
+#### pack target - 打包目标
+
 将目标打包到指定的输出目录。
 
 参数：
@@ -491,6 +495,30 @@ BuildCookRun time: 58.27 s
 BUILD SUCCESSFUL
 AutomationTool executed for 0h 0m 59s
 AutomationTool exiting with ExitCode=0 (Success)
+```
+
+#### pack plugin - 打包插件
+
+构建和打包插件到指定的目录下。
+
+示例：
+
+```console
+uct pack plugin pb4uerpc --output ..\pbp
+```
+
+`--output`或者（`-o`）选项用来指定输出目录。
+
+`--platforms` 或 `-p` 选项用来指定目标平台：
+
+```console
+uct pack plugin pb4uerpc --output ..\pbp --platforms win64 linux
+```
+
+任何 `--` 后面的参数都会传给 UAT 命令：
+
+```console
+uct pack plugin pb4uerpc --output ..\pbp --platforms win64 linux -- -nocompile -nocompileuat
 ```
 
 ### runubt 和 runuat
