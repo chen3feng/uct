@@ -507,7 +507,7 @@ AutomationTool exiting with ExitCode=0 (Success)
 uct pack plugin pb4uerpc --output ..\pbp
 ```
 
-`--output`或者（`-o`）选项用来指定输出目录。
+`--output` 或 `-o` 选项用来指定输出目录。
 
 `--platforms` 或 `-p` 选项用来指定目标平台：
 

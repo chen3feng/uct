@@ -515,7 +515,7 @@ uct pack plugin pb4uerpc --output ..\pbp
 
 The `--output` or `-o` option is used to specify the output directory.
 
-The `--platforms` 或 `-p` option is used to specify the target platforms:
+The `--platforms` or `-p` option is used to specify the target platforms:
 
 ```console
 uct pack plugin pb4uerpc --output ..\pbp --platforms win64 linux
