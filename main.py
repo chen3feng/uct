@@ -8,6 +8,7 @@ import glob
 import json
 import os
 import re
+import shutil
 import sys
 
 from typing import Optional, Tuple
@@ -735,9 +736,9 @@ class UnrealCommandTool:
             cmds += self.options.test_cmds
         return '; '.join(cmds)
 
-    def pack(self) -> int:
+    def pack_target(self) -> int:
         """
-        Handle the `pack` command.
+        Handle the `pack target` command.
         Pack targets.
         """
         if not self.project_file:
@@ -767,6 +768,54 @@ class UnrealCommandTool:
             ret = subprocess_call(cmd)
             if ret != 0:
                 return ret
+        return 0
+
+    def pack_plugin(self) -> int:
+        """
+        Handle the `pack target` command.
+        Pack targets.
+        """
+        plugin_file = self._find_plugin_file_to_pack()
+        if not plugin_file:
+            return 1
+        pack_dir = os.path.abspath(self.options.output)
+        cmd = [
+            self._find_build_script('RunUAT', platform=''),
+            'BuildPlugin', self._make_path_argument('-Plugin', plugin_file),
+            self._make_path_argument('-Package', pack_dir),
+            '-CreateSubFolder'
+        ]
+        if self.options.platforms:
+            platforms = [constants.PLATFORM_MAP[p] for p in self.options.platforms]
+            cmd.append('-TargetPlatforms=' + '+'.join(platforms))
+        cmd += self.extra_args
+
+        ret = subprocess_call(cmd)
+        if ret != 0:
+            return ret
+
+        return self._cleanup_packed_plugin(pack_dir)
+
+    def _find_plugin_file_to_pack(self) -> str:
+        if not self.project_dir:
+            console.error('This command must run under a game project.')
+            return ''
+        if not self.raw_targets:
+            console.error('Missing plugin name, nothing to pack.')
+            return ''
+        if len(self.raw_targets) != 1:
+            console.error('Too many plugin names, only accept one.')
+            return ''
+        plugin_name = self.raw_targets[0]
+        plugins = fs.find_source_files_under(self.project_dir, [plugin_name + '.uplugin'], limit=1)
+        if not plugins:
+            console.error(f"Can't find plugin '{plugin_name}'")
+            return ''
+        return plugins[0]
+
+    def _cleanup_packed_plugin(self, pack_dir):
+        shutil.rmtree(os.path.join(pack_dir, 'Intermediate'), ignore_errors=True)
+        shutil.rmtree(os.path.join(pack_dir, 'Binaries'), ignore_errors=True)
         return 0
 
 
