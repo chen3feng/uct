@@ -515,7 +515,7 @@ uct pack plugin pb4uerpc --output ..\pbp
 uct pack plugin pb4uerpc --output ..\pbp --platforms win64 linux
 ```
 
-任何 `--` 后面的参数都会传给 UAT 命令：
+任何单独 `--` 后面的参数都会传给 UAT 命令：
 
 ```console
 uct pack plugin pb4uerpc --output ..\pbp --platforms win64 linux -- -nocompile -nocompileuat
