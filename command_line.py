@@ -111,12 +111,12 @@ def build_parser():
     return parser
 
 
-def _fixup_parser(subparser: argparse.ArgumentParser):
+def _fixup_parser(parser: argparse.ArgumentParser):
     # pylint: disable=protected-access
     """Add missing attributes."""
-    if subparser._subparsers is None:
+    if parser._subparsers is None:
         return
-    for sp in subparser._subparsers._group_actions:
+    for sp in parser._subparsers._group_actions:
         for name, subparser in sp._name_parser_map.items(): # type: ignore
             if subparser.description is None:
                 ssp = _find_parser_in_subparsers(name, sp)
