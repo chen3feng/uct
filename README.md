@@ -340,7 +340,7 @@ Some useful usecases:
 - Enable [Clang Sanitizers](https://dev.epicgames.com/documentation/en-us/unreal-engine/using-clang-sanitizers-in-unreal-engine-projects)
 - Enable [Static Code Analysis](https://dev.epicgames.com/documentation/en-us/unreal-engine/static-code-analysis-in-unreal-engine)
 
-To pass extra options to UBT, put them after a standalone `--` like this:
+To pass extra options to UBT, put them after a bare `--` like this:
 
 ```console
 uct build MyGame -- -StaticAnalyzer=VisualCpp
@@ -534,7 +534,7 @@ Building and packaging are performed by calling UBT or UAT, which are their spec
 - `runubt`: Run [UnrealBuildTool](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/UnrealBuildTool/)
 - `runuat`: Run [AutomationTool](https://docs.unrealengine.com/4.27/en-US/ProductionPipelines/BuildTools/AutomationTool/)
 
-All options after the first standalone `--` are passed to the tool.
+All options after the first bare `--` are passed to the tool.
 
 Example:
 
