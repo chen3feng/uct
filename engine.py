@@ -17,9 +17,9 @@ def _installed_engine_registry() -> str:
     path = 'Epic/UnrealEngineLauncher/LauncherInstalled.dat'
     if platform.system() == 'Windows':
         return os.path.join(os.path.expandvars('%ProgramData%'), path).replace('/', '\\')
-    elif platform.system() == 'Darwin':
+    if platform.system() == 'Darwin':
         return os.path.expanduser('~/Library/Application Support/' + path)
-    elif platform.system() == 'Linux':
+    if platform.system() == 'Linux':
         return os.path.expanduser('~/.config/') + path
     assert False, f'Unsupported platform {platform.system()}'
     return ''
@@ -85,7 +85,7 @@ def _find_built_engines_posix() -> list:
 def _find_built_engines_windows() -> list:
     # On windows, this program is always called from the uct.bat,
     # finding engine by project was done there, we needn't query registry here.
-    import winreg # pylint: disable=import-outside-toplevel
+    import winreg # pylint: disable=import-outside-toplevel,import-error
     engines = []
     try:
         key_name = r"Software\Epic Games\Unreal Engine\Builds"
