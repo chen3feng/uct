@@ -62,7 +62,8 @@ def find_files_under(start_dir, patterns, excluded_dirs=None, relpath=False, lim
 def find_source_files_under(start_dir, patterns, excluded_dirs=None, relpath=False, limit=sys.maxsize) -> list:
     """Find source files under dir matching pattern."""
     result = []
-    excluded_dirs = ['Binaries', 'Intermediate']
+    if excluded_dirs is None:
+        excluded_dirs = ['Binaries', 'Intermediate']
     result += _find_files_under_subdir(start_dir, 'Source', patterns, excluded_dirs=excluded_dirs,
                                        relpath=relpath, limit=limit)
     if len(result) >= limit:
@@ -167,19 +168,19 @@ def _reveal_file_windows(path):
 
     import ctypes # pylint: disable=import-outside-toplevel
 
-    CoInitialize = ctypes.windll.ole32.CoInitialize
+    CoInitialize = ctypes.windll.ole32.CoInitialize # NOSONAR
     CoInitialize.argtypes = [ctypes.c_void_p]
     CoInitialize.restype = ctypes.HRESULT
-    CoUninitialize = ctypes.windll.ole32.CoUninitialize
+    CoUninitialize = ctypes.windll.ole32.CoUninitialize # NOSONAR
     CoUninitialize.argtypes = []
     CoUninitialize.restype = None
-    ILCreateFromPath = ctypes.windll.shell32.ILCreateFromPathW
+    ILCreateFromPath = ctypes.windll.shell32.ILCreateFromPathW # NOSONAR
     ILCreateFromPath.argtypes = [ctypes.c_wchar_p]
     ILCreateFromPath.restype = ctypes.c_void_p
     ILFree = ctypes.windll.shell32.ILFree
     ILFree.argtypes = [ctypes.c_void_p]
     ILFree.restype = None
-    SHOpenFolderAndSelectItems = ctypes.windll.shell32.SHOpenFolderAndSelectItems
+    SHOpenFolderAndSelectItems = ctypes.windll.shell32.SHOpenFolderAndSelectItems # NOSONAR
     SHOpenFolderAndSelectItems.argtypes = [
         ctypes.c_void_p,
         ctypes.c_uint,

@@ -1,2 +1,10 @@
 [tool.pylint.MASTER]
 ignore-paths = '^vendor/.*$'
+
+[tool.pylint.messages_control]
+max-line-length = 120
+
+[tool.mypy]
+exclude = [
+    '^vendor/.*$'
+]

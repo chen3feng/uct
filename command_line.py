@@ -9,6 +9,8 @@ import constants
 
 VERSION = '0.1'
 
+_SUB_COMMAND_HELP = 'Available subcommands'
+
 
 def build_parser():
     """
@@ -43,14 +45,14 @@ def build_parser():
     _add_dual_subcommand(subparsers, 'switch', 'engine', help='Swith engine for current project')
 
     list_parsers = subparsers.add_parser('list', help='List objects in the workspace').add_subparsers(
-        dest='subcommand', help='Available subcommands', required=True)
+        dest='subcommand', help=_SUB_COMMAND_HELP, required=True)
     targets = list_parsers.add_parser('target', help='List build targets', parents=[scope])
     targets.add_argument('--verbose', action='store_true', help='show detailed information')
 
     list_parsers.add_parser('engine', help='list all unreal engines in this computer')
 
     open_parsers = subparsers.add_parser('open', help='Open objects in the workspace').add_subparsers(
-        dest='subcommand', help='Available subcommands', required=True)
+        dest='subcommand', help=_SUB_COMMAND_HELP, required=True)
     open_parsers.add_parser('file', help='Open file', parents=[scope])
     open_parsers.add_parser('module', help='Open module', parents=[scope])
     open_parsers.add_parser('plugin', help='Open plugin', parents=[scope])
@@ -86,7 +88,7 @@ def build_parser():
     test.add_argument('--cmds', dest='test_cmds', type=str, nargs='+', help='Extra test commands')
 
     pack = subparsers.add_parser('pack', help='Pack specified artifacts').add_subparsers(
-        dest='subcommand', help='Available subcommands', required=True)
+        dest='subcommand', help=_SUB_COMMAND_HELP, required=True)
     pack_target = pack.add_parser('target', help='Pack game targets',
                                   epilog='Any arguments after the first bare "--" will be passed to UAT.',
                                   parents=[build_config])
@@ -110,11 +112,12 @@ def build_parser():
 
 
 def _fixup_parser(parser: argparse.ArgumentParser):
+    # pylint: disable=protected-access
     """Add missing attributes."""
     if parser._subparsers is None:
         return
     for sp in parser._subparsers._group_actions:
-        for name, parser in sp._name_parser_map.items():
+        for name, parser in sp._name_parser_map.items(): # type: ignore
             if parser.description is None:
                 ssp = _find_parser_in_subparsers(name, sp)
                 if ssp:
@@ -123,6 +126,7 @@ def _fixup_parser(parser: argparse.ArgumentParser):
 
 
 def _find_parser_in_subparsers(name, subparsers):
+    # pylint: disable=protected-access
     for ch in subparsers._choices_actions:
         if ch.dest == name:
             return ch
@@ -132,7 +136,7 @@ def _find_parser_in_subparsers(name, subparsers):
 def _add_dual_subcommand(subparsers, command, subcommand, **kwargs):
     """Add a dual sub command like `list engine`."""
     subparsers = subparsers.add_parser(command, help=command.capitalize() + ' command').add_subparsers(
-        dest='subcommand', help='Available subcommands', required=True)
+        dest='subcommand', help=_SUB_COMMAND_HELP, required=True)
     return subparsers.add_parser(subcommand, **kwargs)
 
 
@@ -143,7 +147,8 @@ def parse():
     # https://pypi.org/project/argcomplete/
     # PYTHON_ARGCOMPLETE_OK
     try:
-        import argcomplete # pylint: disable=import-error, import-outside-toplevel
+        # pylint: disable=import-error, import-outside-toplevel
+        import argcomplete # type: ignore
         argcomplete.autocomplete(parser)
     except ImportError:
         pass

@@ -13,8 +13,6 @@ import sys
 
 from typing import Optional, Tuple
 
-sys.path.append(os.path.join(os.path.dirname(__file__), 'vendor'))
-
 import command_line
 import constants
 import console
@@ -23,7 +21,8 @@ import fs
 
 from utils import subprocess_call, subprocess_run
 
-import cutie
+sys.path.append(os.path.join(os.path.dirname(__file__), 'vendor'))
+import cutie # pylint: disable = wrong-import-order, wrong-import-position
 
 
 # https://www.gnu.org/software/bash/manual/html_node/Exit-Status.html
@@ -71,7 +70,7 @@ class UnrealCommandTool:
             # The engine associated with the current project maybe does not exist.
             return False
         if options.command == 'list' and options.subcommand == 'engine':
-                return False
+            return False
         return True
 
     def _find_project_file(self):
@@ -528,10 +527,12 @@ class UnrealCommandTool:
         return ''
 
     def runuat(self):
+        """Execute the RunUAT command."""
         uat = self._find_build_script('RunUAT', platform='')
         return subprocess_call([uat] + self.extra_args)
 
     def runubt(self):
+        """Execute the RunUBT command."""
         return subprocess_call([self.ubt] + self.extra_args)
 
     def build(self, is_rebuild=False) -> int:
@@ -571,6 +572,7 @@ class UnrealCommandTool:
         return fs.expand_source_files(files, self.engine_dir)
 
     def rebuild(self) -> int:
+        """Rebuild targets."""
         return self.build(True)
 
     def clean(self) -> int:
