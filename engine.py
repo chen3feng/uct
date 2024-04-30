@@ -49,6 +49,7 @@ class Engine:
         return f'{self.id}  {self.version_string():8} {self.root}'
 
     def version_string(self):
+        """String form of the version."""
         ver = self.version
         return f"{ver['MajorVersion']}.{ver['MinorVersion']}.{ver['PatchVersion']}"
 
@@ -57,7 +58,7 @@ def find_source_builds() -> list:
     """Find all source build engines in current system."""
     if os.name == 'posix':
         return _find_built_engines_posix()
-    elif os.name == 'nt':
+    if os.name == 'nt':
         return _find_built_engines_windows()
     return []
 
