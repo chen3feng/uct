@@ -553,7 +553,7 @@ Unreal Engine supports cross compile for linux on Windows, different engine requ
 If there are multiple engine source tree and cross tools installation in the system, UBT can't handle this correctly,
 it alway use thr latest installed one, which is specified by the `LINUX_MULTIARCH_ROOT` environment.
 
-UCT solves this problem by setting environment variables automatically based on the cross-tool version requirements of the engine version.
+UCT solves this problem by setting the environment variable automatically based on the cross-tool version requirements of the engine version.
 
 ### help
 
