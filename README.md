@@ -547,6 +547,14 @@ $ uct runubt -- -help
 
 The advantage compared to directly calling the corresponding script in the engine is that there is no need to specify the path and extension (`.bat` or `.sh`).
 
+### Cross compile
+
+Unreal Engine supports cross compile for linux on Windows, different engine requires different version of cross tool.
+If there are multiple engine source tree and cross tools installation in the system, UBT can't handle this correctly,
+it alway use thr latest installed one, which is specified by the `LINUX_MULTIARCH_ROOT` environment.
+
+UCT solves this problem by setting the environment variable automatically based on the cross-tool version requirements of the engine version.
+
 ### help
 
 To view help, use the `--help` parameter. To view help for a command, add `--test` after the command.

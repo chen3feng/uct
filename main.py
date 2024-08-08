@@ -63,6 +63,9 @@ class UnrealCommandTool:
         self.ubt = self._find_ubt()
         assert os.path.exists(self.ubt), self.ubt
 
+        if self.host_platform == 'Win64' and self.platform.startswith('Linux'):
+            self.setup_linux_cross_tool()
+
         self.project_dir = os.path.dirname(self.project_file)
 
     def _command_need_engine(self, options):
@@ -72,6 +75,53 @@ class UnrealCommandTool:
         if options.command == 'list' and options.subcommand == 'engine':
             return False
         return True
+
+    def setup_linux_cross_tool(self):
+        """
+        Different engine has different cross tools version requirement. but when there are multipls engine source trees
+        and cross tools in the system, UBT can't select correct cross tool according to its engine verson, it always use
+        the global environment variable LINUX_MULTIARCH_ROOT.
+        This function fixup this problems to support select correct cross tool automatically.
+        """
+        engine_version = (self.engine_version['MajorVersion'], self.engine_version['MinorVersion'], self.engine_version['PatchVersion'])
+        tools = list_cross_tools()
+
+        # NOTE: Keep the descending order!!!
+        engine_toolchain_requirements = [
+            # https://dev.epicgames.com/documentation/en-us/unreal-engine/linux-development-requirements-for-unreal-engine
+            ('5.3', 'v22'),
+            ('5.2', 'v21'),
+            ('5.1', 'v20'),
+            ('5.0.2', 'v20'),
+            ('5.0', 'v19'),
+            # https://dev.epicgames.com/documentation/en-us/unreal-engine/cross-compiling-for-linux
+            ('4.27', 'v19'),
+            ('4.26', 'v17'),
+            ('4.25', 'v16'),
+            ('4.23', 'v15'),
+            ('4.22', 'v13'),
+            ('4.19', 'v11'),
+            ('4.18', 'v10'),
+            ('4.16', 'v9'),
+            ('4.14', 'v8'),
+            ('4.11', 'v7'),
+            ('4.9', 'v6'),
+            ('4.8', 'v4'),
+        ]
+
+        for ev, tv in engine_toolchain_requirements:
+            ev = tuple(map(int, ev.split('.')))
+            if engine_version >= ev:
+                if tv not in tools:
+                    console.error(f'Cross toolchain {tv} is not installed in your system, see \n'
+                                  'https://dev.epicgames.com/documentation/en-us/unreal-engine/linux-development-requirements-for-unreal-engine')
+                    sys.exit(1)
+                install_dir = tools[tv]
+                os.environ['LINUX_MULTIARCH_ROOT'] = install_dir
+                return
+
+        console.error(f"Error finding correct linux cross tools for the engine '{self.engine_dir}'")
+        sys.exit(1)
 
     def _find_project_file(self):
         """Find the project file and engine root."""
@@ -830,6 +880,41 @@ def check_targets(targets):
             ok = False
     if not ok:
         sys.exit(1)
+
+
+def list_cross_tools():
+    """
+    List all installed crosstools in the system.
+    """
+    import winreg     # pylint: disable=import-outside-toplevel,import-error
+    import itertools  # pylint: disable=import-outside-toplevel,import-error
+    toolchains = {}
+    try:
+        key_name = 'SOFTWARE\\WOW6432Node\\'
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_name) as hkey:
+            for i in itertools.count():
+                try:
+                    key_name = winreg.EnumKey(hkey, i)
+                    if not key_name.startswith('Unreal Linux Toolchain'):
+                        continue
+                    with winreg.OpenKey(hkey, key_name) as toolchain_key:
+                        install_dir, _ = winreg.QueryValueEx(toolchain_key, 'Install_Dir')
+                        toolchains[parse_toolchain_version(key_name)] = install_dir
+                except OSError:
+                    # ERROR_NO_MORE_ITEMS
+                    break
+    except OSError as e:
+        print(f"winreg.OpenKey: {e}: '{key_name}'.")
+    return toolchains
+
+
+def parse_toolchain_version(key_name):
+    """
+    Extract cross tool version from registry key name. Example:
+    Get 'v20' from 'Unreal Linux Toolchain v20_clang-13.0.1-centos7'.
+    """
+    m = re.match(r'Unreal Linux Toolchain (v\d+).*', key_name)
+    return m.group(1) if m else ''
 
 
 def main():
