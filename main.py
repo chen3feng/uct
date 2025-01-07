@@ -9,6 +9,7 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import sys
 
 from typing import Optional, Tuple
@@ -423,11 +424,11 @@ class UnrealCommandTool:
         return os.path.normpath(self.engine_root) == os.path.normpath(engine.root)
 
     def _modify_engine_association(self, project_file, engine):
+        """Modify the project file to use the specified engine."""
         engine_id = engine.id
         if engine_id.startswith('UE_'): # Python 2.7 in UE4 doesn't support removesuffix
             engine_id = engine_id[3:]
         project_file_new = project_file + '.new'
-        project_file_old = project_file + '.old'
         # Modify the value of "EngineAssociation" field in the project file.
         # The format of a .uproject file is json. Using string replacement instead of python's
         # json module is to ensure that the file format is unchanged.
@@ -438,17 +439,30 @@ class UnrealCommandTool:
                         line = re.sub(r'(?<=\"EngineAssociation\": )\".*\"', f'"{engine_id}"', line)
                     outfile.write(line)
         if not filecmp.cmp(project_file_new, project_file):
-            try:
-                os.remove(project_file_old)
-            except OSError:
-                pass
-            os.rename(project_file, project_file_old)
-            os.rename(project_file_new, project_file)
+            self.update_project_file(project_file, project_file_new)
             print(f'Engine is switched to {engine}.')
         else:
             print('Engine is not changed.')
             os.remove(project_file_new)
         return 0
+
+    def update_project_file(self, project_file, project_file_new):
+        """Update the project file."""
+        project_file_old = project_file + '.old'
+        if not self.is_file_managed_by_git(project_file):
+            # Backup the project file.
+            try:
+                os.remove(project_file_old)
+            except OSError:
+                pass
+            os.rename(project_file, project_file_old)
+        else:
+            os.remove(project_file)
+        os.rename(project_file_new, project_file)
+
+    def is_file_managed_by_git(self, file):
+        """Check if the file is managed by git."""
+        return subprocess_run(['git', 'ls-files', '--error-unmatch', file], check=False, capture_output=True).returncode == 0
 
     def list_target(self) -> int:
         """Handle the `list target` command."""
