@@ -307,7 +307,11 @@ class UnrealCommandTool:
             cmdstr = ' '.join(cmd) if isinstance(cmd, list) else cmd
             console.warn(f'QueryTargets failed: {cmdstr}\n{p.stdout}')
             return []
-        return self._load_target_info(start_dir)
+        targets = self._load_target_info(start_dir)
+        if start_dir == self.project_dir:
+            # Engine targets are also included since UE 5.5, filter them out.
+            targets = [t for t in targets if t['Path'].startswith(start_dir)]
+        return targets
 
     def _load_target_info(self, start_dir) -> list:
         """Try load target info from TargetInfo.json under the dir."""
