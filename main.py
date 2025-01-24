@@ -687,7 +687,13 @@ class UnrealCommandTool:
                     console.error(f"{executable} doesn't exist, please build it first.")
                 returncode = EXIT_COMMAND_NOT_FOUND
                 continue
-            cmd = [executable] + self.extra_args
+            cmd = [executable]
+            if self._is_project_target(target):
+                info = self._get_target_info(target, None, None)
+                assert info
+                if info['TargetType'] != 'Program' and self.project_file:
+                    cmd.append(self._make_path_argument('-Project', self.project_file))
+            cmd += self.extra_args
             print(f'Run {" ".join(cmd)}')
             if self.options.dry_run:
                 continue

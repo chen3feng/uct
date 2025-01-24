@@ -367,6 +367,8 @@ LogBenchmark: Display: Running 'BM_Deserialize<FFieldTest>'...
 LogBenchmark: Display: Serialized size=109
 ...
 
+对于项目目标，如果其类型不是 `Program`，还会自动传递 `-Project="/FullPath/Of/ProjectName.uproject"` 命令行参数。
+
 第一个 `--` 之后的所有参数都会被传递给程序：
 
 ```console

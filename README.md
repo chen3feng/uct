@@ -375,6 +375,8 @@ LogBenchmark: Display: Serialized size=109
 ...
 ```
 
+For a project scoped target, if it's not a `Program`, `-Project="/FullPath/Of/ProjectName.uproject"` will be passed.
+
 All arguments after the first `--` is passed to the program:
 
 ```console
