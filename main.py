@@ -218,10 +218,8 @@ class UnrealCommandTool:
 
     def _expand_options(self, options):
         """Expand option values."""
-        if hasattr(options, 'platform'):
-            self.platform = constants.PLATFORM_MAP.get(options.platform, self.host_platform)
-        if hasattr(options, 'config'):
-            self.config = constants.CONFIG_MAP.get(options.config, 'Development')
+        self.platform = constants.PLATFORM_MAP.get(getattr(options, 'platform', None), self.host_platform)
+        self.config = constants.CONFIG_MAP.get(getattr(options, 'config', None), 'Development')
 
     @property
     def targets(self):
