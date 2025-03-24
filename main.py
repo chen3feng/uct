@@ -9,7 +9,6 @@ import json
 import os
 import re
 import shutil
-import subprocess
 import sys
 
 from typing import Optional, Tuple
@@ -392,6 +391,7 @@ class UnrealCommandTool:
         return subprocess_call(cmd)
 
     def gpf(self) -> int:
+        """Handle the `gpf` command, The short alias for the `generate project` command."""
         return self.generate_project()
 
     def switch_engine(self):

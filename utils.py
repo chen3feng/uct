@@ -24,5 +24,5 @@ def subprocess_run(cmd: Union[str, List[str]], *args, **kwargs):
     """Run an external command."""
     if os.name == 'nt' and isinstance(cmd, list):
         # For the above same reason.
-        return subprocess.run(' '.join(cmd), *args, **kwargs)
-    return subprocess.run(cmd, *args, **kwargs)
+        return subprocess.run(' '.join(cmd), *args, **kwargs, check=False)
+    return subprocess.run(cmd, *args, **kwargs, check=False)
