@@ -44,6 +44,8 @@ def build_parser():
     _add_dual_subcommand(subparsers, 'generate', 'project', help='Generate project files')
     _add_dual_subcommand(subparsers, 'switch', 'engine', help='Swith engine for current project')
 
+    subparsers.add_parser('gpf', help='Generate project files')
+
     list_parsers = subparsers.add_parser('list', help='List objects in the workspace').add_subparsers(
         dest='subcommand', help=_SUB_COMMAND_HELP, required=True)
     targets = list_parsers.add_parser('target', help='List build targets', parents=[scope])

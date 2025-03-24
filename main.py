@@ -383,12 +383,16 @@ class UnrealCommandTool:
 
     def generate_project(self) -> int:
         """Handle the `generate project` command."""
-        cmd = [self.ubt, '-ProjectFiles', '-SharedBuildEnvironment']
-        if self.project_file:
-            cmd.append(self.project_file)
+        cmd = [self.ubt, '-ProjectFiles']
+        if self.project_file and not hasattr(self.options, 'engine'):
+            cmd.append(self._make_path_argument('-Project', self.project_file))
+            cmd.append('-Game')
         cmd += self.extra_args
         print(' '.join(cmd))
         return subprocess_call(cmd)
+
+    def gpf(self) -> int:
+        return self.generate_project()
 
     def switch_engine(self):
         """Handle the `switch engine` command."""

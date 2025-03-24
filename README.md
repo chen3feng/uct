@@ -143,8 +143,13 @@ Generate project files for the engine or game project.
 
 ```console
 $ uct generate project
+$ uct gpf
 ...
 ```
+
+`gpf` is its shortened alias.
+
+Add the `--engine` option to generate project files for the engine instead of the game, even when executed from within the game directory.
 
 ### switch engine
 
