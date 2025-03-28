@@ -22,7 +22,9 @@ def subprocess_call(cmd: Union[str, List[str]], *args, **kwargs) -> int:
 
 def subprocess_run(cmd: Union[str, List[str]], *args, **kwargs):
     """Run an external command."""
+    if 'check' not in kwargs:
+        kwargs['check'] = False
     if os.name == 'nt' and isinstance(cmd, list):
         # For the above same reason.
-        return subprocess.run(' '.join(cmd), *args, **kwargs, check=False)
-    return subprocess.run(cmd, *args, **kwargs, check=False)
+        return subprocess.run(' '.join(cmd), *args, **kwargs)
+    return subprocess.run(cmd, *args, **kwargs)
