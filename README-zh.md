@@ -165,6 +165,11 @@ Source build engines:
 Engine is switched to {750E0EB6-4428-07C4-DFB6-888F4E6452A6}  5.1.1    G:\UnrealEngine-5.1
 ```
 
+### switch xcode -- 切换系统默认的 Xcode
+
+在 Mac 系统中，该命令用来切换安装的多个版本的 Xcode 的默认版本。
+也建议你使用功能更强大的 [xcodes](https://github.com/XcodesOrg/xcodes) 或者 [XcodesApp](https://github.com/XcodesOrg/XcodesApp)。
+
 ### list 列出
 
 #### list target

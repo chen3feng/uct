@@ -170,6 +170,11 @@ Source build engines:
 Engine is switched to {750E0EB6-4428-07C4-DFB6-888F4E6452A6}  5.1.1    G:\UnrealEngine-5.1
 ```
 
+### switch xcode
+
+On MacOS, this command switch the active Xcode if there are multiple versions are installed.
+I also suggest you to use more powerful [xcodes](https://github.com/XcodesOrg/xcodes) or [XcodesApp](https://github.com/XcodesOrg/XcodesApp).
+
 ### List
 
 #### list target
