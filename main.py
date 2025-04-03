@@ -9,6 +9,7 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import sys
 
 from typing import Optional, Tuple
@@ -69,10 +70,8 @@ class UnrealCommandTool:
         self.project_dir = os.path.dirname(self.project_file)
 
     def _command_need_engine(self, options):
-        if options.command == 'switch' and options.subcommand == 'engine':
+        if options.command == 'switch':
             # The engine associated with the current project maybe does not exist.
-            return False
-        if options.command == 'switch' and options.subcommand == 'clang':
             return False
         if options.command == 'list' and options.subcommand == 'engine':
             return False
@@ -374,7 +373,7 @@ class UnrealCommandTool:
         if hasattr(self.options, 'subcommand'):
             command += '_' + self.options.subcommand
         command = command.replace('-', '_')
-        assert command in dir(self), f'{command} method is not defined'
+        assert command in dir(self), f'method {command} is not defined'
         return getattr(self, command)()
 
     def setup(self) -> int:
@@ -469,29 +468,58 @@ class UnrealCommandTool:
             os.remove(project_file)
         os.rename(project_file_new, project_file)
 
-    def switch_clang(self):
+    def switch_clang(self) -> int:
         """Switch the Linux crosstool globally"""
         print('Switch clang')
         tools = list_cross_tools()
-        print(tools)
         current = os.getenv('LINUX_MULTIARCH_ROOT')
-        print(current)
-        toolchains = []
+
+        selected_index = 0
+        candidates = []
+        options = []
+        caption_indices = []
+        caption_indices.append(len(options))
+        options.append('Installed crosstools:')
+        candidates.append(None)
+        for ver, path in tools.items():
+            if os.path.normpath(path) == os.path.normpath(current):
+                selected_index = len(candidates)
+            options.append(f'{ver:8} {path}')
+            candidates.append(path)
+        selected = cutie.select(options, caption_indices, confirm_on_select=False, selected_index=selected_index)
+        if selected < 0 or not options[selected]:
+            return 0
+        print(f'Select {candidates[selected]}')
+        return 0
+
+    def switch_xcode(self) -> int:
+        """Switch system Xcode versison."""
+        xcodes = list_installed_xcode()
+        current = get_active_xcode()
+
         options = []
         caption_indices = []
         selected_index = 0
         caption_indices.append(len(options))
-        options.append('Installed crosstools:')
-        for ver, path in tools.items():
-            if os.path.normpath(path) == os.path.normpath(current):
-                selected_index = len(toolchains)
+        candidates = []
+        options.append('Installed Xcodes:')
+        candidates.append(None)
+        for ver, path in xcodes.items():
+            if path == current:
+                selected_index = len(candidates)
             options.append(f'{ver:8} {path}')
-            toolchains.append(path)
+            candidates.append(path)
         selected = cutie.select(options, caption_indices, confirm_on_select=False, selected_index=selected_index)
         if selected < 0 or not options[selected]:
             return 0
-        print(f'Select {toolchains[selected]}')
-        return 0
+        selected_app = candidates[selected]
+        if selected_app == current:
+            print('Xcode is not switched.')
+            return 0
+        ret = subprocess.call(['sudo', 'xcode-select', '--switch', f'{selected_app}/Contents/Developer'])
+        if ret == 0:
+            print(f'Xcode is switched to {selected_app}')
+        return ret
 
     def is_file_managed_by_git(self, file):
         """Check if the file is managed by git."""
@@ -968,6 +996,30 @@ def parse_toolchain_version(key_name):
     """
     m = re.match(r'Unreal Linux Toolchain (v\d+).*', key_name)
     return m.group(1) if m else ''
+
+
+def list_installed_xcode() -> dict[str, str]:
+    """List all installed Xcode."""
+    result = {}
+    cmd = ['mdfind', "kMDItemCFBundleIdentifier == 'com.apple.dt.Xcode'"]
+    out = subprocess.check_output(cmd, text=True)
+    for app in out.splitlines():
+        if '/Applications/' not in app:
+            continue
+        result[get_xcode_version(app)] = app
+    return result
+
+
+def get_xcode_version(app) -> str:
+    version_file = os.path.join(app, 'Contents/version.plist')
+    cmd = ['/usr/libexec/PlistBuddy', '-c', 'Print CFBundleShortVersionString', version_file]
+    version = subprocess.check_output(cmd, text=True)
+    return version.strip()
+
+
+def get_active_xcode() -> str:
+    path = subprocess.check_output(['xcode-select', '--print-path'], text=True).strip()
+    return path.removesuffix('/Contents/Developer')
 
 
 def main():

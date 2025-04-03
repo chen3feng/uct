@@ -73,7 +73,7 @@ def _find_built_engines_posix() -> list:
     engines = []
     for uuid, root in config['Installations'].items():
         if not os.path.exists(root):
-            console.warn(f"Source build engine: {root} doesn't exist.")
+            console.warn(f"In '{config_file}': Source build engine '{root}' doesn't exist.")
             continue
         uuid = uuid.upper()
         if not uuid.startswith('{'): # UE4 format: ID isn't enclosed in '{}'

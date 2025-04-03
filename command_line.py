@@ -4,6 +4,7 @@ Command line parser.
 
 import argparse
 import os
+import platform
 import sys
 
 import constants
@@ -43,9 +44,9 @@ def build_parser():
     subparsers.add_parser('setup', help='Setup the engine')
 
     _add_dual_subcommand(subparsers, 'switch', 'engine', help='Swith engine for current project')
-    if os.name == 'nt':
+    if platform.system() == 'Windows':
         _add_dual_subcommand(subparsers, 'switch', 'clang', help='Swicth linux crosstool globally')
-    if os.name == 'darwin':
+    if platform.system() == 'Darwin':
         _add_dual_subcommand(subparsers, 'switch', 'xcode', help='Swicth xcode globally')
     gpf = _add_dual_subcommand(subparsers, 'generate', 'project', help='Generate project files')
     gpf.add_argument('--engine', action='store_true', help='for the engine')
