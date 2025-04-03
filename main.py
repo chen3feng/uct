@@ -72,6 +72,8 @@ class UnrealCommandTool:
         if options.command == 'switch' and options.subcommand == 'engine':
             # The engine associated with the current project maybe does not exist.
             return False
+        if options.command == 'switch' and options.subcommand == 'clang':
+            return False
         if options.command == 'list' and options.subcommand == 'engine':
             return False
         return True
@@ -466,6 +468,30 @@ class UnrealCommandTool:
         else:
             os.remove(project_file)
         os.rename(project_file_new, project_file)
+
+    def switch_clang(self):
+        """Switch the Linux crosstool globally"""
+        print('Switch clang')
+        tools = list_cross_tools()
+        print(tools)
+        current = os.getenv('LINUX_MULTIARCH_ROOT')
+        print(current)
+        toolchains = []
+        options = []
+        caption_indices = []
+        selected_index = 0
+        caption_indices.append(len(options))
+        options.append('Installed crosstools:')
+        for ver, path in tools.items():
+            if os.path.normpath(path) == os.path.normpath(current):
+                selected_index = len(toolchains)
+            options.append(f'{ver:8} {path}')
+            toolchains.append(path)
+        selected = cutie.select(options, caption_indices, confirm_on_select=False, selected_index=selected_index)
+        if selected < 0 or not options[selected]:
+            return 0
+        print(f'Select {toolchains[selected]}')
+        return 0
 
     def is_file_managed_by_git(self, file):
         """Check if the file is managed by git."""

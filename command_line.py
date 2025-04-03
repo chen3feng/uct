@@ -3,6 +3,7 @@ Command line parser.
 """
 
 import argparse
+import os
 import sys
 
 import constants
@@ -42,7 +43,10 @@ def build_parser():
     subparsers.add_parser('setup', help='Setup the engine')
 
     _add_dual_subcommand(subparsers, 'switch', 'engine', help='Swith engine for current project')
-
+    if os.name == 'nt':
+        _add_dual_subcommand(subparsers, 'switch', 'clang', help='Swicth linux crosstool globally')
+    if os.name == 'darwin':
+        _add_dual_subcommand(subparsers, 'switch', 'xcode', help='Swicth xcode globally')
     gpf = _add_dual_subcommand(subparsers, 'generate', 'project', help='Generate project files')
     gpf.add_argument('--engine', action='store_true', help='for the engine')
 
@@ -140,8 +144,12 @@ def _find_parser_in_subparsers(name, subparsers):
 
 def _add_dual_subcommand(subparsers, command, subcommand, **kwargs):
     """Add a dual sub command like `list engine`."""
-    subparsers = subparsers.add_parser(command, help=command.capitalize() + ' command').add_subparsers(
-        dest='subcommand', help=_SUB_COMMAND_HELP, required=True)
+    if command in subparsers._name_parser_map:
+        command_parser = subparsers._name_parser_map[command]
+        subparsers = command_parser._subparsers._group_actions[0]
+    else:
+        subparsers = subparsers.add_parser(command, help=command.capitalize() + ' command').add_subparsers(
+            dest='subcommand', help=_SUB_COMMAND_HELP, required=True)
     return subparsers.add_parser(subcommand, **kwargs)
 
 
