@@ -891,12 +891,14 @@ class UnrealCommandTool:
             print(f'Pack {target}')
             cmd = [
                 uat, self._make_path_argument('-ScriptsForProject', self.project_file),
+                # Turnkey
                 'Turnkey', '-command=VerifySdk', f'-target={target}', f'-platform={self.platform}',
                 '-UpdateIfNeeded', self._make_path_argument('-Project', self.project_file),
+                # BuildCookRun
                 'BuildCookRun', '-nop4', '-utf8output', '-nocompile', '-nocompileeditor', '-nocompileuat',
                 '-skipbuildeditor', '-cook', self._make_path_argument('-Project', self.project_file),
                 '-stage', '-archive', '-package', '-build', '-pak', '-iostore', '-compressed', '-prereqs',
-                f'-target={target}', self._make_path_argument('-unrealexe', editor),
+                f'-target={target}', self._make_path_argument('-unrealexe', editor), f'-platform={self.platform}',
                 f'-clientconfig={self.config}', f'-serverconfig={self.config}',
                 self._make_path_argument('-archivedirectory', os.path.abspath(self.options.output))
             ]
