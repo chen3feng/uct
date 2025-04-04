@@ -165,6 +165,16 @@ Source build engines:
 Engine is switched to {750E0EB6-4428-07C4-DFB6-888F4E6452A6}  5.1.1    G:\UnrealEngine-5.1
 ```
 
+### switch clang -- 切换 Linux 编译交叉工具链
+
+在 Windows 上交叉编译 Linux 目标时，您需要安装 Unreal 交叉编译工具链。这些工具链是 Epic 提供的定制版 Clang，通常安装在 `C:\UnrealToolchains` 目录下。
+
+您可以安装多个版本的工具链，但 UBT（Unreal 构建工具）只会识别在 `LINUX_MULTIARCH_ROOT` 环境变量中指定的工具链路径。如果版本不符合引擎的要求，构建将失败。
+
+使用本命令列出已安装的工具链，并切换到特定版本。
+
+注意：更改将应用于新打开的程序。
+
 ### switch xcode -- 切换系统默认的 Xcode
 
 在 Mac 系统中，该命令用来切换安装的多个版本的 Xcode 的默认版本。

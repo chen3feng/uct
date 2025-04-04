@@ -1062,7 +1062,7 @@ def list_installed_xcode() -> dict[str, str]:
     cmd = ['mdfind', "kMDItemCFBundleIdentifier == 'com.apple.dt.Xcode'"]
     out = subprocess.check_output(cmd, text=True)
     for app in out.splitlines():
-        if '/Applications/' not in app:
+        if '/Applications/' not in app: # Not installed
             continue
         result[get_xcode_version(app)] = app
     return result
