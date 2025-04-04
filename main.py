@@ -1002,7 +1002,7 @@ def parse_toolchain_version(key_name):
     return m.group(1) if m else ''
 
 
-def read_windows_variable(name: str) -> Tuple[str|None, bool]:
+def read_windows_variable(name: str) -> Tuple[Optional[str], bool]:
     value = read_env_var_from_registry(name, system=False)
     if value:
         return value, False
@@ -1012,7 +1012,7 @@ def read_windows_variable(name: str) -> Tuple[str|None, bool]:
     return None, False
 
 
-def read_env_var_from_registry(name :str, system=True) -> str|None:
+def read_env_var_from_registry(name :str, system=True) -> Optional[str]:
     """Read global environment variable"""
     import winreg # pylint: disable=import-outside-toplevel,import-error
     try:
