@@ -170,6 +170,24 @@ Source build engines:
 Engine is switched to {750E0EB6-4428-07C4-DFB6-888F4E6452A6}  5.1.1    G:\UnrealEngine-5.1
 ```
 
+### switch clang
+
+To cross-compile for Linux targets on Windows, you need to install the Unreal Toolchain.
+These toolchains are custom versions of Clang provided by Epic and are typically installed in the `C:\UnrealToolchains` directory.
+
+You can install multiple versions of the toolchain, but UBT (Unreal Build Tool) only recognizes
+the toolchain path specified in the LINUX_MULTIARCH_ROOT environment variable.
+If the version doesn't meet the engine’s requirements, the build will fail.
+
+Use this command to list the installed toolchains and switch to a specific version.
+
+Note: The changes will apply to newly opened programs.
+
+### switch xcode
+
+On MacOS, this command switch the active Xcode if there are multiple versions are installed.
+I also suggest you to use more powerful [xcodes](https://github.com/XcodesOrg/xcodes) or [XcodesApp](https://github.com/XcodesOrg/XcodesApp).
+
 ### List
 
 #### list target
