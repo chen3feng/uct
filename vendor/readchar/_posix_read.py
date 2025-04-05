@@ -39,5 +39,10 @@ def readchar() -> str:
 def readkey() -> str:
     """Get a keypress. If an escaped key is pressed, the full sequence is
     read and returned as noted in `_posix_key.py`."""
+
+    # Reset the terminal to normal cursor key mode
+    # https://tldp.org/HOWTO/Keyboard-and-Console-HOWTO-21.html
+    print("\x1b[?1l", end='')
+
     # It can be quite long when input is from IME.
     return _readkeybuffer(1000)

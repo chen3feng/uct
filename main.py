@@ -1089,7 +1089,7 @@ def main():
     uct = UnrealCommandTool(options, targets, extra_args)
     ret = uct.execute()
     if ret != 0:
-        console.error(f'{options.command} failed with exit code {ret}.')
+        console.error(f'{options.command} failed.')
         sys.exit(ret)
 
 
