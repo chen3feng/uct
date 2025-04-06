@@ -672,7 +672,7 @@ class UnrealCommandTool:
             console.error('Missing targets, nothing to build.')
             return 1
         returncode = 0
-        cmd_base = [self._find_build_script('Build'), self.platform, self.config]
+        cmd_base = [self.ubt, self.platform, self.config]
         if is_rebuild:
             cmd_base.append('-Rebuild')
         if self.project_file:
