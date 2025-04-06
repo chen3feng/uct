@@ -672,12 +672,14 @@ class UnrealCommandTool:
             console.error('Missing targets, nothing to build.')
             return 1
         returncode = 0
-        action = 'Rebuild' if is_rebuild else 'Build'
-        cmd_base = [self._find_build_script(action), self.platform, self.config]
+        cmd_base = [self._find_build_script('Build'), self.platform, self.config]
+        if is_rebuild:
+            cmd_base.append('-Rebuild')
         if self.project_file:
             cmd_base.append(self._make_path_argument('-Project', self.project_file))
         failed_targets = []
         for target in self.targets:
+            action = 'Rebuild' if is_rebuild else 'Build'
             print(f'{action} {target}')
             cmd = cmd_base + [target]
             if self.options.files:
