@@ -384,7 +384,7 @@ class UnrealCommandTool:
     def generate_project(self) -> int:
         """Handle the `generate project` command."""
         cmd = [self.ubt, '-ProjectFiles']
-        if self.project_file and not hasattr(self.options, 'engine'):
+        if self.project_file and not self.options.engine:
             cmd.append(self._make_path_argument('-Project', self.project_file))
             cmd.append('-Game')
         cmd += self.extra_args

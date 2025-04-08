@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+    #! /usr/bin/env python3
 """
 Commandline User Tools for Input Easification
 """
@@ -42,7 +42,7 @@ class DefaultKeys:
     interrupt: List[str] = [readchar.key.CTRL_C, readchar.key.CTRL_D]
     select: List[str] = [readchar.key.SPACE]
     confirm: List[str] = [readchar.key.ENTER]
-    cancel: List[str] = [readchar.key.ESC]
+    cancel: List[str] = [readchar.key.ESC, "q"]
     delete: List[str] = [readchar.key.BACKSPACE]
     down: List[str] = [readchar.key.DOWN, "j"]
     up: List[str] = [readchar.key.UP, "k"]
@@ -137,13 +137,13 @@ def select(
     def first_selectable() -> int:
         for i in range(len(options)):
             if i not in caption_indices:
-                    return i
+                return i
         return -1
 
     def last_selectable() -> int:
         for i in reversed(range(len(options))):
             if i not in caption_indices:
-                    return i
+                return i
         return -1
 
     def prev_selectable() -> int:
