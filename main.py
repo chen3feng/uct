@@ -90,13 +90,13 @@ class UnrealCommandTool:
         # NOTE: Keep the descending order!!!
         engine_toolchain_requirements = [
             # https://dev.epicgames.com/documentation/en-us/unreal-engine/linux-development-requirements-for-unreal-engine
-            ('5.5', 'v23'),
+            ('`5.5`', 'v23'),
             ('5.3', 'v22'),
             ('5.2', 'v21'),
             ('5.1', 'v20'),
             ('5.0.2', 'v20'),
             ('5.0', 'v19'),
-            # https://dev.epicgames.com/documentation/en-us/unreal-engine/cross-compiling-for-linux
+            # https://dev.epicgames.com/documentation/en-us/unreal-engine/cross-compiling-for-linux?application_version=4.27
             ('4.27', 'v19'),
             ('4.26', 'v17'),
             ('4.25', 'v16'),
@@ -824,8 +824,8 @@ class UnrealCommandTool:
         """
         test_cmds = self._make_test_cmds()
         if not test_cmds:
-            console.error('No test command to execute.')
-            return 0
+            console.error('No test command to execute. --help to see test commands')
+            return 1
         # Example command line:
         # G:\UnrealEngine-5.1\Engine\Binaries\Win64\UnrealEditor-Cmd.exe %CD%/MyGame.uproject \
         #   -log -NoSplash -Unattended -ExecCmds="Automation RunTests System; Quit"
