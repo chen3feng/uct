@@ -178,7 +178,12 @@ Engine is switched to {750E0EB6-4428-07C4-DFB6-888F4E6452A6}  5.1.1    G:\Unreal
 ### switch xcode -- 切换系统默认的 Xcode
 
 在 Mac 系统中，该命令用来切换安装的多个版本的 Xcode 的默认版本。
-也建议你使用功能更强大的 [xcodes](https://github.com/XcodesOrg/xcodes) 或者 [XcodesApp](https://github.com/XcodesOrg/XcodesApp)。
+
+不同版本的 Unreal Engine 需要不同版本的 Xcode。因此如果要构建多个不同版本引擎的代码，就需要安装多个版本的 Xcode。
+但是引擎的构建系统并不会自动检测和选择合适版本的 Xcode。因此在构建不同版本引擎的项目时就需要设置当前的 Xcode 版本。
+找到和切换 Xcode 版本的操作比较繁琐，本命令提供了一种简单的方式来选择和切换 Xcode 的版本。
+
+如果有更复杂的要求，可以考虑使用功能更强大的 [xcodes](https://github.com/XcodesOrg/xcodes) 或者其 GUI 版本 [XcodesApp](https://github.com/XcodesOrg/XcodesApp)。
 
 ### list 列出
 

@@ -186,7 +186,12 @@ Note: The changes will apply to newly opened programs.
 ### switch xcode
 
 On MacOS, this command switch the active Xcode if there are multiple versions are installed.
-I also suggest you to use more powerful [xcodes](https://github.com/XcodesOrg/xcodes) or [XcodesApp](https://github.com/XcodesOrg/XcodesApp).
+
+Different versions of Unreal Engine require different versions of Xcode. Therefore, if you want to build code for multiple versions of the engine, you need to install multiple versions of Xcode.
+However, the engine's build system does not automatically detect and select the appropriate version of Xcode. Therefore, you need to set the current Xcode version when building projects with different versions of the engine.
+Finding and switching Xcode versions is cumbersome, and this command provides a simple way to select and switch Xcode versions.
+
+If you have more requirements, you to use the more powerful [xcodes](https://github.com/XcodesOrg/xcodes) or its GUI version [XcodesApp](https://github.com/XcodesOrg/XcodesApp).
 
 ### List
 

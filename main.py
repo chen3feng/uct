@@ -498,6 +498,9 @@ class UnrealCommandTool:
     def switch_xcode(self) -> int:
         """Switch system Xcode versison."""
         xcodes = list_installed_xcode()
+        if not xcodes:
+            console.error('No Xcode is installed, please install it first.')
+            return 1
         current = get_active_xcode()
 
         options = []
