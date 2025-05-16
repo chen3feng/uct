@@ -183,6 +183,13 @@ Engine is switched to {750E0EB6-4428-07C4-DFB6-888F4E6452A6}  5.1.1    G:\Unreal
 但是引擎的构建系统并不会自动检测和选择合适版本的 Xcode。因此在构建不同版本引擎的项目时就需要设置当前的 Xcode 版本。
 找到和切换 Xcode 版本的操作比较繁琐，本命令提供了一种简单的方式来选择和切换 Xcode 的版本。
 
+不同引擎版本的 Xcode 需求是：
+
+- UE5: https://dev.epicgames.com/documentation/en-us/unreal-engine/ios-ipados-and-tvos-development-requirements-for-unreal-engine
+- UE4: https://dev.epicgames.com/documentation/en-us/unreal-engine/ios-and-tvos-development-requirements?application_version=4.27
+
+你可以从[苹果开发者](https://developer.apple.com/download/all/?q=xcode)网站下载不同版本的 Xcode.
+
 如果有更复杂的要求，可以考虑使用功能更强大的 [xcodes](https://github.com/XcodesOrg/xcodes) 或者其 GUI 版本 [XcodesApp](https://github.com/XcodesOrg/XcodesApp)。
 
 ### list 列出
