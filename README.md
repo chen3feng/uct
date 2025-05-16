@@ -188,8 +188,17 @@ Note: The changes will apply to newly opened programs.
 On MacOS, this command switch the active Xcode if there are multiple versions are installed.
 
 Different versions of Unreal Engine require different versions of Xcode. Therefore, if you want to build code for multiple versions of the engine, you need to install multiple versions of Xcode.
+
 However, the engine's build system does not automatically detect and select the appropriate version of Xcode. Therefore, you need to set the current Xcode version when building projects with different versions of the engine.
+
 Finding and switching Xcode versions is cumbersome, and this command provides a simple way to select and switch Xcode versions.
+
+The Xcode version requirements for different engine versions are:
+
+- UE5: https://dev.epicgames.com/documentation/en-us/unreal-engine/ios-ipados-and-tvos-development-requirements-for-unreal-engine
+- UE4: https://dev.epicgames.com/documentation/en-us/unreal-engine/ios-and-tvos-development-requirements?application_version=4.27
+
+You can download old Xcode verisons from [Apple Developer](https://developer.apple.com/download/all/?q=xcode).
 
 If you have more requirements, you to use the more powerful [xcodes](https://github.com/XcodesOrg/xcodes) or its GUI version [XcodesApp](https://github.com/XcodesOrg/XcodesApp).
 
