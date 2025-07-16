@@ -22,3 +22,5 @@ CONFIG_MAP = {
     'ship': 'Shipping',
     'test': 'Test',
 }
+
+CONFIG_FILE_PATH = '~/.local/uct/Config.ini'

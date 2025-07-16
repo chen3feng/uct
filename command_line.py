@@ -3,18 +3,18 @@ Command line parser.
 """
 
 import argparse
-import os
 import platform
 import sys
 
 import constants
+from command_alias import CommandAlias
 
 VERSION = '0.1'
 
 _SUB_COMMAND_HELP = 'Available subcommands'
 
 
-def build_parser():
+def build_parser() -> argparse.ArgumentParser:
     """
     Build the argument parser.
 
@@ -22,7 +22,8 @@ def build_parser():
     set of arguments.
     """
     parser = argparse.ArgumentParser(prog='UCT', description='Unreal command line tool.',
-                                     epilog='Document and source code: https://github.com/chen3feng/uct')
+                                     epilog='Document and source code: https://github.com/chen3feng/uct',
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--version', action='version', version='%(prog)s ' + VERSION)
 
     subparsers = parser.add_subparsers(dest='command', help='Available commands', required=True)
@@ -156,7 +157,18 @@ def _add_dual_subcommand(subparsers, command, subcommand, **kwargs):
 
 def parse():
     """Parse and validate commandparameters"""
+
+    # Load command aliases from the INI file
+    argv = sys.argv
+    alias = CommandAlias()
+    if alias.load(constants.CONFIG_FILE_PATH):
+        argv = alias.expand_argv(argv)
+
     parser = build_parser()
+
+    if alias:
+        # Add command aliases to the --help output
+        parser.epilog = '\n\n' + str(alias) + '\n\n' + parser.epilog
 
     # https://pypi.org/project/argcomplete/
     # PYTHON_ARGCOMPLETE_OK
@@ -169,7 +181,7 @@ def parse():
 
     # If '--' in arguments, use all other arguments after it as run
     # arguments
-    args = sys.argv[1:]
+    args = argv[1:]
     if '--' in args:
         pos = args.index('--')
         extra_args = args[pos + 1:]
