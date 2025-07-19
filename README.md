@@ -633,6 +633,28 @@ and not single quotation marks.
 UCT support command auto completion in bash and zsh by using the `argcomplete` library,
 see its [document](https://pypi.org/project/argcomplete/) to enable it.
 
+### Command alias
+
+UCT supports custom command aliases to reduce input. You can define them in the configuration file.
+The path of the configuration file is `~/.config/uct/config.ini`. On Windows, `~` is your user directory.
+
+Example:
+
+```ini
+[Alias]
+gpf = generate project
+op = open file
+om = open module
+of = open file
+```
+
+In this way, `uct om` is equivalent to `uct open module`.
+
+Run the `uct --help` command to list the currently defined aliases.
+
+When an alias is expanded, only the first-level subcommand is replaced.
+Aliases can only be expanded once and will not be expanded recursively, so other aliases cannot be used in aliases.
+
 ## How it works
 
 Understanding how UCT works is helpful, and code contributions are welcome.

@@ -23,4 +23,4 @@ CONFIG_MAP = {
     'test': 'Test',
 }
 
-CONFIG_FILE_PATH = '~/.local/uct/Config.ini'
+CONFIG_FILE_PATH = '~/.config/uct/config.ini'

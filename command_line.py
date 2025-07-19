@@ -158,7 +158,7 @@ def _add_dual_subcommand(subparsers, command, subcommand, **kwargs):
 def parse():
     """Parse and validate commandparameters"""
 
-    # Load command aliases from the INI file
+    # Load command aliases from the INI file.
     argv = sys.argv
     alias = CommandAlias()
     if alias.load(constants.CONFIG_FILE_PATH):
@@ -167,7 +167,7 @@ def parse():
     parser = build_parser()
 
     if alias:
-        # Add command aliases to the --help output
+        # Add command aliases to the --help output.
         parser.epilog = '\n\n' + str(alias) + '\n\n' + parser.epilog
 
     # https://pypi.org/project/argcomplete/
@@ -179,8 +179,7 @@ def parse():
     except ImportError:
         pass
 
-    # If '--' in arguments, use all other arguments after it as run
-    # arguments
+    # If '--' in arguments, use all other arguments after it as run arguments.
     args = argv[1:]
     if '--' in args:
         pos = args.index('--')

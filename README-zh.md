@@ -621,6 +621,28 @@ uct build "MyProject*" *Editor
 UCT 通过使用 `argcomplete` 库来支持 bash 和 zsh 中的命令自动补全，
 请参阅其[文档](https://pypi.org/project/argcomplete/) 来启用它。
 
+### 命令别名
+
+UCT 支持自定义命令别名来减少输入，在配置文件中定义即可，配置文件的路径为 `~/.config/uct/config.ini`。
+在 Windows 中，`~` 就是你的用户目录。
+
+示例：
+
+```ini
+[Alias]
+gpf = generate project
+op = open file
+om = open module
+of = open file
+```
+
+这样，`uct om` 就相当于 `uct open module`。
+
+运行 `uct --help` 命令，可以列出当前定义了的别名。
+
+别名展开时只替换第一级子命令。
+别名只支持展开一次，不会递归展开，所以不能在别名中使用别的别名。
+
 ## 工作原理
 
 了解 UCT 的工作原理对使用有帮助，也欢迎贡献代码。
