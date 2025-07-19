@@ -1051,7 +1051,7 @@ def broadcast_env_change():
     WM_SETTINGCHANGE = 0x1A
     SMTO_ABORTIFHUNG = 0x0002
 
-    result = ctypes.windll.user32.SendMessageTimeoutW(
+    ctypes.windll.user32.SendMessageTimeoutW(
         HWND_BROADCAST,
         WM_SETTINGCHANGE,
         0,
@@ -1060,7 +1060,6 @@ def broadcast_env_change():
         5000,
         None
     )
-
 
 
 def list_installed_xcode() -> dict[str, str]:
