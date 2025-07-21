@@ -391,10 +391,6 @@ class UnrealCommandTool:
         print(' '.join(cmd))
         return subprocess_call(cmd)
 
-    def gpf(self) -> int:
-        """Handle the `gpf` command, The short alias for the `generate project` command."""
-        return self.generate_project()
-
     def switch_engine(self):
         """Handle the `switch engine` command."""
         if not self.project_file:

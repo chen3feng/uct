@@ -139,11 +139,8 @@ $ uct setup
 
 ```console
 $ uct generate project
-$ uct gpf
 ...
 ```
-
-`gpf` 是其缩略别名。
 
 通过指定 `--engine` 选项来生成引擎的项目文件，而不是游戏的项目文件，即使当前路径在游戏目录下也如此。
 

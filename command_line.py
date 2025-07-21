@@ -52,9 +52,6 @@ def build_parser() -> argparse.ArgumentParser:
     gpf = _add_dual_subcommand(subparsers, 'generate', 'project', help='Generate project files')
     gpf.add_argument('--engine', action='store_true', help='for the engine')
 
-    gpf = subparsers.add_parser('gpf', help='Generate project files')
-    gpf.add_argument('--engine', action='store_true', help='for the engine')
-
     list_parsers = subparsers.add_parser('list', help='List objects in the workspace').add_subparsers(
         dest='subcommand', help=_SUB_COMMAND_HELP, required=True)
     targets = list_parsers.add_parser('target', help='List build targets', parents=[scope])
