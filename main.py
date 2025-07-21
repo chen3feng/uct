@@ -54,7 +54,7 @@ class UnrealCommandTool:
 
         if not self.engine_root:
             if self.project_file:
-                console.error("Can't find engine root fot this project.")
+                console.error("Can't find engine root for this project.")
             else:
                 console.error("UCT should be ran under the directory of an engine or a game project.")
             sys.exit(1)
@@ -79,7 +79,7 @@ class UnrealCommandTool:
 
     def setup_linux_cross_tool(self):
         """
-        Different engine has different cross tools version requirement. but when there are multipls engine source trees
+        Different engine has different cross tools version requirement. but when there are multiple engine source trees
         and cross tools in the system, UBT can't select correct cross tool according to its engine verson, it always use
         the global environment variable LINUX_MULTIARCH_ROOT.
         This function fixup this problems to support select correct cross tool automatically.
@@ -146,7 +146,7 @@ class UnrealCommandTool:
         engine_id = self._find_engine_association(project_file)
         if not engine_id:
             return ''
-        if engine_id.startswith('{'): # Id of a built engine is a UUID encloded in '{}'.
+        if engine_id.startswith('{'): # Id of a built engine is a UUID enclosed in '{}'.
             return self._find_source_build_engine(engine_id)
         return self._find_installed_engine(engine_id)
 
@@ -856,7 +856,7 @@ class UnrealCommandTool:
     def _is_list_test_only(self):
         if not self.options.list:
             return False
-        if  self.options.run_all or self.options.tests or self.options.test_cmds:
+        if self.options.run_all or self.options.tests or self.options.test_cmds:
             return False
         return True
 
@@ -1039,6 +1039,7 @@ def set_crosstool(path: str) -> int:
         return ret
     broadcast_env_change()
     return 0
+
 
 def broadcast_env_change():
     # It doesn't work to most programs.
