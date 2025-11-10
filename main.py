@@ -133,14 +133,11 @@ class UnrealCommandTool:
         return project_file
 
     def _find_engine(self, project_file):
-        engine_root =  os.environ.get('ENGINE_ROOT')
-        if not engine_root:
-            key_file = fs.find_file_bottom_up('GenerateProjectFiles.bat')
-            if key_file:
-                engine_root = os.path.dirname(key_file)
-        if not engine_root and project_file:
-            engine_root = self._find_engine_by_project(project_file)
-        return engine_root
+        if project_file:
+            return self._find_engine_by_project(project_file)
+        key_file = fs.find_file_bottom_up('GenerateProjectFiles.bat')
+        if key_file:
+            return os.path.dirname(key_file)
 
     def _find_engine_by_project(self, project_file) -> str:
         engine_id = self._find_engine_association(project_file)
