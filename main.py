@@ -90,6 +90,7 @@ class UnrealCommandTool:
         # NOTE: Keep the descending order!!!
         engine_toolchain_requirements = [
             # https://dev.epicgames.com/documentation/en-us/unreal-engine/linux-development-requirements-for-unreal-engine
+            ('5.7', 'v26'),
             ('5.6', 'v25'),
             ('5.5', 'v23'),
             ('5.3', 'v22'),

@@ -11,6 +11,7 @@ PLATFORM_MAP = {
     'ios': 'IOS',
     'tvos': 'TVOS',
     'hololens': 'HoloLens',
+    'ps5': 'PS5',
 }
 
 CONFIG_MAP = {
