@@ -351,6 +351,8 @@ This option supports the following formats:
 All above format supports wildcard pattern: `Source/**/*Test.cpp`, `**` means any layer of subdirectories.
 The rules for using quotes are the same as in build targets.
 
+Comma separated multiple paths is also supportted.
+
 Example:
 
 ```console
@@ -362,6 +364,17 @@ uct build MyGame -f "@engine/Source/**/NetDriver.cpp" "@engine/Source/**/DataCha
 
 # Build all source files under MyModule.
 uct Build MyGame -f "Source/MyModule/**/*.cpp"
+```
+
+#### Build Modules
+
+The `build` command supports `-m` or `--modules` to compile specified modules.
+The params is a comma separated module name list, case insensitve.
+
+Example:
+
+```console
+uct build MyGame -m ModuleA,ModuleB
 ```
 
 #### Pass UBT flags

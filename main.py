@@ -685,7 +685,9 @@ class UnrealCommandTool:
                 if not files:
                     console.error(f"Can't find {self.options.files}")
                     return 1
-                cmd += [self._make_path_argument('-singlefile', f) for f in files]
+                cmd += [self._make_path_argument('-SingleFile', f) for f in files]
+            if self.options.modules:
+                cmd += ['-Module=' + '+'.join(self.options.modules)]
             cmd += self.extra_args
             ret = subprocess_call(cmd)
             if ret != 0:
