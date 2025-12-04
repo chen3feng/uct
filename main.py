@@ -687,7 +687,7 @@ class UnrealCommandTool:
                     return 1
                 cmd += [self._make_path_argument('-SingleFile', f) for f in files]
             if self.options.modules:
-                cmd += ['-Module=' + '+'.join(self.options.modules)]
+                cmd += [self._make_path_argument('-Module', m) for m in self.options.modules]
             cmd += self.extra_args
             ret = subprocess_call(cmd)
             if ret != 0:
