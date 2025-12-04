@@ -19,6 +19,18 @@ def csv(value: str) -> list:
     return value.split(',')
 
 
+if sys.version_info < (3, 8):
+    class ExtendAction(argparse.Action):
+        def __call__(self, parser, namespace, values, option_string=None):
+            current = getattr(namespace, self.dest, None)
+            if current is None:
+                setattr(namespace, self.dest, list(values))
+            else:
+                current.extend(values)
+else:
+    ExtendAction = 'extend'
+
+
 def build_parser() -> argparse.ArgumentParser:
     """
     Build the argument parser.
@@ -74,9 +86,9 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers.add_parser('runuat', help='Run AutomationTool')
 
     build = subparsers.add_parser('build', help='Build specified targets', parents=build_parents)
-    build.add_argument('-m', '--modules', type=csv, action='extend',
+    build.add_argument('-m', '--modules', type=csv, action=ExtendAction,
                         help='modules to build')
-    build.add_argument('-f', '--files', type=csv, action='extend',
+    build.add_argument('-f', '--files', type=csv, action=ExtendAction,
                         help='source files to compile')
     subparsers.add_parser('rebuild', help='Rebuild specified targets', parents=[build], add_help=False)
 

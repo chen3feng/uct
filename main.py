@@ -12,7 +12,7 @@ import shutil
 import subprocess
 import sys
 
-from typing import Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 import command_line
 import constants
@@ -685,8 +685,10 @@ class UnrealCommandTool:
                 if not files:
                     console.error(f"Can't find {self.options.files}")
                     return 1
+                console.info(f'Compile file {files} for {target}')
                 cmd += [self._make_path_argument('-SingleFile', f) for f in files]
             if self.options.modules:
+                console.info(f'Build module {self.options.modules} for {target}')
                 cmd += [self._make_path_argument('-Module', m) for m in self.options.modules]
             cmd += self.extra_args
             ret = subprocess_call(cmd)
@@ -970,7 +972,7 @@ def check_targets(targets):
         sys.exit(1)
 
 
-def list_cross_tools() -> dict[str, str]:
+def list_cross_tools() -> Dict[str, str]:
     """
     List all installed crosstools in the system.
     dict[version, installed_path]
@@ -1060,7 +1062,7 @@ def broadcast_env_change():
     )
 
 
-def list_installed_xcode() -> dict[str, str]:
+def list_installed_xcode() -> Dict[str, str]:
     """List all installed Xcode."""
     result = {}
     cmd = ['mdfind', "kMDItemCFBundleIdentifier == 'com.apple.dt.Xcode'"]
