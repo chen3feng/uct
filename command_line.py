@@ -14,6 +14,11 @@ VERSION = '0.1'
 _SUB_COMMAND_HELP = 'Available subcommands'
 
 
+def csv(value: str) -> list:
+    """Convert a comma separated string to a list."""
+    return value.split(',')
+
+
 def build_parser() -> argparse.ArgumentParser:
     """
     Build the argument parser.
@@ -69,9 +74,9 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers.add_parser('runuat', help='Run AutomationTool')
 
     build = subparsers.add_parser('build', help='Build specified targets', parents=build_parents)
-    build.add_argument('-m', '--modules', type=str, nargs='+',
+    build.add_argument('-m', '--modules', type=csv, action='extend',
                         help='modules to build')
-    build.add_argument('-f', '--files', type=str, nargs='+',
+    build.add_argument('-f', '--files', type=csv, action='extend',
                         help='source files to compile')
     subparsers.add_parser('rebuild', help='Rebuild specified targets', parents=[build], add_help=False)
 

@@ -326,7 +326,7 @@ uct build -c debug -p linux
 
 为了简化输入，在 UCT 中，这些名称均为小写。
 
-#### 编译单个文件
+#### 编译单独的文件
 
 构建命令还支持 `-f` 或 `--files` 来指定仅编译的文件。这对快速验证语法和非统一构建的正确性非常有用，因为单文件编译模式总是禁用 Unity Build。
 
@@ -338,6 +338,8 @@ uct build -c debug -p linux
 
 以上格式均支持通配符模式：`Source/**/*Test.cpp`，`**` 表示任意层的子目录。引号的使用规则和构建目标中一样。
 
+支持逗号分隔的多个文件路径。
+
 示例：
 
 ```console
@@ -345,10 +347,21 @@ uct build -c debug -p linux
 uct build MyGame -f "Source/**/HelloWorldGreeterImpl.cpp"
 
 # Compile NetDriver.cpp and DataChannel.cpp under the engine directory.
-uct build MyGame -f "@engine/Source/**/NetDriver.cpp" "@engine/Source/**/DataChannel.cpp"
+uct build MyGame -f "@engine/Source/**/NetDriver.cpp,@engine/Source/**/DataChannel.cpp"
 
 # Build all source files under MyModule.
 uct Build MyGame -f "Source/MyModule/**/*.cpp"
+```
+
+#### 编译单独的模块
+
+构建命令支持 `-m` 或 `--modules` 来指定仅编译的模块。
+参数为模块名，允许逗号分隔的多个模块名，不区分大小写。
+
+示例：
+
+```console
+uct build MyGame -m ModuleA,ModuleB
 ```
 
 #### 传递 UBT 选项
